@@ -28,7 +28,9 @@ extern "C" {
 	
 #include <main.h>
 
-	void RCC_SystemClock_72MHz(void);
+	void CMSIS_RCC_SystemClock_72MHz(void); //Настрока тактирования микроконтроллера на частоту 72MHz
+	void CMSIS_PC13_OUTPUT_Push_Pull_Init(void); //Пример настройки ножки PC13 в режим Push-Pull 50 MHz
+	void CMSIS_PA8_MCO_Init(void); //Пример настройки ножки PA8 в выход тактирующего сигнала c MCO
 	
 #ifdef __cplusplus
 }
