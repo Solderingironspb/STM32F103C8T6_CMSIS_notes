@@ -34,7 +34,7 @@
  ***************************************************************************************
  */
 
-void RCC_SystemClock_72MHz(void) {
+void CMSIS_RCC_SystemClock_72MHz(void) {
 
 /* Начнем с п. 7.3.1 Clock control register (RCC_CR)*/
 
@@ -376,3 +376,112 @@ void RCC_SystemClock_72MHz(void) {
 	//RCC->CFGR == 0x071D840A
 	//К сожалению, нельзя просто так взять и сразу применить значения регистров и настроить все в 2 строчки кода, т.к. порядок выполнения команд играет очень большую роль.
 }
+
+
+/**
+ ***************************************************************************************
+ *  @breif Настройка GPIO
+ *  Reference Manual/см. п.9.2 GPIO registers (стр. 171)  
+ *  Перед настройкой (GPIOs and AFIOs) нужно включить тактирование порта.
+ ***************************************************************************************
+ */
+
+/*Пример настройки портов*/
+
+/*Включение или выключение тактирования порта*/
+// SET_BIT(RCC->RCC_APB2ENR_AFIOEN, RCC_APB2ENR_IOPAEN); //Запуск тактирования порта A
+//CLEAR_BIT(RCC->RCC_APB2ENR_AFIOEN, RCC_APB2ENR_IOPAEN); //Выключить тактирование порта A
+
+// SET_BIT(RCC->RCC_APB2ENR_AFIOEN, RCC_APB2ENR_IOPBEN); //Запуск тактирования порта B
+//CLEAR_BIT(RCC->RCC_APB2ENR_AFIOEN, RCC_APB2ENR_IOPBEN); //Выключить тактирование порта B
+
+// SET_BIT(RCC->RCC_APB2ENR_AFIOEN, RCC_APB2ENR_IOPCEN); //Запуск тактирования порта C
+//CLEAR_BIT(RCC->RCC_APB2ENR_AFIOEN, RCC_APB2ENR_IOPCEN); //Выключить тактирование порта C
+
+// SET_BIT(RCC->RCC_APB2ENR_AFIOEN, RCC_APB2ENR_IOPDEN); //Запуск тактирования порта D
+//CLEAR_BIT(RCC->RCC_APB2ENR_AFIOEN, RCC_APB2ENR_IOPDEN); //Выключить тактирование порта D
+
+/**
+*  Далее нас встречают 2 регистра: 
+*  CRL и CRH (см. п 9.2.1 Port configuration register low (GPIOx_CRL) (x=A..G) (стр. 171)
+*  и п. 9.2.2 Port configuration register high (GPIOx_CRH) (x=A..G) (стр. 172))
+*  CRL предназначен для пина с 0 по 7
+*  CRH предназначен для пина с 8 по 15
+*/
+
+/**
+*  Bits 29 : 28, 25 : 24,
+*  21 : 20, 17 : 16, 13 : 12,
+*  9 : 8, 5 : 4, 1 : 0
+*  MODEy[1 : 0] : Port x mode bits(y = 0 .. 7)
+*  These bits are written by software to configure the corresponding I / O port.
+*  Refer to Table 20 : Port bit configuration table.
+*  00 : Input mode(reset state)
+*  01 : Output mode, max speed 10 MHz.
+*  10 : Output mode, max speed 2 MHz.
+*  11 : Output mode, max speed 50 MHz
+*/
+
+//MODIFY_REG(GPIOC->CRH, GPIO_CRH_MODE13, 0b11 << GPIO_CRH_MODE13_Pos); //Настройка GPIOC порта 13 на выход со максимальной скоростью в 50 MHz
+
+/**
+*  Bits 31 : 30, 27 : 26,
+*  23 : 22, 19 : 18, 15 : 14,
+*  11 : 10, 7 : 6, 3 : 2
+*  CNFy[1 : 0] : Port x configuration bits(y = 0 .. 7)
+*  These bits are written by software to configure the corresponding I / O port.
+*  Refer to Table 20 : Port bit configuration table.
+*  In input mode(MODE[1 : 0] = 00) :
+*  00 : Analog mode
+*  01 : Floating input(reset state)
+*  10 : Input with pull - up / pull - down
+*  11 : Reserved
+*  In output mode(MODE[1 : 0] > 00) :
+*  00 : General purpose output push - pull
+*  01 : General purpose output Open - drain
+*  10 : Alternate function output Push - pull
+*  11 : Alternate function output Open - drain
+*/
+
+//т.к. ножку мы настроили в Output, то мы можем выбрать:
+//  In output mode(MODE[1 : 0] > 00) :
+//  00 : General purpose output push - pull
+//  01 : General purpose output Open - drain
+//  10 : Alternate function output Push - pull
+//  11 : Alternate function output Open - drain
+ 
+//MODIFY_REG(GPIOC->CRH, GPIO_CRH_CNF13, 0b00 << GPIO_CRH_CNF13_Pos); //Настройка GPIOC порта 13 на выход в режиме Push-Pull
+
+/*А теперь два примера*/
+
+/**
+ ***************************************************************************************
+ *  @breif Инициализация PIN PC13 на выход в режиме Push-Pull с максимальной скоростью 50 MHz
+ *  Reference Manual/см. п.9.2 GPIO registers (стр. 171)  
+ *  Перед настройкой (GPIOs and AFIOs) нужно включить тактирование порта.
+ ***************************************************************************************
+ */
+void CMSIS_PC13_OUTPUT_Push_Pull_Init(void) {
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPCEN); //Запуск тактирования порта C
+	MODIFY_REG(GPIOC->CRH, GPIO_CRH_MODE13, 0b10 << GPIO_CRH_MODE13_Pos); //Настройка GPIOC порта 13 на выход со максимальной скоростью в 50 MHz
+	MODIFY_REG(GPIOC->CRH, GPIO_CRH_CNF13, 0b00 << GPIO_CRH_CNF13_Pos); //Настройка GPIOC порта 13 на выход в режиме Push-Pull
+}
+
+/**
+ ***************************************************************************************
+ *  @breif Настройка MCO c выходом на ножку PA8
+ *  Reference Manual/см. п.9.2 GPIO registers (стр. 171)
+ *  Перед настройкой (GPIOs and AFIOs) нужно включить тактирование порта.
+ ***************************************************************************************
+ */
+void CMSIS_PA8_MCO_Init(void) {
+	//Тактирование MCO должно быть настроено в регистре RCC
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, RCC_CFGR_MCO_PLLCLK_DIV2); //В качестве тактирования для MCO выбрал PLL. Будет 36 MHz.
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Запуск тактирования порта A
+	MODIFY_REG(GPIOA->CRH, GPIO_CRH_MODE8, 0b11 << GPIO_CRH_MODE8_Pos); //Настройка GPIOA порта 8 на выход со максимальной скоростью в 50 MHz
+	MODIFY_REG(GPIOA->CRH, GPIO_CRH_CNF8, 0b10 << GPIO_CRH_CNF8_Pos); //Настройка GPIOA порта 8, как альтернативная функция, в режиме Push-Pull
+}
+
+
+
+
