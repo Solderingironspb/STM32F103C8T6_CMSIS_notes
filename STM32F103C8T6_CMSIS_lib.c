@@ -21,6 +21,7 @@
 
 #include "STM32F103C8T6_CMSIS_lib.h"
 
+/*============================== НАСТРОЙКА RCC =======================================*/
 /**
  ***************************************************************************************
  *  @breif Настройка МК STM32F103C8T6 на частоту 72MHz от внешнего кварцевого резонатора
@@ -36,18 +37,18 @@
 
 void CMSIS_RCC_SystemClock_72MHz(void) {
 
-/* Начнем с п. 7.3.1 Clock control register (RCC_CR)*/
+	/* Начнем с п. 7.3.1 Clock control register (RCC_CR)*/
 
-/**
-*  Bit 0 HSION : Internal high - speed clock enable
-*  Set and cleared by software.
-*  Set by hardware to force the internal 8 MHz RC oscillator ON when leaving Stop or Standby
-*  mode or in case of failure of the external 4 - 16 MHz oscillator used directly or indirectly as
-*  system clock.This bit cannot be reset if the internal 8 MHz RC is used directly or indirectly
-*  as system clock or is selected to become the system clock.
-*  0 : internal 8 MHz RC oscillator OFF
-*  1 : internal 8 MHz RC oscillator ON
-*/
+	/**
+	*  Bit 0 HSION : Internal high - speed clock enable
+	*  Set and cleared by software.
+	*  Set by hardware to force the internal 8 MHz RC oscillator ON when leaving Stop or Standby
+	*  mode or in case of failure of the external 4 - 16 MHz oscillator used directly or indirectly as
+	*  system clock.This bit cannot be reset if the internal 8 MHz RC is used directly or indirectly
+	*  as system clock or is selected to become the system clock.
+	*  0 : internal 8 MHz RC oscillator OFF
+	*  1 : internal 8 MHz RC oscillator ON
+	*/
 	
 	SET_BIT(RCC->CR, RCC_CR_HSION); //Запустим внутренний RC генератор на 8 МГц
 	
@@ -377,7 +378,153 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	//К сожалению, нельзя просто так взять и сразу применить значения регистров и настроить все в 2 строчки кода, т.к. порядок выполнения команд играет очень большую роль.
 }
 
+/*========================= НАСТРОЙКА СИСТЕМНОГО ТАЙМЕРА ==============================*/
 
+/**
+*  P.S. С Системным таймером очень долго не мог понять, где брать информацию, т.к. в Reference Manual по нему ничего нет, а оказалось, что нужно 
+*  было открыть документацию на МК (PM0056 STM32F10xxx/20xxx/21xxx/L1xxxx Cortex®-M3 programming manual)
+*  Ссылка: https://www.st.com/resource/en/programming_manual/pm0056-stm32f10xxx20xxx21xxxl1xxxx-cortexm3-programming-manual-stmicroelectronics.pdf
+*  Ищем п. 4.5 SysTick timer (STK) (стр. 150), где все хорошо и доходчиво пояснено
+*/
+
+/*The processor has a 24 - bit system timer, SysTick, that counts down from the reload value to
+zero, reloads(wraps to) the value in the LOAD register on the next clock edge, then counts
+down on subsequent clocks.
+When the processor is halted for debugging the counter does not decrement.*/
+
+
+/**
+ ***************************************************************************************
+ *  @breif Настройка SysTick на микросекунды
+ *  На этом таймере мы настроим Delay и аналог HAL_GetTick()
+ *  PM0056 STM32F10xxx/20xxx/21xxx/L1xxxx Cortex®-M3 programming manual/
+ *  см. п.4.5 SysTick timer (STK) (стр. 150)  
+ ***************************************************************************************
+ */
+void SysTick_Timer_init(void) {
+	/* п. 4.5.1 SysTick control and status register (STK_CTRL) (стр. 151)*/
+
+/**
+*  Bit 0 ENABLE : Counter enable
+*  Enables the counter.When ENABLE is set to 1, the counter loads the RELOAD value from the
+*  LOAD register and then counts down.On reaching 0, it sets the COUNTFLAG to 1 and
+*  optionally asserts the SysTick depending on the value of TICKINT.It then loads the RELOAD
+*  value again, and begins counting.
+*  0 : Counter disabled
+*  1 : Counter enabled
+*/
+	
+	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); //Выключим таймер для проведения настроек.
+
+/**
+*  Bit 1 TICKINT: SysTick exception request enable
+*  0: Counting down to zero does not assert the SysTick exception request
+*  1: Counting down to zero to asserts the SysTick exception request.
+*  Note: Software can use COUNTFLAG to determine if SysTick has ever counted to zero.
+*/
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk); //Разрешим прерывания по таймеру
+	//Прерывание будет происходить каждый раз, когда счетчик отсчитает от заданного значения до 0.
+	
+/**
+*  Bit 2 CLKSOURCE : Clock source selection
+*  Selects the clock source.
+*  0 : AHB / 8
+*  1 : Processor clock(AHB)
+*/
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk); //Выберем без делителя. Будет 72MHz
+	
+/**
+*  Bit 16 COUNTFLAG:
+*  Returns 1 if timer counted to 0 since last time this was read.
+*/
+	
+/**
+*  Bits 15:3 Reserved, must be kept cleared.
+*/
+	
+/*Следующий п. 4.5.2 SysTick reload value register (STK_LOAD) (Стр 152)*/
+	//Помним, что таймер у нас все еще выключен.
+	
+/**
+*  Bits 23 : 0 RELOAD[23 : 0] : RELOAD value
+*  The LOAD register specifies the start value to load into the VAL register when the counter is
+*  enabled and when it reaches 0.
+*  Calculating the RELOAD value
+*  The RELOAD value can be any value in the range 0x00000001 - 0x00FFFFFF. A start value of
+*  0 is possible, but has no effect because the SysTick exception request and COUNTFLAG are
+*  activated when counting from 1 to 0.
+*  The RELOAD value is calculated according to its use :
+*  l To generate a multi - shot timer with a period of N processor clock cycles, use a RELOAD
+*  value of N - 1. For example, if the SysTick interrupt is required every 100 clock pulses, set
+*  RELOAD to 99.
+*  l To deliver a single SysTick interrupt after a delay of N processor clock cycles, use a
+*  RELOAD of value N.For example, if a SysTick interrupt is required after 400 clock
+*  pulses, set RELOAD to 400.
+*/
+	
+	MODIFY_REG(SysTick->LOAD, SysTick_LOAD_RELOAD_Msk, 71999 << SysTick_LOAD_RELOAD_Pos); //Настроим прерывание на частоту в 1 кГц(т.е. сработка будет каждую мс)
+	
+/**
+Bits 31:24 Reserved, must be kept cleared.
+*/
+	
+/*Следующий п. 4.5.3 SysTick current value register (STK_VAL) (Стр. 153)*/
+	
+/**
+*  CURRENT[23:0]: Current counter value
+*  The VAL register contains the current value of the SysTick counter.
+*  Reads return the current value of the SysTick counter.
+*  A write of any value clears the field to 0, and also clears the COUNTFLAG bit in the
+*  STK_CTRL register to 0
+*/
+	
+	MODIFY_REG(SysTick->VAL, SysTick_VAL_CURRENT_Msk, 71999 << SysTick_VAL_CURRENT_Pos); //Начнем считать с 71999
+	
+/*Есть там еще регистр калибровки, но я его трогать не буду*/
+
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); //Запускаем таймер
+	
+}
+
+/**
+ ***************************************************************************************
+ *  @breif Настройка Delay и аналог HAL_GetTick()
+ ***************************************************************************************
+ */
+
+volatile uint32_t SysTimer_ms = 0; //Переменная, аналогичная HAL_GetTick()
+volatile uint32_t Delay_counter_ms = 0; //Счетчик для функции Delay_ms
+
+
+/**
+ ******************************************************************************
+ *  @breif Delay_ms
+ *  @param   uint32_t Milliseconds - Длина задержки в миллисекундах
+ ******************************************************************************
+ */
+void Delay_ms(uint32_t Milliseconds) {
+	Delay_counter_ms = Milliseconds;
+	while (Delay_counter_ms != 0) ;
+}
+
+/**
+ ******************************************************************************
+ *  @breif Прерывание по флагу COUNTFLAG (см. п. 4.5.1 SysTick control and status register (STK_CTRL))
+ *  Список векторов(прерываний) можно найти в файле startup_stm32f103c8tx.S
+ ******************************************************************************
+ */
+void SysTick_Handler(void) {
+	
+	SysTimer_ms++;
+
+	if (Delay_counter_ms) {
+		Delay_counter_ms--;
+	}
+}
+
+
+
+/*============================== НАСТРОЙКА GPIO =======================================*/
 /**
  ***************************************************************************************
  *  @breif Настройка GPIO
@@ -481,7 +628,3 @@ void CMSIS_PA8_MCO_Init(void) {
 	MODIFY_REG(GPIOA->CRH, GPIO_CRH_MODE8, 0b11 << GPIO_CRH_MODE8_Pos); //Настройка GPIOA порта 8 на выход со максимальной скоростью в 50 MHz
 	MODIFY_REG(GPIOA->CRH, GPIO_CRH_CNF8, 0b10 << GPIO_CRH_CNF8_Pos); //Настройка GPIOA порта 8, как альтернативная функция, в режиме Push-Pull
 }
-
-
-
-
