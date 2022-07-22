@@ -60,7 +60,7 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  1 : internal 8 MHz RC oscillator ready
 */
 	
-	while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == 0) ; //Дождемся поднятия флага о готовности
+	while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == 0); //Дождемся поднятия флага о готовности
 	
 /**
 *  Bit 2 Reserved, must be kept at reset value.
@@ -114,7 +114,7 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  1: HSE oscillator ready 
 */
 
-	while (READ_BIT(RCC->CR, RCC_CR_HSERDY) == 0) ; //Дождемся поднятия флага о готовности
+	while (READ_BIT(RCC->CR, RCC_CR_HSERDY) == 0); //Дождемся поднятия флага о готовности
 
 /**
 *  Bit 19 CSSON: Clock security system enable
@@ -370,7 +370,7 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  1: PLL locked
 */
 	
-	while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0) ; //Дожидемся поднятия флага включения PLL
+	while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0); //Дожидемся поднятия флага включения PLL
 	
 	//В итоге должно получится:
 	//RCC->CR == 0x030B5A83
@@ -401,7 +401,7 @@ When the processor is halted for debugging the counter does not decrement.*/
  *  см. п.4.5 SysTick timer (STK) (стр. 150)  
  ***************************************************************************************
  */
-void SysTick_Timer_init(void) {
+void CMSIS_SysTick_Timer_init(void) {
 	/* п. 4.5.1 SysTick control and status register (STK_CTRL) (стр. 151)*/
 
 /**
@@ -504,7 +504,7 @@ volatile uint32_t Delay_counter_ms = 0; //Счетчик для функции D
  */
 void Delay_ms(uint32_t Milliseconds) {
 	Delay_counter_ms = Milliseconds;
-	while (Delay_counter_ms != 0) ;
+	while (Delay_counter_ms != 0);
 }
 
 /**
@@ -627,4 +627,172 @@ void CMSIS_PA8_MCO_Init(void) {
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Запуск тактирования порта A
 	MODIFY_REG(GPIOA->CRH, GPIO_CRH_MODE8, 0b11 << GPIO_CRH_MODE8_Pos); //Настройка GPIOA порта 8 на выход со максимальной скоростью в 50 MHz
 	MODIFY_REG(GPIOA->CRH, GPIO_CRH_CNF8, 0b10 << GPIO_CRH_CNF8_Pos); //Настройка GPIOA порта 8, как альтернативная функция, в режиме Push-Pull
+}
+
+/*================================ РЕЖИМ EXTI =======================================*/
+
+/**
+ ***************************************************************************************
+ *  @breif Режим EXTI.
+ *  Reference Manual/см. п. 10 Interrupts and events (стр. 197)
+ *  Тема прерываний очень важна, и читать про EXTI нужно именно с 10 пункта.		
+ ***************************************************************************************
+ */
+
+//  10.1.1 SysTick calibration value register
+//  The SysTick calibration value is set to 9000, which gives a reference time base of 1 ms with
+//  the SysTick clock set to 9 MHz(max HCLK / 8).
+//  Не совсем понял эту тему про 9 MHz, т.к. мы ее можем настроить на любую частоту. В пункте про настройку SysTimer, мы не использовали деление на 8.
+
+//  В пункте 10.1.2 Interrupt and exception vectors можно просмотреть таблицу векторов(прерываний), которые мы можем использовать.
+//  Таблицу векторов можно просмотреть в файле startup_stm32f103c8tx.S
+//  См. Figure 21. External interrupt/event GPIO mapping (стр. 210)
+//  у нас есть несколько EXTI 0-15.
+//  К каждому подключены входы ножек.
+//  Нельзя создать одно EXTI прерывание с нескольких ног одновременно.
+//  Пример: EXTI0. Тогда мы должны выбирать, либо PA0, либо PB0, либо PC0 и т.д.
+//  Под маппингом на стр. 210 есть сноска:
+
+/**
+*  1. To configure the AFIO_EXTICRx for the mapping of external interrupt/event lines onto GPIOs, the AFIO
+*  clock should first be enabled. Refer to Section 7.3.7: APB2 peripheral clock enable register
+*  (RCC_APB2ENR) for low-, medium-, high- and XL-density devices and, to Section 8.3.7: APB2 peripheral
+*  clock enable register (RCC_APB2ENR) for connectivity line devices. 
+*/
+
+//  Это значит, что сначала, перед выбором ножки на EXTI вход, нужно включить тактирование AFIO.
+
+void CMSIS_RCC_AFIO_enable(void) {
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Включить тактирование для альтернативных функций
+}
+//  После этого, нам нужно настроить регистр AFIO->EXTICR1, чтоб выбрать ножку для создания прерывания.
+//  Для примера, мы хотим использовать ножку PB0 для создания прерывания на EXTI0.
+
+// см. п. 9.4.3 External interrupt configuration register 1 (AFIO_EXTICR1) (стр. 191)
+
+/**
+*  Bits 15:0 EXTIx[3:0]: EXTI x configuration (x= 0 to 3)
+*  These bits are written by software to select the source input for EXTIx external interrupt.
+*  Refer to Section 10.2.5: External interrupt/event line mapping
+*  0000: PA[x] pin
+*  0001: PB[x] pin
+*  0010: PC[x] pin
+*  0011: PD[x] pin
+*  0100: PE[x] pin
+*  0101: PF[x] pin
+*  0110: PG[x] pin
+*/
+
+void CMSIS_AFIO_EXTICR1_B0_select(void) {
+	MODIFY_REG(AFIO->EXTICR[0], AFIO_EXTICR1_EXTI0, AFIO_EXTICR1_EXTI0_PB); //AFIO_EXTICR1, EXTI0, выбран порт B.
+}
+
+/**
+*  Bits 31:16 Reserved
+*/
+
+// Далее следует настроить ножку PB0 на вход. Можем сделать подтяжку.
+
+void CMSIS_PB0_INPUT_Pull_Down_Init(void) {
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN); //Включим тактирование порта B
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_CNF0, 0b10 << GPIO_CRL_CNF0_Pos); //Настроим ножку PB0 в режим Input with pull-up / pull-down
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_MODE0, 0b00 << GPIO_CRL_MODE0_Pos); //Настройка в режим Input
+	GPIOB->BSRR = GPIO_BSRR_BR0; //Подтяжка к земле
+}
+
+//  Теперь можем перейти к п. 10.3 (стр. 211)
+
+/**
+*  10.3 EXTI registers
+*  Refer to Section 2.2 on page 45 for a list of abbreviations used in register descriptions.
+*  The peripheral registers have to be accessed by words (32-bit).
+*/
+
+//  Здесь есть 2 регистра Interrupt mask register (EXTI_IMR) и Event mask register (EXTI_EMR)
+
+void CMSIS_EXTI_0_init(void) {
+	
+/**
+*  Bits 19:0 MRx: Interrupt Mask on line x
+*  0: Interrupt request from Line x is masked
+*  1: Interrupt request from Line x is not masked
+*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise
+*/
+	
+	SET_BIT(EXTI->IMR, EXTI_IMR_MR0);//Включаем прерывание EXTI0 по входному сигналу
+	
+/**
+*  Bits 31:20 Reserved, must be kept at reset value (0).
+*/
+
+	/*То же самое и для EMR, только оно нам не нужно пока*/
+	//CLEAR_BIT(EXTI->EMR, EXTI_EMR_EM0);//Событие нам не нужно, поэтому поставим сюда 0.
+
+/*Реагирование по фронту и спаду сигнала см. п. 10.3.3 Rising trigger selection register (EXTI_RTSR) (Стр. 212)*/
+	
+/**
+*  Bits 19:0 TRx: Rising trigger event configuration bit of line x
+*  0: Rising trigger disabled (for Event and Interrupt) for input line
+*  1: Rising trigger enabled (for Event and Interrupt) for input line.
+*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise
+*  
+*  Note: The external wakeup lines are edge triggered, no glitches must be generated on these lines.
+*  If a rising edge on external interrupt line occurs during writing of EXTI_RTSR register, the
+*  pending bit will not be set.
+*  Rising and Falling edge triggers can be set for the same interrupt line. In this configuration,
+*  both generate a trigger condition.
+*/
+	SET_BIT(EXTI->RTSR, EXTI_RTSR_TR0);//Реагирование по фронту вкл.
+	//SET_BIT(EXTI->FTSR, EXTI_FTSR_TR0);//Реагирование по спаду вкл.
+	
+/**
+*  Bits 31:20 Reserved, must be kept at reset value (0)
+*/
+
+/**
+*   10.3.5 Software interrupt event register (EXTI_SWIER)
+*   Используется для софтварного запуска прерывания
+*/
+
+/**
+*  Bits 19:0 SWIERx: Software interrupt on line x
+*  If the interrupt is enabled on this line in the EXTI_IMR, writing a '1' to this bit when it is set to
+*  '0' sets the corresponding pending bit in EXTI_PR resulting in an interrupt request generation.
+*  This bit is cleared by clearing the corresponding bit of EXTI_PR (by writing a 1 into the bit).
+*  Note: Bit 19 used in connectivity line devices and is reserved otherwise
+*/
+	//SET_BIT(EXTI->SWIER, EXTI_SWIER_SWIER0);//Это софтварное включение прерывания
+	
+/*
+*  Bits 31:20 Reserved, must be kept at reset value (0)
+*/
+
+/** 
+*  п. 10.3.6 Pending register (EXTI_PR)
+*  Нужен для выхода из прерывания. Вставляется в Handler. 
+*  Если не сбросить, то так в прерывании и зависнем.
+*/	
+	
+/**
+*  Bits 19:0 PRx: Pending bit
+*  0: No trigger request occurred
+*  1: selected trigger request occurred
+*  This bit is set when the selected edge event arrives on the external interrupt line. This bit is
+*  cleared by writing a ‘1’ into the bit.
+*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise.
+*/
+	
+	// SET_BIT(EXTI->PR, EXTI_PR_PR0); //Команда выхода из прерывания
+
+/**
+*  Bits 31:20 Reserved, must be kept at reset value (0)
+*/
+	
+	NVIC_EnableIRQ(EXTI0_IRQn); //Включим прерывание по вектору EXTI0
+}
+
+__WEAK void EXTI0_IRQHandler(void) {
+
+	SET_BIT(EXTI->PR, EXTI_PR_PR0); //Выйдем из прерывания
+
 }
