@@ -28,8 +28,8 @@ uint32_t Time = 0;
 
 volatile uint8_t Counter = 0;
 
-volatile uint32_t SysTimer_ms = 0; //Ïåðåìåííàÿ, àíàëîãè÷íàÿ HAL_GetTick();
-volatile uint32_t Delay_counter_ms = 0; //Ñ÷åò÷èê äëÿ ôóíêöèè Delay_ms
+volatile uint32_t SysTimer_ms = 0; //ÐŸÐµÑ€ÐµÐ¼ÐµÐ½Ð½Ð°Ñ, Ð°Ð½Ð°Ð»Ð¾Ð³Ð¸Ñ‡Ð½Ð°Ñ HAL_GetTick();
+volatile uint32_t Delay_counter_ms = 0; //Ð¡Ñ‡ÐµÑ‚Ñ‡Ð¸Ðº Ð´Ð»Ñ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸ Delay_ms
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,13 +93,13 @@ int main(void)
 
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   //HAL_Init();
-	//Íàñòðîéêà ñèñòåìíîãî òàéìåðà
-	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);//Íà âñÿêèé ñëó÷àé âûêëþ÷èì ñ÷åò÷èê
-	SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);//Ðàçðåøèì ïðåðûâàíèÿ ïî òàéìåðó
-	SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk); //Âûáåðåì áåç äåëèòåëÿ. áóäåò 72 MHz
-	MODIFY_REG(SysTick->LOAD, SysTick_LOAD_RELOAD_Msk, 71999 << SysTick_LOAD_RELOAD_Pos); //Íàñòðîéêà íà 1 ìñ
-	MODIFY_REG(SysTick->LOAD, SysTick_VAL_CURRENT_Msk, 71999 << SysTick_VAL_CURRENT_Pos); //Íà÷íåì ñ÷èòàòü ñ 71999 äî 0
-	SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); //Íà âñÿêèé ñëó÷àé âûêëþ÷èì ñ÷åò÷èê
+	//ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° ÑÐ¸ÑÑ‚ÐµÐ¼Ð½Ð¾Ð³Ð¾ Ñ‚Ð°Ð¹Ð¼ÐµÑ€Ð°
+	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk);//ÐÐ° Ð²ÑÑÐºÐ¸Ð¹ ÑÐ»ÑƒÑ‡Ð°Ð¹ Ð²Ñ‹ÐºÐ»ÑŽÑ‡Ð¸Ð¼ ÑÑ‡ÐµÑ‚Ñ‡Ð¸Ðº
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk);//Ð Ð°Ð·Ñ€ÐµÑˆÐ¸Ð¼ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ñ Ð¿Ð¾ Ñ‚Ð°Ð¹Ð¼ÐµÑ€Ñƒ
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk); //Ð’Ñ‹Ð±ÐµÑ€ÐµÐ¼ Ð±ÐµÐ· Ð´ÐµÐ»Ð¸Ñ‚ÐµÐ»Ñ. Ð±ÑƒÐ´ÐµÑ‚ 72 MHz
+	MODIFY_REG(SysTick->LOAD, SysTick_LOAD_RELOAD_Msk, 71999 << SysTick_LOAD_RELOAD_Pos); //ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° Ð½Ð° 1 Ð¼Ñ
+	MODIFY_REG(SysTick->LOAD, SysTick_VAL_CURRENT_Msk, 71999 << SysTick_VAL_CURRENT_Pos); //ÐÐ°Ñ‡Ð½ÐµÐ¼ ÑÑ‡Ð¸Ñ‚Ð°Ñ‚ÑŒ Ñ 71999 Ð´Ð¾ 0
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); //ÐÐ° Ð²ÑÑÐºÐ¸Ð¹ ÑÐ»ÑƒÑ‡Ð°Ð¹ Ð²Ñ‹ÐºÐ»ÑŽÑ‡Ð¸Ð¼ ÑÑ‡ÐµÑ‚Ñ‡Ð¸Ðº
 	
 	
 
@@ -110,23 +110,23 @@ int main(void)
   /* Configure the system clock */
   //SystemClock_Config();
 	
-	//Íàñòðîéêà ìèêðîêîíòðîëëåðà íà 72 MHz
-	SET_BIT(RCC->CR, RCC_CR_HSEON); //Çàïóñòèì âíóòðåííèé RC ãåíåðàòîð íà 8 ÌÃö
-	while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == RESET); //Äîæäåìñÿ ïîäíÿòèÿ ôëàãà î ãîòîâíîñòè
+	//ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° Ð¼Ð¸ÐºÑ€Ð¾ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»Ð»ÐµÑ€Ð° Ð½Ð° 72 MHz
+	SET_BIT(RCC->CR, RCC_CR_HSEON); //Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ð¼ Ð²Ð½ÑƒÑ‚Ñ€ÐµÐ½Ð½Ð¸Ð¹ RC Ð³ÐµÐ½ÐµÑ€Ð°Ñ‚Ð¾Ñ€ Ð½Ð° 8 ÐœÐ“Ñ†
+	while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == RESET); //Ð”Ð¾Ð¶Ð´ÐµÐ¼ÑÑ Ð¿Ð¾Ð´Ð½ÑÑ‚Ð¸Ñ Ñ„Ð»Ð°Ð³Ð° Ð¾ Ð³Ð¾Ñ‚Ð¾Ð²Ð½Ð¾ÑÑ‚Ð¸
 	
-	SET_BIT(RCC->CR, RCC_CR_HSEON); //Çàïóñòèì âíåøíèé êâàðöåâûé ðåçîíàòîð. Îí ó íàñ íà 8 MHz
-	while (READ_BIT(RCC->CR, RCC_CR_HSERDY) == RESET) ; //Äîæäåìñÿ ïîäíÿòèÿ ôëàãà î ãîòîâíîñòè
+	SET_BIT(RCC->CR, RCC_CR_HSEON); //Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ð¼ Ð²Ð½ÐµÑˆÐ½Ð¸Ð¹ ÐºÐ²Ð°Ñ€Ñ†ÐµÐ²Ñ‹Ð¹ Ñ€ÐµÐ·Ð¾Ð½Ð°Ñ‚Ð¾Ñ€. ÐžÐ½ Ñƒ Ð½Ð°Ñ Ð½Ð° 8 MHz
+	while (READ_BIT(RCC->CR, RCC_CR_HSERDY) == RESET) ; //Ð”Ð¾Ð¶Ð´ÐµÐ¼ÑÑ Ð¿Ð¾Ð´Ð½ÑÑ‚Ð¸Ñ Ñ„Ð»Ð°Ð³Ð° Ð¾ Ð³Ð¾Ñ‚Ð¾Ð²Ð½Ð¾ÑÑ‚Ð¸
 	
-	CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP); //Ñáðîñèì áèò áàéïàñà â 0
+	CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP); //Ð¡Ð±Ñ€Ð¾ÑÐ¸Ð¼ Ð±Ð¸Ñ‚ Ð±Ð°Ð¹Ð¿Ð°ÑÐ° Ð² 0
 	
-	SET_BIT(RCC->CR, RCC_CR_CSSON); //Çàïóñòèì Clock detector
+	SET_BIT(RCC->CR, RCC_CR_CSSON); //Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ð¼ Clock detector
 	
-	//SET_BIT(RCC->CR, RCC_CR_PLLON); //Çàïóñòèì PLL
-	//while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == RESET);//Îæèäàåì ãîòîâíîñòü âêëþ÷åíèÿ PLL
+	//SET_BIT(RCC->CR, RCC_CR_PLLON); //Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ð¼ PLL
+	//while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == RESET);//ÐžÐ¶Ð¸Ð´Ð°ÐµÐ¼ Ð³Ð¾Ñ‚Ð¾Ð²Ð½Ð¾ÑÑ‚ÑŒ Ð²ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ PLL
 	
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL); //Âûáåðåì PLL â êà÷åñòâå System clock
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL); //Ð’Ñ‹Ð±ÐµÑ€ÐµÐ¼ PLL Ð² ÐºÐ°Ñ‡ÐµÑÑ‚Ð²Ðµ System clock
 	
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_SWS, RCC_CFGR_SWS_PLL); //Èñïîëüçóåì PLL â êà÷åñòâå System_clock
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SWS, RCC_CFGR_SWS_PLL); //Ð˜ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼ PLL Ð² ÐºÐ°Ñ‡ÐµÑÑ‚Ð²Ðµ System_clock
 	
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_CFGR_HPRE_DIV1); //AHB Prescaler /1
 	
@@ -134,18 +134,18 @@ int main(void)
 	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBE); //1: Prefetch is enabled
 	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBS); //1: Prefetch buffer is enabled
 	
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, RCC_CFGR_PPRE1_DIV2); //APB1 Prescaler /2, ò.ê. PCLR 1 max 36 MHz
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, RCC_CFGR_PPRE1_DIV2); //APB1 Prescaler /2, Ñ‚.Ðº. PCLR 1 max 36 MHz
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, RCC_CFGR_PPRE2_DIV1); //APB2 Prescaler /1
 	
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_ADCPRE, RCC_CFGR_ADCPRE_DIV6); //72/6 = 12 Ìãö. 14 ìàêñèìóì
-	SET_BIT(RCC->CFGR, RCC_CFGR_PLLSRC); //Â êà÷åñòâå âõîäíîãî ñèãíàëà äëÿ PLL âûáåðåì HSE
-	CLEAR_BIT(RCC->CFGR, RCC_CFGR_PLLXTPRE); //Íèêàêîå ïðåääåëåíèå ïåðåä PLL íàì íå íóæíî. Ïîýòîìó /1
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLMULL, RCC_CFGR_PLLMULL9); //ò.ê. êâàðö ó íàñ íà 8 MHz, à íàì íóæíî 72, òî íóæíî ñäåëàòü óìíîæåíèå íà 9. 8*9 = 72
-	CLEAR_BIT(RCC->CFGR, RCC_CFGR_USBPRE); // Íàñòðîèëè USB íà 48 MHz
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_ADCPRE, RCC_CFGR_ADCPRE_DIV6); //72/6 = 12 ÐœÐ³Ñ†. 14 Ð¼Ð°ÐºÑÐ¸Ð¼ÑƒÐ¼
+	SET_BIT(RCC->CFGR, RCC_CFGR_PLLSRC); //Ð’ ÐºÐ°Ñ‡ÐµÑÑ‚Ð²Ðµ Ð²Ñ…Ð¾Ð´Ð½Ð¾Ð³Ð¾ ÑÐ¸Ð³Ð½Ð°Ð»Ð° Ð´Ð»Ñ PLL Ð²Ñ‹Ð±ÐµÑ€ÐµÐ¼ HSE
+	CLEAR_BIT(RCC->CFGR, RCC_CFGR_PLLXTPRE); //ÐÐ¸ÐºÐ°ÐºÐ¾Ðµ Ð¿Ñ€ÐµÐ´Ð´ÐµÐ»ÐµÐ½Ð¸Ðµ Ð¿ÐµÑ€ÐµÐ´ PLL Ð½Ð°Ð¼ Ð½Ðµ Ð½ÑƒÐ¶Ð½Ð¾. ÐŸÐ¾ÑÑ‚Ð¾Ð¼Ñƒ /1
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLMULL, RCC_CFGR_PLLMULL9); //Ñ‚.Ðº. ÐºÐ²Ð°Ñ€Ñ† Ñƒ Ð½Ð°Ñ Ð½Ð° 8 MHz, Ð° Ð½Ð°Ð¼ Ð½ÑƒÐ¶Ð½Ð¾ 72, Ñ‚Ð¾ Ð½ÑƒÐ¶Ð½Ð¾ ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ ÑƒÐ¼Ð½Ð¾Ð¶ÐµÐ½Ð¸Ðµ Ð½Ð° 9. 8*9 = 72
+	CLEAR_BIT(RCC->CFGR, RCC_CFGR_USBPRE); // ÐÐ°ÑÑ‚Ñ€Ð¾Ð¸Ð»Ð¸ USB Ð½Ð° 48 MHz
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, RCC_CFGR_MCO_PLLCLK_DIV2);
 	
-	SET_BIT(RCC->CR, RCC_CR_PLLON); //Çàïóñòèì PLL
-	while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == RESET);//Îæèäàåì ãîòîâíîñòü âêëþ÷åíèÿ PLL
+	SET_BIT(RCC->CR, RCC_CR_PLLON); //Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ð¼ PLL
+	while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == RESET);//ÐžÐ¶Ð¸Ð´Ð°ÐµÐ¼ Ð³Ð¾Ñ‚Ð¾Ð²Ð½Ð¾ÑÑ‚ÑŒ Ð²ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ñ PLL
 	
 	
 	
@@ -157,13 +157,13 @@ int main(void)
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-	//Íàñòðîéêà PC13
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPCEN);//Çàïóñêàåì òàêòèðîâàíèå ïîðòà Ñ
+	//ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° PC13
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPCEN);//Ð—Ð°Ð¿ÑƒÑÐºÐ°ÐµÐ¼ Ñ‚Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¿Ð¾Ñ€Ñ‚Ð° Ð¡
 	MODIFY_REG(GPIOC->CRH, GPIO_CRH_CNF13_Msk, 0b00 << GPIO_CRH_CNF13_Pos); //PC13 Output Push-Pull
 	MODIFY_REG(GPIOC->CRH, GPIO_CRH_MODE13_Msk, 0b11 << GPIO_CRH_MODE13_Pos); //50 MHz
 	
-	//Íàñòðîéêà PA8
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Çàïóñêàåì òàêòèðîâàíèå ïîðòà Ñ
+	//ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° PA8
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Ð—Ð°Ð¿ÑƒÑÐºÐ°ÐµÐ¼ Ñ‚Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¿Ð¾Ñ€Ñ‚Ð° Ð¡
 	MODIFY_REG(GPIOA->CRH, GPIO_CRH_CNF8_Msk, 0b10 << GPIO_CRH_CNF8_Pos); //PC13 Output Push-Pull
 	MODIFY_REG(GPIOA->CRH, GPIO_CRH_MODE8_Msk, 0b11 << GPIO_CRH_MODE8_Pos); //50 MHz
 	
