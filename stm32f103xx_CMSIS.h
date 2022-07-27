@@ -28,16 +28,16 @@ extern "C" {
 	
 #include <main.h>
 #include <stdbool.h>
-
+        void CMSIS_Debug_init(void); //Настройка Debug (Serial Wire)
 	void CMSIS_RCC_SystemClock_72MHz(void); //Настрока тактирования микроконтроллера на частоту 72MHz
 	void CMSIS_SysTick_Timer_init(void); //Инициализация системного таймера
 	void Delay_ms(uint32_t Milliseconds); //Функция задержки
 	void SysTick_Handler(void); //Прерывания от системного таймера
-	void CMSIS_PC13_OUTPUT_Push_Pull_Init(void); //Пример настройки ножки PC13 в режим Push-Pull 50 MHz
-	void CMSIS_PA8_MCO_Init(void); //Пример настройки ножки PA8 в выход тактирующего сигнала c MCO
+	void CMSIS_PC13_OUTPUT_Push_Pull_init(void); //Пример настройки ножки PC13 в режим Push-Pull 50 MHz
+	void CMSIS_PA8_MCO_init(void); //Пример настройки ножки PA8 в выход тактирующего сигнала c MCO
 	void CMSIS_RCC_AFIO_enable(void);//Включить тактирование для альтернативных функций
 	void CMSIS_AFIO_EXTICR1_B0_select(void);//Пример выбора ножки PB0 для работы с EXTI0
-	void CMSIS_PB0_INPUT_Pull_Down_Init(void);//Настройка ножки PB0 на вход. Подтяжка к земле.
+	void CMSIS_PB0_INPUT_Pull_Down_init(void);//Настройка ножки PB0 на вход. Подтяжка к земле.
 	void CMSIS_EXTI_0_init(void);//Инициализации EXTI0 для PB0 в режиме Rishing edge trigger
 	void EXTI0_IRQHandler(void);//Прерывания от EXTI0
 	
