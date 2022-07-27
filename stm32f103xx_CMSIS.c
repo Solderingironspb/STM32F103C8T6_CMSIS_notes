@@ -40,7 +40,7 @@ void CMSIS_Debug_init(void) {
 *  JTDO / TRACESWO PB3
 *  NJTRST PB4
 */
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOAEN); //Включим тактирование порта A
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включим тактирование порта A
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN);//Включим тактирование альтернативных функций
 
 /**
