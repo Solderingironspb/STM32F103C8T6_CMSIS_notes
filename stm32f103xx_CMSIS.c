@@ -21,6 +21,56 @@
 
 #include "stm32f103xx_CMSIS.h"
 
+/*================================= НАСТРОЙКА DEBUG ============================================*/
+	
+/**
+***************************************************************************************
+*  @breif Debug port mapping
+*  Reference Manual/см. п.9.3.5 JTAG/SWD alternate function remapping (стр. 177)
+*  Наверное это нужно настраивать в самом начале, еще до тактирования...
+***************************************************************************************
+*/
+
+void CMSIS_Debug_init(void) { 
+/**
+*  Alternate function GPIO port
+*  JTMS / SWDIO PA13
+*  JTCK / SWCLK PA14
+*  JTDI PA15
+*  JTDO / TRACESWO PB3
+*  NJTRST PB4
+*/
+	
+	RCC->APB2ENR = RCC_APB2ENR_AFIOEN;//Включим тактирование альтернативных функций
+
+/**
+ *  Выберем режим отладки см.п 9.4.2 AF remap and debug I/O configuration register (AFIO_MAPR)(стр 184)
+ */
+
+/**
+*  Bits 26:24 SWJ_CFG[2:0]: Serial wire JTAG configuration
+*  These bits are write-only (when read, the value is undefined). They are used to configure the
+*  SWJ and trace alternate function I/Os. The SWJ (Serial Wire JTAG) supports JTAG or SWD
+*  access to the Cortex® debug port. The default state after reset is SWJ ON without trace.
+*  This allows JTAG or SW mode to be enabled by sending a specific sequence on the JTMS / JTCK pin.
+*  000: Full SWJ (JTAG-DP + SW-DP): Reset State          (JTAG 5 pins ) по-умолчанию
+*  001: Full SWJ (JTAG-DP + SW-DP) but without NJTRST    (JTAG 4 pins)
+*  010: JTAG-DP Disabled and SW-DP Enabled               (Serial wire)
+*  100: JTAG-DP Disabled and SW-DP Disabled              (No Debug)
+*  Other combinations: no effect
+*/
+
+	MODIFY_REG(AFIO->MAPR, AFIO_MAPR_SWJ_CFG, 0b010 << AFIO_MAPR_SWJ_CFG_Pos); //Serial wire
+
+/**
+*  При выборе Serial wire:
+*  PA13 /JTMS/SWDIO 
+*  PA14 /JTCK/SWCLK. 
+*  PA15, PB3 и PB4 свободны
+*/
+}
+
+
 /*============================== НАСТРОЙКА RCC =======================================*/
 /**
  ***************************************************************************************
@@ -608,7 +658,7 @@ void SysTick_Handler(void) {
  *  Перед настройкой (GPIOs and AFIOs) нужно включить тактирование порта.
  ***************************************************************************************
  */
-void CMSIS_PC13_OUTPUT_Push_Pull_Init(void) {
+void CMSIS_PC13_OUTPUT_Push_Pull_init(void) {
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPCEN); //Запуск тактирования порта C
 	MODIFY_REG(GPIOC->CRH, GPIO_CRH_MODE13, 0b10 << GPIO_CRH_MODE13_Pos); //Настройка GPIOC порта 13 на выход со максимальной скоростью в 50 MHz
 	MODIFY_REG(GPIOC->CRH, GPIO_CRH_CNF13, 0b00 << GPIO_CRH_CNF13_Pos); //Настройка GPIOC порта 13 на выход в режиме Push-Pull
