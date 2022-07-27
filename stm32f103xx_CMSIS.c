@@ -671,7 +671,7 @@ void CMSIS_PC13_OUTPUT_Push_Pull_init(void) {
  *  Перед настройкой (GPIOs and AFIOs) нужно включить тактирование порта.
  ***************************************************************************************
  */
-void CMSIS_PA8_MCO_Init(void) {
+void CMSIS_PA8_MCO_init(void) {
 	//Тактирование MCO должно быть настроено в регистре RCC
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, RCC_CFGR_MCO_PLLCLK_DIV2); //В качестве тактирования для MCO выбрал PLL. Будет 36 MHz.
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Запуск тактирования порта A
@@ -743,7 +743,7 @@ void CMSIS_AFIO_EXTICR1_B0_select(void) {
 
 // Далее следует настроить ножку PB0 на вход. Можем сделать подтяжку.
 
-void CMSIS_PB0_INPUT_Pull_Down_Init(void) {
+void CMSIS_PB0_INPUT_Pull_Down_init(void) {
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN); //Включим тактирование порта B
 	MODIFY_REG(GPIOB->CRL, GPIO_CRL_CNF0, 0b10 << GPIO_CRL_CNF0_Pos); //Настроим ножку PB0 в режим Input with pull-up / pull-down
 	MODIFY_REG(GPIOB->CRL, GPIO_CRL_MODE0, 0b00 << GPIO_CRL_MODE0_Pos); //Настройка в режим Input
