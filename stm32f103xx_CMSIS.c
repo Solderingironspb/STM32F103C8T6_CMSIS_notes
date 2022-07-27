@@ -40,8 +40,8 @@ void CMSIS_Debug_init(void) {
 *  JTDO / TRACESWO PB3
 *  NJTRST PB4
 */
-	
-	RCC->APB2ENR = RCC_APB2ENR_AFIOEN;//Включим тактирование альтернативных функций
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOAEN); //Включим тактирование порта A
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN);//Включим тактирование альтернативных функций
 
 /**
  *  Выберем режим отладки см.п 9.4.2 AF remap and debug I/O configuration register (AFIO_MAPR)(стр 184)
@@ -68,6 +68,11 @@ void CMSIS_Debug_init(void) {
 *  PA14 /JTCK/SWCLK. 
 *  PA15, PB3 и PB4 свободны
 */
+	/*Заблокируем доступ для редактирования конфигурации PA13 и PA14*/
+	GPIOA->LCKR = GPIO_LCKR_LCKK | GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14;
+	GPIOA->LCKR = GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14;
+	GPIOA->LCKR = GPIO_LCKR_LCKK | GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14; 
+	GPIOA->LCKR;
 }
 
 
