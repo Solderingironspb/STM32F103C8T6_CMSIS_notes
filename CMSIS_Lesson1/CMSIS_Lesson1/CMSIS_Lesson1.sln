@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1972
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CMSIS_Lesson1", "CMSIS_Lesson1\CMSIS_Lesson1.vcxproj", "{694B1A8A-7FC1-4B75-87BD-F1480FBEFAAE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Release|VisualGDB = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{694B1A8A-7FC1-4B75-87BD-F1480FBEFAAE}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{694B1A8A-7FC1-4B75-87BD-F1480FBEFAAE}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{694B1A8A-7FC1-4B75-87BD-F1480FBEFAAE}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{694B1A8A-7FC1-4B75-87BD-F1480FBEFAAE}.Release|VisualGDB.Build.0 = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4B96987B-96B5-473B-A7EF-DA4493D3B4DF}
+	EndGlobalSection
+EndGlobal

@@ -1,0 +1,595 @@
+
+CMSIS_Lesson1.elf:     file format elf32-littlearm
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .isr_vector   0000010c  08000000  08000000  00010000  2**0
+                  CONTENTS, ALLOC, LOAD, READONLY, DATA
+  1 .text         0000035c  0800010c  0800010c  0001010c  2**2
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  2 .rodata       00000000  08000468  08000470  00010470  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  3 .ARM.extab    00000000  08000468  08000468  00010470  2**0
+                  CONTENTS
+  4 .ARM          00000000  08000468  08000468  00010470  2**0
+                  CONTENTS
+  5 .preinit_array 00000000  08000468  08000470  00010470  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  6 .init_array   00000004  08000468  08000468  00010468  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  7 .fini_array   00000004  0800046c  0800046c  0001046c  2**2
+                  CONTENTS, ALLOC, LOAD, DATA
+  8 .data         00000000  20000000  20000000  00010470  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  9 .bss          00000024  20000000  08000470  00020000  2**2
+                  ALLOC
+ 10 ._user_heap_stack 00000304  20000024  08000470  00020024  2**0
+                  ALLOC
+ 11 .ARM.attributes 00000029  00000000  00000000  00010470  2**0
+                  CONTENTS, READONLY
+ 12 .debug_info   000007ff  00000000  00000000  00010499  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 13 .debug_abbrev 0000035a  00000000  00000000  00010c98  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 14 .debug_aranges 000000b8  00000000  00000000  00010ff8  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 15 .debug_ranges 00000080  00000000  00000000  000110b0  2**3
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 16 .debug_macro  000100b6  00000000  00000000  00011130  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 17 .debug_line   00000e98  00000000  00000000  000211e6  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 18 .debug_str    000545fa  00000000  00000000  0002207e  2**0
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+ 19 .comment      00000053  00000000  00000000  00076678  2**0
+                  CONTENTS, READONLY
+ 20 .debug_frame  00000188  00000000  00000000  000766cc  2**2
+                  CONTENTS, READONLY, DEBUGGING, OCTETS
+
+Disassembly of section .text:
+
+0800010c <__do_global_dtors_aux>:
+ 800010c:	b510      	push	{r4, lr}
+ 800010e:	4c05      	ldr	r4, [pc, #20]	; (8000124 <__do_global_dtors_aux+0x18>)
+ 8000110:	7823      	ldrb	r3, [r4, #0]
+ 8000112:	b933      	cbnz	r3, 8000122 <__do_global_dtors_aux+0x16>
+ 8000114:	4b04      	ldr	r3, [pc, #16]	; (8000128 <__do_global_dtors_aux+0x1c>)
+ 8000116:	b113      	cbz	r3, 800011e <__do_global_dtors_aux+0x12>
+ 8000118:	4804      	ldr	r0, [pc, #16]	; (800012c <__do_global_dtors_aux+0x20>)
+ 800011a:	f3af 8000 	nop.w
+ 800011e:	2301      	movs	r3, #1
+ 8000120:	7023      	strb	r3, [r4, #0]
+ 8000122:	bd10      	pop	{r4, pc}
+ 8000124:	20000000 	.word	0x20000000
+ 8000128:	00000000 	.word	0x00000000
+ 800012c:	08000450 	.word	0x08000450
+
+08000130 <frame_dummy>:
+ 8000130:	b508      	push	{r3, lr}
+ 8000132:	4b03      	ldr	r3, [pc, #12]	; (8000140 <frame_dummy+0x10>)
+ 8000134:	b11b      	cbz	r3, 800013e <frame_dummy+0xe>
+ 8000136:	4903      	ldr	r1, [pc, #12]	; (8000144 <frame_dummy+0x14>)
+ 8000138:	4803      	ldr	r0, [pc, #12]	; (8000148 <frame_dummy+0x18>)
+ 800013a:	f3af 8000 	nop.w
+ 800013e:	bd08      	pop	{r3, pc}
+ 8000140:	00000000 	.word	0x00000000
+ 8000144:	20000004 	.word	0x20000004
+ 8000148:	08000450 	.word	0x08000450
+
+0800014c <main>:
+#include "main.h"
+
+int main(void) {
+ 800014c:	b580      	push	{r7, lr}
+ 800014e:	af00      	add	r7, sp, #0
+	CMSIS_RCC_SystemClock_72MHz();
+ 8000150:	f000 f816 	bl	8000180 <CMSIS_RCC_SystemClock_72MHz>
+	CMSIS_SysTick_Timer_init();
+ 8000154:	f000 f8b0 	bl	80002b8 <CMSIS_SysTick_Timer_init>
+	CMSIS_PC13_OUTPUT_Push_Pull_init();
+ 8000158:	f000 f90c 	bl	8000374 <CMSIS_PC13_OUTPUT_Push_Pull_init>
+
+	while (1) {
+		WRITE_REG(GPIOC->BSRR,GPIO_BSRR_BR13);
+ 800015c:	4b07      	ldr	r3, [pc, #28]	; (800017c <main+0x30>)
+ 800015e:	f04f 5200 	mov.w	r2, #536870912	; 0x20000000
+ 8000162:	611a      	str	r2, [r3, #16]
+		Delay_ms(100);
+ 8000164:	2064      	movs	r0, #100	; 0x64
+ 8000166:	f000 f8d9 	bl	800031c <Delay_ms>
+		GPIOC->BSRR = GPIO_BSRR_BS13;
+ 800016a:	4b04      	ldr	r3, [pc, #16]	; (800017c <main+0x30>)
+ 800016c:	f44f 5200 	mov.w	r2, #8192	; 0x2000
+ 8000170:	611a      	str	r2, [r3, #16]
+		Delay_ms(100);
+ 8000172:	2064      	movs	r0, #100	; 0x64
+ 8000174:	f000 f8d2 	bl	800031c <Delay_ms>
+		WRITE_REG(GPIOC->BSRR,GPIO_BSRR_BR13);
+ 8000178:	e7f0      	b.n	800015c <main+0x10>
+ 800017a:	bf00      	nop
+ 800017c:	40011000 	.word	0x40011000
+
+08000180 <CMSIS_RCC_SystemClock_72MHz>:
+ *  В настройке также необходимо настроить FLASH на работу, совместимую с 72MHz:
+ *  Reference Manual/см. п.3.2 Memory organization (стр. 49)
+ ***************************************************************************************
+ */
+
+void CMSIS_RCC_SystemClock_72MHz(void) {
+ 8000180:	b480      	push	{r7}
+ 8000182:	af00      	add	r7, sp, #0
+
+	/* Начнем с п. 7.3.1 Clock control register (RCC_CR)*/
+	SET_BIT(RCC->CR, RCC_CR_HSION); //Запустим внутренний RC генератор на 8 МГц
+ 8000184:	4b4a      	ldr	r3, [pc, #296]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000186:	681b      	ldr	r3, [r3, #0]
+ 8000188:	4a49      	ldr	r2, [pc, #292]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800018a:	f043 0301 	orr.w	r3, r3, #1
+ 800018e:	6013      	str	r3, [r2, #0]
+	while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == 0); //Дождемся поднятия флага о готовности
+ 8000190:	bf00      	nop
+ 8000192:	4b47      	ldr	r3, [pc, #284]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000194:	681b      	ldr	r3, [r3, #0]
+ 8000196:	f003 0302 	and.w	r3, r3, #2
+ 800019a:	2b00      	cmp	r3, #0
+ 800019c:	d0f9      	beq.n	8000192 <CMSIS_RCC_SystemClock_72MHz+0x12>
+	CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP); //Просто сбросим этот бит в 0(Хотя изначально он и так должен быть в 0).
+ 800019e:	4b44      	ldr	r3, [pc, #272]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001a0:	681b      	ldr	r3, [r3, #0]
+ 80001a2:	4a43      	ldr	r2, [pc, #268]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001a4:	f423 2380 	bic.w	r3, r3, #262144	; 0x40000
+ 80001a8:	6013      	str	r3, [r2, #0]
+	SET_BIT(RCC->CR, RCC_CR_HSEON); //Запустим внешний кварцевый резонатор. Он у нас на 8 MHz.
+ 80001aa:	4b41      	ldr	r3, [pc, #260]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001ac:	681b      	ldr	r3, [r3, #0]
+ 80001ae:	4a40      	ldr	r2, [pc, #256]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001b0:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 80001b4:	6013      	str	r3, [r2, #0]
+	while (READ_BIT(RCC->CR, RCC_CR_HSERDY) == 0); //Дождемся поднятия флага о готовности
+ 80001b6:	bf00      	nop
+ 80001b8:	4b3d      	ldr	r3, [pc, #244]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001ba:	681b      	ldr	r3, [r3, #0]
+ 80001bc:	f403 3300 	and.w	r3, r3, #131072	; 0x20000
+ 80001c0:	2b00      	cmp	r3, #0
+ 80001c2:	d0f9      	beq.n	80001b8 <CMSIS_RCC_SystemClock_72MHz+0x38>
+	SET_BIT(RCC->CR, RCC_CR_CSSON); //Включим CSS
+ 80001c4:	4b3a      	ldr	r3, [pc, #232]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001c6:	681b      	ldr	r3, [r3, #0]
+ 80001c8:	4a39      	ldr	r2, [pc, #228]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001ca:	f443 2300 	orr.w	r3, r3, #524288	; 0x80000
+ 80001ce:	6013      	str	r3, [r2, #0]
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL); //Выберем PLL в качестве System Clock
+ 80001d0:	4b37      	ldr	r3, [pc, #220]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001d2:	685b      	ldr	r3, [r3, #4]
+ 80001d4:	f023 0303 	bic.w	r3, r3, #3
+ 80001d8:	4a35      	ldr	r2, [pc, #212]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001da:	f043 0302 	orr.w	r3, r3, #2
+ 80001de:	6053      	str	r3, [r2, #4]
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SWS, RCC_CFGR_SWS_PLL); //Используем PLL в качестве system clock
+ 80001e0:	4b33      	ldr	r3, [pc, #204]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001e2:	685b      	ldr	r3, [r3, #4]
+ 80001e4:	f023 030c 	bic.w	r3, r3, #12
+ 80001e8:	4a31      	ldr	r2, [pc, #196]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001ea:	f043 0308 	orr.w	r3, r3, #8
+ 80001ee:	6053      	str	r3, [r2, #4]
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_CFGR_HPRE_DIV1); //APB Prescaler /1
+ 80001f0:	4b2f      	ldr	r3, [pc, #188]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001f2:	685b      	ldr	r3, [r3, #4]
+ 80001f4:	4a2e      	ldr	r2, [pc, #184]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 80001f6:	f023 03f0 	bic.w	r3, r3, #240	; 0xf0
+ 80001fa:	6053      	str	r3, [r2, #4]
+	MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, FLASH_ACR_LATENCY_2); //010 Two wait states, if 48 MHz < SYSCLK <= 72 MHz
+ 80001fc:	4b2d      	ldr	r3, [pc, #180]	; (80002b4 <CMSIS_RCC_SystemClock_72MHz+0x134>)
+ 80001fe:	681b      	ldr	r3, [r3, #0]
+ 8000200:	f023 0307 	bic.w	r3, r3, #7
+ 8000204:	4a2b      	ldr	r2, [pc, #172]	; (80002b4 <CMSIS_RCC_SystemClock_72MHz+0x134>)
+ 8000206:	f043 0304 	orr.w	r3, r3, #4
+ 800020a:	6013      	str	r3, [r2, #0]
+	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBE); //Prefetch is enabled(В Cube MX включено и я включил...)
+ 800020c:	4b29      	ldr	r3, [pc, #164]	; (80002b4 <CMSIS_RCC_SystemClock_72MHz+0x134>)
+ 800020e:	681b      	ldr	r3, [r3, #0]
+ 8000210:	4a28      	ldr	r2, [pc, #160]	; (80002b4 <CMSIS_RCC_SystemClock_72MHz+0x134>)
+ 8000212:	f043 0310 	orr.w	r3, r3, #16
+ 8000216:	6013      	str	r3, [r2, #0]
+	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBS); //Prefetch buffer is enabled(В Cube MX включено и я включил...)
+ 8000218:	4b26      	ldr	r3, [pc, #152]	; (80002b4 <CMSIS_RCC_SystemClock_72MHz+0x134>)
+ 800021a:	681b      	ldr	r3, [r3, #0]
+ 800021c:	4a25      	ldr	r2, [pc, #148]	; (80002b4 <CMSIS_RCC_SystemClock_72MHz+0x134>)
+ 800021e:	f043 0320 	orr.w	r3, r3, #32
+ 8000222:	6013      	str	r3, [r2, #0]
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, RCC_CFGR_PPRE1_DIV2); //APB1 Prescaler /2, т.к. PCLK1 max 36MHz
+ 8000224:	4b22      	ldr	r3, [pc, #136]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000226:	685b      	ldr	r3, [r3, #4]
+ 8000228:	f423 63e0 	bic.w	r3, r3, #1792	; 0x700
+ 800022c:	4a20      	ldr	r2, [pc, #128]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800022e:	f443 6380 	orr.w	r3, r3, #1024	; 0x400
+ 8000232:	6053      	str	r3, [r2, #4]
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, RCC_CFGR_PPRE2_DIV1); //APB2 Prescaler /1. Тут нас ничего не ограничивает. Будет 72MHz.
+ 8000234:	4b1e      	ldr	r3, [pc, #120]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000236:	685b      	ldr	r3, [r3, #4]
+ 8000238:	4a1d      	ldr	r2, [pc, #116]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800023a:	f423 5360 	bic.w	r3, r3, #14336	; 0x3800
+ 800023e:	6053      	str	r3, [r2, #4]
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_ADCPRE, RCC_CFGR_ADCPRE_DIV6); //ADC Prescaler /6, чтоб было 12MHz, т.к. максимальная частота тут 14 MHz
+ 8000240:	4b1b      	ldr	r3, [pc, #108]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000242:	685b      	ldr	r3, [r3, #4]
+ 8000244:	f423 4340 	bic.w	r3, r3, #49152	; 0xc000
+ 8000248:	4a19      	ldr	r2, [pc, #100]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800024a:	f443 4300 	orr.w	r3, r3, #32768	; 0x8000
+ 800024e:	6053      	str	r3, [r2, #4]
+	SET_BIT(RCC->CFGR, RCC_CFGR_PLLSRC); //В качестве входного сигнала для PLL выберем HSE
+ 8000250:	4b17      	ldr	r3, [pc, #92]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000252:	685b      	ldr	r3, [r3, #4]
+ 8000254:	4a16      	ldr	r2, [pc, #88]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000256:	f443 3380 	orr.w	r3, r3, #65536	; 0x10000
+ 800025a:	6053      	str	r3, [r2, #4]
+	CLEAR_BIT(RCC->CFGR, RCC_CFGR_PLLXTPRE_HSE); //Никакое предделение перед PLL нам не нужно. Поэтому /1.
+ 800025c:	4b14      	ldr	r3, [pc, #80]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800025e:	4a14      	ldr	r2, [pc, #80]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000260:	685b      	ldr	r3, [r3, #4]
+ 8000262:	6053      	str	r3, [r2, #4]
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLMULL, RCC_CFGR_PLLMULL9); //т.к. кварц у нас 8Mhz, а нам нужно 72MHz, то в PLL нужно сделать умножение на 9. 8MHz * 9 = 72MHz.
+ 8000264:	4b12      	ldr	r3, [pc, #72]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000266:	685b      	ldr	r3, [r3, #4]
+ 8000268:	f423 1370 	bic.w	r3, r3, #3932160	; 0x3c0000
+ 800026c:	4a10      	ldr	r2, [pc, #64]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800026e:	f443 13e0 	orr.w	r3, r3, #1835008	; 0x1c0000
+ 8000272:	6053      	str	r3, [r2, #4]
+	CLEAR_BIT(RCC->CFGR, RCC_CFGR_USBPRE); //Для USB 72MHz/1.5 = 48MHz
+ 8000274:	4b0e      	ldr	r3, [pc, #56]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000276:	685b      	ldr	r3, [r3, #4]
+ 8000278:	4a0d      	ldr	r2, [pc, #52]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800027a:	f423 0380 	bic.w	r3, r3, #4194304	; 0x400000
+ 800027e:	6053      	str	r3, [r2, #4]
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, RCC_CFGR_MCO_PLLCLK_DIV2); //В качестве тактирования для MCO выбрал PLL. Будет 36 MHz.
+ 8000280:	4b0b      	ldr	r3, [pc, #44]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000282:	685b      	ldr	r3, [r3, #4]
+ 8000284:	4a0a      	ldr	r2, [pc, #40]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000286:	f043 63e0 	orr.w	r3, r3, #117440512	; 0x7000000
+ 800028a:	6053      	str	r3, [r2, #4]
+	SET_BIT(RCC->CR, RCC_CR_PLLON); //Запустим PLL
+ 800028c:	4b08      	ldr	r3, [pc, #32]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800028e:	681b      	ldr	r3, [r3, #0]
+ 8000290:	4a07      	ldr	r2, [pc, #28]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 8000292:	f043 7380 	orr.w	r3, r3, #16777216	; 0x1000000
+ 8000296:	6013      	str	r3, [r2, #0]
+	while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0); //Дожидемся поднятия флага включения PLL
+ 8000298:	bf00      	nop
+ 800029a:	4b05      	ldr	r3, [pc, #20]	; (80002b0 <CMSIS_RCC_SystemClock_72MHz+0x130>)
+ 800029c:	681b      	ldr	r3, [r3, #0]
+ 800029e:	f003 7300 	and.w	r3, r3, #33554432	; 0x2000000
+ 80002a2:	2b00      	cmp	r3, #0
+ 80002a4:	d0f9      	beq.n	800029a <CMSIS_RCC_SystemClock_72MHz+0x11a>
+}
+ 80002a6:	bf00      	nop
+ 80002a8:	bf00      	nop
+ 80002aa:	46bd      	mov	sp, r7
+ 80002ac:	bc80      	pop	{r7}
+ 80002ae:	4770      	bx	lr
+ 80002b0:	40021000 	.word	0x40021000
+ 80002b4:	40022000 	.word	0x40022000
+
+080002b8 <CMSIS_SysTick_Timer_init>:
+ *  На этом таймере мы настроим Delay и аналог HAL_GetTick()
+ *  PM0056 STM32F10xxx/20xxx/21xxx/L1xxxx Cortex®-M3 programming manual/
+ *  см. п.4.5 SysTick timer (STK) (стр. 150)
+ ***************************************************************************************
+ */
+void CMSIS_SysTick_Timer_init(void) {
+ 80002b8:	b480      	push	{r7}
+ 80002ba:	af00      	add	r7, sp, #0
+	/* п. 4.5.1 SysTick control and status register (STK_CTRL) (стр. 151)*/
+
+	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); //Выключим таймер для проведения настроек.
+ 80002bc:	4b15      	ldr	r3, [pc, #84]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002be:	681b      	ldr	r3, [r3, #0]
+ 80002c0:	4a14      	ldr	r2, [pc, #80]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002c2:	f023 0301 	bic.w	r3, r3, #1
+ 80002c6:	6013      	str	r3, [r2, #0]
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk); //Разрешим прерывания по таймеру
+ 80002c8:	4b12      	ldr	r3, [pc, #72]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002ca:	681b      	ldr	r3, [r3, #0]
+ 80002cc:	4a11      	ldr	r2, [pc, #68]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002ce:	f043 0302 	orr.w	r3, r3, #2
+ 80002d2:	6013      	str	r3, [r2, #0]
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk); //Выберем без делителя. Будет 72MHz
+ 80002d4:	4b0f      	ldr	r3, [pc, #60]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002d6:	681b      	ldr	r3, [r3, #0]
+ 80002d8:	4a0e      	ldr	r2, [pc, #56]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002da:	f043 0304 	orr.w	r3, r3, #4
+ 80002de:	6013      	str	r3, [r2, #0]
+	MODIFY_REG(SysTick->LOAD, SysTick_LOAD_RELOAD_Msk, 71999 << SysTick_LOAD_RELOAD_Pos); //Настроим прерывание на частоту в 1 кГц(т.е. сработка будет каждую мс)
+ 80002e0:	4b0c      	ldr	r3, [pc, #48]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002e2:	685b      	ldr	r3, [r3, #4]
+ 80002e4:	f003 427f 	and.w	r2, r3, #4278190080	; 0xff000000
+ 80002e8:	490a      	ldr	r1, [pc, #40]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002ea:	4b0b      	ldr	r3, [pc, #44]	; (8000318 <CMSIS_SysTick_Timer_init+0x60>)
+ 80002ec:	4313      	orrs	r3, r2
+ 80002ee:	604b      	str	r3, [r1, #4]
+	MODIFY_REG(SysTick->VAL, SysTick_VAL_CURRENT_Msk, 71999 << SysTick_VAL_CURRENT_Pos); //Начнем считать с 71999
+ 80002f0:	4b08      	ldr	r3, [pc, #32]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002f2:	689b      	ldr	r3, [r3, #8]
+ 80002f4:	f003 427f 	and.w	r2, r3, #4278190080	; 0xff000000
+ 80002f8:	4906      	ldr	r1, [pc, #24]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 80002fa:	4b07      	ldr	r3, [pc, #28]	; (8000318 <CMSIS_SysTick_Timer_init+0x60>)
+ 80002fc:	4313      	orrs	r3, r2
+ 80002fe:	608b      	str	r3, [r1, #8]
+	SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); //Запускаем таймер
+ 8000300:	4b04      	ldr	r3, [pc, #16]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 8000302:	681b      	ldr	r3, [r3, #0]
+ 8000304:	4a03      	ldr	r2, [pc, #12]	; (8000314 <CMSIS_SysTick_Timer_init+0x5c>)
+ 8000306:	f043 0301 	orr.w	r3, r3, #1
+ 800030a:	6013      	str	r3, [r2, #0]
+
+}
+ 800030c:	bf00      	nop
+ 800030e:	46bd      	mov	sp, r7
+ 8000310:	bc80      	pop	{r7}
+ 8000312:	4770      	bx	lr
+ 8000314:	e000e010 	.word	0xe000e010
+ 8000318:	0001193f 	.word	0x0001193f
+
+0800031c <Delay_ms>:
+ ******************************************************************************
+ *  @breif Delay_ms
+ *  @param   uint32_t Milliseconds - Длина задержки в миллисекундах
+ ******************************************************************************
+ */
+void Delay_ms(uint32_t Milliseconds) {
+ 800031c:	b480      	push	{r7}
+ 800031e:	b083      	sub	sp, #12
+ 8000320:	af00      	add	r7, sp, #0
+ 8000322:	6078      	str	r0, [r7, #4]
+	Delay_counter_ms = Milliseconds;
+ 8000324:	4a06      	ldr	r2, [pc, #24]	; (8000340 <Delay_ms+0x24>)
+ 8000326:	687b      	ldr	r3, [r7, #4]
+ 8000328:	6013      	str	r3, [r2, #0]
+	while (Delay_counter_ms != 0);
+ 800032a:	bf00      	nop
+ 800032c:	4b04      	ldr	r3, [pc, #16]	; (8000340 <Delay_ms+0x24>)
+ 800032e:	681b      	ldr	r3, [r3, #0]
+ 8000330:	2b00      	cmp	r3, #0
+ 8000332:	d1fb      	bne.n	800032c <Delay_ms+0x10>
+}
+ 8000334:	bf00      	nop
+ 8000336:	bf00      	nop
+ 8000338:	370c      	adds	r7, #12
+ 800033a:	46bd      	mov	sp, r7
+ 800033c:	bc80      	pop	{r7}
+ 800033e:	4770      	bx	lr
+ 8000340:	20000020 	.word	0x20000020
+
+08000344 <SysTick_Handler>:
+ ******************************************************************************
+ *  @breif Прерывание по флагу COUNTFLAG (см. п. 4.5.1 SysTick control and status register (STK_CTRL))
+ *  Список векторов(прерываний) можно найти в файле startup_stm32f103c8tx.S
+ ******************************************************************************
+ */
+void SysTick_Handler(void) {
+ 8000344:	b480      	push	{r7}
+ 8000346:	af00      	add	r7, sp, #0
+
+	SysTimer_ms++;
+ 8000348:	4b08      	ldr	r3, [pc, #32]	; (800036c <SysTick_Handler+0x28>)
+ 800034a:	681b      	ldr	r3, [r3, #0]
+ 800034c:	3301      	adds	r3, #1
+ 800034e:	4a07      	ldr	r2, [pc, #28]	; (800036c <SysTick_Handler+0x28>)
+ 8000350:	6013      	str	r3, [r2, #0]
+
+	if (Delay_counter_ms) {
+ 8000352:	4b07      	ldr	r3, [pc, #28]	; (8000370 <SysTick_Handler+0x2c>)
+ 8000354:	681b      	ldr	r3, [r3, #0]
+ 8000356:	2b00      	cmp	r3, #0
+ 8000358:	d004      	beq.n	8000364 <SysTick_Handler+0x20>
+		Delay_counter_ms--;
+ 800035a:	4b05      	ldr	r3, [pc, #20]	; (8000370 <SysTick_Handler+0x2c>)
+ 800035c:	681b      	ldr	r3, [r3, #0]
+ 800035e:	3b01      	subs	r3, #1
+ 8000360:	4a03      	ldr	r2, [pc, #12]	; (8000370 <SysTick_Handler+0x2c>)
+ 8000362:	6013      	str	r3, [r2, #0]
+	}
+}
+ 8000364:	bf00      	nop
+ 8000366:	46bd      	mov	sp, r7
+ 8000368:	bc80      	pop	{r7}
+ 800036a:	4770      	bx	lr
+ 800036c:	2000001c 	.word	0x2000001c
+ 8000370:	20000020 	.word	0x20000020
+
+08000374 <CMSIS_PC13_OUTPUT_Push_Pull_init>:
+ *  @breif Инициализация PIN PC13 на выход в режиме Push-Pull с максимальной скоростью 50 MHz
+ *  Reference Manual/см. п.9.2 GPIO registers (стр. 171)
+ *  Перед настройкой (GPIOs and AFIOs) нужно включить тактирование порта.
+ ***************************************************************************************
+ */
+void CMSIS_PC13_OUTPUT_Push_Pull_init(void) {
+ 8000374:	b480      	push	{r7}
+ 8000376:	af00      	add	r7, sp, #0
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPCEN); //Запуск тактирования порта C
+ 8000378:	4b0b      	ldr	r3, [pc, #44]	; (80003a8 <CMSIS_PC13_OUTPUT_Push_Pull_init+0x34>)
+ 800037a:	699b      	ldr	r3, [r3, #24]
+ 800037c:	4a0a      	ldr	r2, [pc, #40]	; (80003a8 <CMSIS_PC13_OUTPUT_Push_Pull_init+0x34>)
+ 800037e:	f043 0310 	orr.w	r3, r3, #16
+ 8000382:	6193      	str	r3, [r2, #24]
+	MODIFY_REG(GPIOC->CRH, GPIO_CRH_MODE13, 0b10 << GPIO_CRH_MODE13_Pos); //Настройка GPIOC порта 13 на выход со максимальной скоростью в 50 MHz
+ 8000384:	4b09      	ldr	r3, [pc, #36]	; (80003ac <CMSIS_PC13_OUTPUT_Push_Pull_init+0x38>)
+ 8000386:	685b      	ldr	r3, [r3, #4]
+ 8000388:	f423 1340 	bic.w	r3, r3, #3145728	; 0x300000
+ 800038c:	4a07      	ldr	r2, [pc, #28]	; (80003ac <CMSIS_PC13_OUTPUT_Push_Pull_init+0x38>)
+ 800038e:	f443 1300 	orr.w	r3, r3, #2097152	; 0x200000
+ 8000392:	6053      	str	r3, [r2, #4]
+	MODIFY_REG(GPIOC->CRH, GPIO_CRH_CNF13, 0b00 << GPIO_CRH_CNF13_Pos); //Настройка GPIOC порта 13 на выход в режиме Push-Pull
+ 8000394:	4b05      	ldr	r3, [pc, #20]	; (80003ac <CMSIS_PC13_OUTPUT_Push_Pull_init+0x38>)
+ 8000396:	685b      	ldr	r3, [r3, #4]
+ 8000398:	4a04      	ldr	r2, [pc, #16]	; (80003ac <CMSIS_PC13_OUTPUT_Push_Pull_init+0x38>)
+ 800039a:	f423 0340 	bic.w	r3, r3, #12582912	; 0xc00000
+ 800039e:	6053      	str	r3, [r2, #4]
+}
+ 80003a0:	bf00      	nop
+ 80003a2:	46bd      	mov	sp, r7
+ 80003a4:	bc80      	pop	{r7}
+ 80003a6:	4770      	bx	lr
+ 80003a8:	40021000 	.word	0x40021000
+ 80003ac:	40011000 	.word	0x40011000
+
+080003b0 <SystemInit>:
+  * @note   This function should be used only after reset.
+  * @param  None
+  * @retval None
+  */
+void SystemInit (void)
+{
+ 80003b0:	b480      	push	{r7}
+ 80003b2:	af00      	add	r7, sp, #0
+
+  /* Configure the Vector Table location -------------------------------------*/
+#if defined(USER_VECT_TAB_ADDRESS)
+  SCB->VTOR = VECT_TAB_BASE_ADDRESS | VECT_TAB_OFFSET; /* Vector Table Relocation in Internal SRAM. */
+#endif /* USER_VECT_TAB_ADDRESS */
+}
+ 80003b4:	bf00      	nop
+ 80003b6:	46bd      	mov	sp, r7
+ 80003b8:	bc80      	pop	{r7}
+ 80003ba:	4770      	bx	lr
+
+080003bc <Reset_Handler>:
+  .weak Reset_Handler
+  .type Reset_Handler, %function
+Reset_Handler:
+
+/* Copy the data segment initializers from flash to SRAM */
+  ldr r0, =_sdata
+ 80003bc:	480c      	ldr	r0, [pc, #48]	; (80003f0 <LoopFillZerobss+0x12>)
+  ldr r1, =_edata
+ 80003be:	490d      	ldr	r1, [pc, #52]	; (80003f4 <LoopFillZerobss+0x16>)
+  ldr r2, =_sidata
+ 80003c0:	4a0d      	ldr	r2, [pc, #52]	; (80003f8 <LoopFillZerobss+0x1a>)
+  movs r3, #0
+ 80003c2:	2300      	movs	r3, #0
+  b LoopCopyDataInit
+ 80003c4:	e002      	b.n	80003cc <LoopCopyDataInit>
+
+080003c6 <CopyDataInit>:
+
+CopyDataInit:
+  ldr r4, [r2, r3]
+ 80003c6:	58d4      	ldr	r4, [r2, r3]
+  str r4, [r0, r3]
+ 80003c8:	50c4      	str	r4, [r0, r3]
+  adds r3, r3, #4
+ 80003ca:	3304      	adds	r3, #4
+
+080003cc <LoopCopyDataInit>:
+
+LoopCopyDataInit:
+  adds r4, r0, r3
+ 80003cc:	18c4      	adds	r4, r0, r3
+  cmp r4, r1
+ 80003ce:	428c      	cmp	r4, r1
+  bcc CopyDataInit
+ 80003d0:	d3f9      	bcc.n	80003c6 <CopyDataInit>
+  
+/* Zero fill the bss segment. */
+  ldr r2, =_sbss
+ 80003d2:	4a0a      	ldr	r2, [pc, #40]	; (80003fc <LoopFillZerobss+0x1e>)
+  ldr r4, =_ebss
+ 80003d4:	4c0a      	ldr	r4, [pc, #40]	; (8000400 <LoopFillZerobss+0x22>)
+  movs r3, #0
+ 80003d6:	2300      	movs	r3, #0
+  b LoopFillZerobss
+ 80003d8:	e001      	b.n	80003de <LoopFillZerobss>
+
+080003da <FillZerobss>:
+
+FillZerobss:
+  str  r3, [r2]
+ 80003da:	6013      	str	r3, [r2, #0]
+  adds r2, r2, #4
+ 80003dc:	3204      	adds	r2, #4
+
+080003de <LoopFillZerobss>:
+
+LoopFillZerobss:
+  cmp r2, r4
+ 80003de:	42a2      	cmp	r2, r4
+  bcc FillZerobss
+ 80003e0:	d3fb      	bcc.n	80003da <FillZerobss>
+
+/* Call the clock system intitialization function.*/
+    bl  SystemInit
+ 80003e2:	f7ff ffe5 	bl	80003b0 <SystemInit>
+/* Call static constructors */
+    bl __libc_init_array
+ 80003e6:	f000 f80f 	bl	8000408 <__libc_init_array>
+/* Call the application's entry point.*/
+  bl main
+ 80003ea:	f7ff feaf 	bl	800014c <main>
+  bx lr
+ 80003ee:	4770      	bx	lr
+  ldr r0, =_sdata
+ 80003f0:	20000000 	.word	0x20000000
+  ldr r1, =_edata
+ 80003f4:	20000000 	.word	0x20000000
+  ldr r2, =_sidata
+ 80003f8:	08000470 	.word	0x08000470
+  ldr r2, =_sbss
+ 80003fc:	20000000 	.word	0x20000000
+  ldr r4, =_ebss
+ 8000400:	20000024 	.word	0x20000024
+
+08000404 <ADC1_2_IRQHandler>:
+ * @retval : None
+*/
+    .section .text.Default_Handler,"ax",%progbits
+Default_Handler:
+Infinite_Loop:
+  b Infinite_Loop
+ 8000404:	e7fe      	b.n	8000404 <ADC1_2_IRQHandler>
+	...
+
+08000408 <__libc_init_array>:
+ 8000408:	b570      	push	{r4, r5, r6, lr}
+ 800040a:	2600      	movs	r6, #0
+ 800040c:	4d0c      	ldr	r5, [pc, #48]	; (8000440 <__libc_init_array+0x38>)
+ 800040e:	4c0d      	ldr	r4, [pc, #52]	; (8000444 <__libc_init_array+0x3c>)
+ 8000410:	1b64      	subs	r4, r4, r5
+ 8000412:	10a4      	asrs	r4, r4, #2
+ 8000414:	42a6      	cmp	r6, r4
+ 8000416:	d109      	bne.n	800042c <__libc_init_array+0x24>
+ 8000418:	f000 f81a 	bl	8000450 <_init>
+ 800041c:	2600      	movs	r6, #0
+ 800041e:	4d0a      	ldr	r5, [pc, #40]	; (8000448 <__libc_init_array+0x40>)
+ 8000420:	4c0a      	ldr	r4, [pc, #40]	; (800044c <__libc_init_array+0x44>)
+ 8000422:	1b64      	subs	r4, r4, r5
+ 8000424:	10a4      	asrs	r4, r4, #2
+ 8000426:	42a6      	cmp	r6, r4
+ 8000428:	d105      	bne.n	8000436 <__libc_init_array+0x2e>
+ 800042a:	bd70      	pop	{r4, r5, r6, pc}
+ 800042c:	f855 3b04 	ldr.w	r3, [r5], #4
+ 8000430:	4798      	blx	r3
+ 8000432:	3601      	adds	r6, #1
+ 8000434:	e7ee      	b.n	8000414 <__libc_init_array+0xc>
+ 8000436:	f855 3b04 	ldr.w	r3, [r5], #4
+ 800043a:	4798      	blx	r3
+ 800043c:	3601      	adds	r6, #1
+ 800043e:	e7f2      	b.n	8000426 <__libc_init_array+0x1e>
+ 8000440:	08000468 	.word	0x08000468
+ 8000444:	08000468 	.word	0x08000468
+ 8000448:	08000468 	.word	0x08000468
+ 800044c:	0800046c 	.word	0x0800046c
+
+08000450 <_init>:
+ 8000450:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 8000452:	bf00      	nop
+ 8000454:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000456:	bc08      	pop	{r3}
+ 8000458:	469e      	mov	lr, r3
+ 800045a:	4770      	bx	lr
+
+0800045c <_fini>:
+ 800045c:	b5f8      	push	{r3, r4, r5, r6, r7, lr}
+ 800045e:	bf00      	nop
+ 8000460:	bcf8      	pop	{r3, r4, r5, r6, r7}
+ 8000462:	bc08      	pop	{r3}
+ 8000464:	469e      	mov	lr, r3
+ 8000466:	4770      	bx	lr

@@ -1,0 +1,51 @@
+#include "main.h"
+
+int main(void) {
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включим тактирование порта А
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Включим тактирование альтернативных функций
+	AFIO->MAPR = 0b010 << AFIO_MAPR_SWJ_CFG_Pos; //Serial wire
+	
+	/*Заблокируем доступ для редактирования PA13 PA14*/
+	GPIOA->LCKR = GPIO_LCKR_LCKK | GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14;
+	GPIOA->LCKR = GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14;
+	GPIOA->LCKR = GPIO_LCKR_LCKK | GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14;
+	GPIOA->LCKR;
+	
+	
+	CMSIS_RCC_SystemClock_72MHz();
+	CMSIS_SysTick_Timer_init();
+	CMSIS_PC13_OUTPUT_Push_Pull_init();
+
+	//PA15 на выход
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN);
+	MODIFY_REG(GPIOA->CRH, GPIO_CRH_CNF15, 0b00 << GPIO_CRH_CNF15_Pos); //Output Push_pull
+	MODIFY_REG(GPIOA->CRH, GPIO_CRH_MODE15, 0b11 << GPIO_CRH_MODE15_Pos); //Output mode, max speed 50 MHz.
+	GPIOA->BSRR = GPIO_BSRR_BR15; //Low
+	
+	//PB3 на выход
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN);
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_CNF3, 0b00 << GPIO_CRL_CNF3_Pos); //Output Push_pull
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_MODE3, 0b11 << GPIO_CRL_MODE3_Pos); //Output mode, max speed 50 MHz.
+	GPIOB->BSRR = GPIO_BSRR_BR3; //Low
+	
+	//PB4 на выход
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN);
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_CNF4, 0b00 << GPIO_CRL_CNF4_Pos); //Output Push_pull
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_MODE4, 0b11 << GPIO_CRL_MODE4_Pos); //Output mode, max speed 50 MHz.
+	GPIOB->BSRR = GPIO_BSRR_BR4; //Low
+	
+	
+	while (1) {
+		
+		GPIOA->BSRR = GPIO_BSRR_BS15;
+		GPIOB->BSRR = GPIO_BSRR_BS3;
+		GPIOB->BSRR = GPIO_BSRR_BS4;
+		Delay_ms(100);
+		GPIOA->BSRR = GPIO_BSRR_BR15;
+		GPIOB->BSRR = GPIO_BSRR_BR3;
+		GPIOB->BSRR = GPIO_BSRR_BR4;
+		Delay_ms(100);
+
+	}
+
+}
