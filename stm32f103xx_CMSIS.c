@@ -281,7 +281,7 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  1: Prefetch is enabled
 */
 	
-	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBE); //Prefetch is enabled(В Cube MX включено и я включил...) 
+	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBE); //Prefetch is enabled
 
 /**
 *  Bit 5 PRFTBS: Prefetch buffer status
@@ -290,7 +290,6 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  1: Prefetch buffer is enabled
 */
 	
-	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBS); //Prefetch buffer is enabled(В Cube MX включено и я включил...) 
 
 /**
 *  Bits 31:6 Reserved, must be kept at reset value
