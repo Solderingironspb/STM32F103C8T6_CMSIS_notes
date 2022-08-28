@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1972
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lesson_3_Timers", "Lesson_3_Timers\Lesson_3_Timers.vcxproj", "{FCE9E3DD-73DF-4EB0-8040-B789F37CD952}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Release|VisualGDB = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{FCE9E3DD-73DF-4EB0-8040-B789F37CD952}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{FCE9E3DD-73DF-4EB0-8040-B789F37CD952}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{FCE9E3DD-73DF-4EB0-8040-B789F37CD952}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{FCE9E3DD-73DF-4EB0-8040-B789F37CD952}.Release|VisualGDB.Build.0 = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {2B3BE8C5-8737-446C-A819-2A9148E05C00}
+	EndGlobalSection
+EndGlobal

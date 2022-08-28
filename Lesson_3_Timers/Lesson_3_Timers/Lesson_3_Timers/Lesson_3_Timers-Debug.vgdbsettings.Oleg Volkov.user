@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<VisualGDBUserPreferences xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UserDefinedVariableValues />
+  <DebugPreferences xsi:type="com.visualgdb.debug.embedded.preferences">
+    <CatchpointConfiguration>
+      <Exec>false</Exec>
+      <Fork>false</Fork>
+      <Vfork>false</Vfork>
+      <Syscalls />
+      <CXXCatchpoints />
+    </CatchpointConfiguration>
+    <MaskInterruptsWhileStepping>false</MaskInterruptsWhileStepping>
+    <MemoryWindowPreferences />
+    <LiveVariables>
+      <LiveVariable>
+        <Expression>Counter</Expression>
+        <Type>com.sysprogs.types.builtin.UInt32</Type>
+        <Enabled>true</Enabled>
+        <Breakpoint>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </Breakpoint>
+        <Plot>false</Plot>
+        <IsCollapsed>false</IsCollapsed>
+        <IsFavorite>false</IsFavorite>
+      </LiveVariable>
+    </LiveVariables>
+    <NestedLiveVariables>
+      <NestedVariableSettingsCollection>
+        <ID>com.sysprogs.AllGlobals</ID>
+        <Variables />
+      </NestedVariableSettingsCollection>
+      <NestedVariableSettingsCollection>
+        <ID>com.sysprogs.SpecificVariables</ID>
+        <Variables />
+      </NestedVariableSettingsCollection>
+    </NestedLiveVariables>
+    <Suggestions>
+      <HardwareRegisterFilters>
+        <string>TIM3</string>
+      </HardwareRegisterFilters>
+    </Suggestions>
+    <LiveVariablePreferences>
+      <ViewMode>SpecificVariables</ViewMode>
+      <FavoritesOnly>false</FavoritesOnly>
+    </LiveVariablePreferences>
+    <HardwareRegisters>
+      <HardwareRegisterRecord>
+        <Name>TIM3.PSC</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133061673181616490</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>TIM3.CNT</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133061672762351604</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>TIM3.PSC.PSC</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133061434214056196</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>TIM3.ARR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133061672790165911</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>TIM3.CCR1</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133061673043075274</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>TIM3.CCR2</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133061673088321775</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+    </HardwareRegisters>
+  </DebugPreferences>
+</VisualGDBUserPreferences>
