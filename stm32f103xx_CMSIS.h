@@ -40,6 +40,10 @@ extern "C" {
 	void CMSIS_PB0_INPUT_Pull_Down_init(void);//Настройка ножки PB0 на вход. Подтяжка к земле.
 	void CMSIS_EXTI_0_init(void);//Инициализации EXTI0 для PB0 в режиме Rishing edge trigger
 	void EXTI0_IRQHandler(void);//Прерывания от EXTI0
+	void CMSIS_TIM3_init(void);//Инициализация таймера 3. Включение прерывания по переполнению
+	void CMSIS_TIM3_PWM_CHANNEL1_init(void);//Запуск шим канала 1 (PA6 - Pin)
+	void CMSIS_TIM3_PWM_CHANNEL2_init(void);//Запуск шим канала 2 (PA7 - Pin)
+	void TIM3_IRQHandler(void);//Прерывание по таймеру 3.
 	
 #ifdef __cplusplus
 }
