@@ -225,7 +225,8 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  11: not allowed
 */	
 	
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL); //Выберем PLL в качестве System Clock
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_HSE); //Выберем HSE в качестве System Clock(PLL лучше пока не выбирать, он у нас отключен)
+	//p.s. Спасибо KARMA Electronics за подсказку.
 
 /**
 *  Bits 3:2 SWS: System clock switch status
@@ -236,7 +237,8 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  11: not applicable 
 */
 	
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_SWS, RCC_CFGR_SWS_PLL); //Используем PLL в качестве system clock
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SWS, RCC_CFGR_SWS_HSE); //Используем HSE в качестве system clock(PLL лучше пока не выбирать, он у нас отключен)
+	//p.s. Спасибо KARMA Electronics за подсказку.
 	
 /**
 *  Bits 7:4 HPRE: AHB prescaler
@@ -417,6 +419,10 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	
 	SET_BIT(RCC->CR, RCC_CR_PLLON); //Запустим PLL
 	
+	//Т.к. PLL уже запущен, выберем его в качестве System Clock:
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL); //Выберем PLL в качестве System Clock
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_SWS, RCC_CFGR_SWS_PLL); //Используем PLL в качестве system clock
+	
 /**
 *  Bit 25 PLLRDY: PLL clock ready flag
 *  Set by hardware to indicate that the PLL is locked.
@@ -431,7 +437,6 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	//RCC->CFGR == 0x071D840A
 	//К сожалению, нельзя просто так взять и сразу применить значения регистров и настроить все в 2 строчки кода, т.к. порядок выполнения команд играет очень большую роль.
 }
-
 /*========================= НАСТРОЙКА СИСТЕМНОГО ТАЙМЕРА ==============================*/
 
 /**
