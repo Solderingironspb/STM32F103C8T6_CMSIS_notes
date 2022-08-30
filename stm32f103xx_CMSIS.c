@@ -237,8 +237,7 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  11: not applicable 
 */
 	
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_SWS, RCC_CFGR_SWS_HSE); //Используем HSE в качестве system clock(PLL лучше пока не выбирать, он у нас отключен)
-	//p.s. Спасибо KARMA Electronics за подсказку.
+	//Это статус
 	
 /**
 *  Bits 7:4 HPRE: AHB prescaler
@@ -421,7 +420,6 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	
 	//Т.к. PLL уже запущен, выберем его в качестве System Clock:
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL); //Выберем PLL в качестве System Clock
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_SWS, RCC_CFGR_SWS_PLL); //Используем PLL в качестве system clock
 	
 /**
 *  Bit 25 PLLRDY: PLL clock ready flag
