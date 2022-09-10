@@ -1,0 +1,35 @@
+VisualGDB/Debug/_2_/Core/Src/main.o: \
+ C:/dev/VisualGDB/Lesson4_ADC/Core/Src/main.c ../../Core/Inc/main.h \
+ C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/stm32f1xx.h \
+ C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/stm32f103xb.h \
+ C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/core_cm3.h \
+ c:\sysgcc\arm-eabi\lib\gcc\arm-none-eabi\10.3.1\include\stdint.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\stdint.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\machine\_default_types.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\features.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\_newlib_version.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\_intsup.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\_stdint.h \
+ C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/cmsis_version.h \
+ C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/cmsis_compiler.h \
+ C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/cmsis_gcc.h \
+ C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/system_stm32f1xx.h \
+ ../../Core/Inc/stm32f103xx_CMSIS.h \
+ c:\sysgcc\arm-eabi\lib\gcc\arm-none-eabi\10.3.1\include\stdbool.h
+../../Core/Inc/main.h:
+C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/stm32f1xx.h:
+C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/stm32f103xb.h:
+C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/core_cm3.h:
+c:\sysgcc\arm-eabi\lib\gcc\arm-none-eabi\10.3.1\include\stdint.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\stdint.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\machine\_default_types.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\features.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\_newlib_version.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\_intsup.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\_stdint.h:
+C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/cmsis_version.h:
+C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/cmsis_compiler.h:
+C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/cmsis_gcc.h:
+C:/dev/VisualGDB/Lesson4_ADC/Drivers/CMSIS/system_stm32f1xx.h:
+../../Core/Inc/stm32f103xx_CMSIS.h:
+c:\sysgcc\arm-eabi\lib\gcc\arm-none-eabi\10.3.1\include\stdbool.h:

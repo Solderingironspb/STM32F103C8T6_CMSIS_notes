@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.28307.1972
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Lesson4_ADC", "Lesson4_ADC\Lesson4_ADC.vcxproj", "{0FF3C528-462C-4DA7-A793-038A5EE0AF0B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|VisualGDB = Debug|VisualGDB
+		Release|VisualGDB = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{0FF3C528-462C-4DA7-A793-038A5EE0AF0B}.Debug|VisualGDB.ActiveCfg = Debug|VisualGDB
+		{0FF3C528-462C-4DA7-A793-038A5EE0AF0B}.Debug|VisualGDB.Build.0 = Debug|VisualGDB
+		{0FF3C528-462C-4DA7-A793-038A5EE0AF0B}.Release|VisualGDB.ActiveCfg = Release|VisualGDB
+		{0FF3C528-462C-4DA7-A793-038A5EE0AF0B}.Release|VisualGDB.Build.0 = Release|VisualGDB
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {ED5A79C5-0BA2-4156-ADD0-91D0A98990E1}
+	EndGlobalSection
+EndGlobal
