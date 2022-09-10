@@ -11,17 +11,17 @@ void ADC1_2_IRQHandler(void) {
     * 1: Conversion complete*/
 	Counter_ADC++;
 	if (READ_BIT(ADC1->SR, ADC_SR_EOC)) {
-		ADC1->DR; //×èòàåì êàíàë, ÷òîá ñáðîñèòü ôëàã
+		ADC1->DR; //Ð§Ð¸Ñ‚Ð°ÐµÐ¼ ÐºÐ°Ð½Ð°Ð», Ñ‡Ñ‚Ð¾Ð± ÑÐ±Ñ€Ð¾ÑÐ¸Ñ‚ÑŒ Ñ„Ð»Ð°Ð³
 	}
 	
 }
 void DMA1_Channel1_IRQHandler(void) {
 	if (READ_BIT(DMA1->ISR, DMA_ISR_TCIF1)) {
-		SET_BIT(DMA1->IFCR, DMA_IFCR_CGIF1); //Ñáðîñèì ãëîáàëüíûé ôëàã.
+		SET_BIT(DMA1->IFCR, DMA_IFCR_CGIF1); //Ð¡Ð±Ñ€Ð¾ÑÐ¸Ð¼ Ð³Ð»Ð¾Ð±Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ„Ð»Ð°Ð³.
 		Counter_DMA++;
 	} else if (READ_BIT(DMA1->ISR, DMA_ISR_TEIF1)) {
-		/*Çäåñü ìîæíî ñäåëàòü êàêîé-òî îáðàáîò÷èê îøèáîê*/
-		SET_BIT(DMA1->IFCR, DMA_IFCR_CGIF1); //Ñáðîñèì ãëîáàëüíûé ôëàã.
+		/*Ð—Ð´ÐµÑÑŒ Ð¼Ð¾Ð¶Ð½Ð¾ ÑÐ´ÐµÐ»Ð°Ñ‚ÑŒ ÐºÐ°ÐºÐ¾Ð¹-Ñ‚Ð¾ Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚Ñ‡Ð¸Ðº Ð¾ÑˆÐ¸Ð±Ð¾Ðº*/
+		SET_BIT(DMA1->IFCR, DMA_IFCR_CGIF1); //Ð¡Ð±Ñ€Ð¾ÑÐ¸Ð¼ Ð³Ð»Ð¾Ð±Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ„Ð»Ð°Ð³.
 	}
 }
 
@@ -31,31 +31,31 @@ int main(void) {
 	CMSIS_SysTick_Timer_init();
 	CMSIS_PC13_OUTPUT_Push_Pull_init();
 	
-	/* Íàñòðîéêà DMA
-	*  Âíèìàíèå:
-	*  Ïîðÿäîê íàñòðîéêè DMA õîðîøî îïèñàí íà ñòðàíèöå 278 "Channel configuration procedure"*/
+	/* ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° DMA
+	*  Ð’Ð½Ð¸Ð¼Ð°Ð½Ð¸Ðµ:
+	*  ÐŸÐ¾Ñ€ÑÐ´Ð¾Ðº Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ¸ DMA Ñ…Ð¾Ñ€Ð¾ÑˆÐ¾ Ð¾Ð¿Ð¸ÑÐ°Ð½ Ð½Ð° ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ðµ 278 "Channel configuration procedure"*/
 	 
-	SET_BIT(RCC->AHBENR, RCC_AHBENR_DMA1EN); //Âêëþ÷åíèå òàêòèðîâàíèÿ DMA1
-	DMA1_Channel1->CPAR = (uint32_t)&(ADC1->DR); //Çàäàåì àäðåñ ïåðèôåðèéíîãî óñòðîéñòâà
-	DMA1_Channel1->CMAR = (uint32_t)ADC_Data; //Çàäàåì àäðåñ â ïàìÿòè, êóäà áóäåì êèäàòü äàííûå.
-	DMA1_Channel1->CNDTR = 2; //Íàñòðîèì êîëè÷åñòâî äàííûõ äëÿ ïåðåäà÷è. Ïîñëå êàæäîãî ïåðèôåðèéíîãî ñîáûòèÿ ýòî çíà÷åíèå áóäåò óìåíüøàòüñÿ.
-	MODIFY_REG(DMA1_Channel1->CCR, DMA_CCR_PL_Msk, 0b00 << DMA_CCR_PL_Pos); //Çàäàäèì ïðèîðèòåò êàíàëà íà âûñîêèé
-	CLEAR_BIT(DMA1_Channel1->CCR, DMA_CCR_DIR); //×òåíèå áóäåì îñóùåñòâëÿòü ñ ïåðèôåðèè
-	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_CIRC); //Íàñòðîèì DMA â Circular mode
-	MODIFY_REG(DMA1_Channel1->CCR, DMA_CCR_PSIZE_Msk, 0b01 << DMA_CCR_PSIZE_Pos); //Ðàçìåð äàííûõ ïåðèôåðèéíîãî óñòðîéñòâà 16 áèò
-	MODIFY_REG(DMA1_Channel1->CCR, DMA_CCR_MSIZE_Msk, 0b01 << DMA_CCR_MSIZE_Pos); //Ðàçìåð äàííûõ â ïàìÿòè 16 áèò
-	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_TCIE); //Âêëþ÷èì ïðåðûâàíèå ïî ïîëíîé ïåðåäà÷å
-	CLEAR_BIT(DMA1_Channel1->CCR, DMA_CCR_HTIE); //Îòêëþ÷èì ïðåðûâàíèå ïî ïîëîâèííîé ïåðåäà÷å
-	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_TEIE); //Âêëþ÷èì ïðåðûâàíèå ïî îøèáêå ïåðåäà÷è.
-	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_MINC); //Âêëþ÷èì èíêðåìåíòèðîâàíèå ïàìÿòè
+	SET_BIT(RCC->AHBENR, RCC_AHBENR_DMA1EN); //Ð’ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ‚Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ DMA1
+	DMA1_Channel1->CPAR = (uint32_t)&(ADC1->DR); //Ð—Ð°Ð´Ð°ÐµÐ¼ Ð°Ð´Ñ€ÐµÑ Ð¿ÐµÑ€Ð¸Ñ„ÐµÑ€Ð¸Ð¹Ð½Ð¾Ð³Ð¾ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð°
+	DMA1_Channel1->CMAR = (uint32_t)ADC_Data; //Ð—Ð°Ð´Ð°ÐµÐ¼ Ð°Ð´Ñ€ÐµÑ Ð² Ð¿Ð°Ð¼ÑÑ‚Ð¸, ÐºÑƒÐ´Ð° Ð±ÑƒÐ´ÐµÐ¼ ÐºÐ¸Ð´Ð°Ñ‚ÑŒ Ð´Ð°Ð½Ð½Ñ‹Ðµ.
+	DMA1_Channel1->CNDTR = 2; //ÐÐ°ÑÑ‚Ñ€Ð¾Ð¸Ð¼ ÐºÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð´Ð»Ñ Ð¿ÐµÑ€ÐµÐ´Ð°Ñ‡Ð¸. ÐŸÐ¾ÑÐ»Ðµ ÐºÐ°Ð¶Ð´Ð¾Ð³Ð¾ Ð¿ÐµÑ€Ð¸Ñ„ÐµÑ€Ð¸Ð¹Ð½Ð¾Ð³Ð¾ ÑÐ¾Ð±Ñ‹Ñ‚Ð¸Ñ ÑÑ‚Ð¾ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ Ð±ÑƒÐ´ÐµÑ‚ ÑƒÐ¼ÐµÐ½ÑŒÑˆÐ°Ñ‚ÑŒÑÑ.
+	MODIFY_REG(DMA1_Channel1->CCR, DMA_CCR_PL_Msk, 0b00 << DMA_CCR_PL_Pos); //Ð—Ð°Ð´Ð°Ð´Ð¸Ð¼ Ð¿Ñ€Ð¸Ð¾Ñ€Ð¸Ñ‚ÐµÑ‚ ÐºÐ°Ð½Ð°Ð»Ð° Ð½Ð° Ð²Ñ‹ÑÐ¾ÐºÐ¸Ð¹
+	CLEAR_BIT(DMA1_Channel1->CCR, DMA_CCR_DIR); //Ð§Ñ‚ÐµÐ½Ð¸Ðµ Ð±ÑƒÐ´ÐµÐ¼ Ð¾ÑÑƒÑ‰ÐµÑÑ‚Ð²Ð»ÑÑ‚ÑŒ Ñ Ð¿ÐµÑ€Ð¸Ñ„ÐµÑ€Ð¸Ð¸
+	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_CIRC); //ÐÐ°ÑÑ‚Ñ€Ð¾Ð¸Ð¼ DMA Ð² Circular mode
+	MODIFY_REG(DMA1_Channel1->CCR, DMA_CCR_PSIZE_Msk, 0b01 << DMA_CCR_PSIZE_Pos); //Ð Ð°Ð·Ð¼ÐµÑ€ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¿ÐµÑ€Ð¸Ñ„ÐµÑ€Ð¸Ð¹Ð½Ð¾Ð³Ð¾ ÑƒÑÑ‚Ñ€Ð¾Ð¹ÑÑ‚Ð²Ð° 16 Ð±Ð¸Ñ‚
+	MODIFY_REG(DMA1_Channel1->CCR, DMA_CCR_MSIZE_Msk, 0b01 << DMA_CCR_MSIZE_Pos); //Ð Ð°Ð·Ð¼ÐµÑ€ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð² Ð¿Ð°Ð¼ÑÑ‚Ð¸ 16 Ð±Ð¸Ñ‚
+	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_TCIE); //Ð’ÐºÐ»ÑŽÑ‡Ð¸Ð¼ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ðµ Ð¿Ð¾ Ð¿Ð¾Ð»Ð½Ð¾Ð¹ Ð¿ÐµÑ€ÐµÐ´Ð°Ñ‡Ðµ
+	CLEAR_BIT(DMA1_Channel1->CCR, DMA_CCR_HTIE); //ÐžÑ‚ÐºÐ»ÑŽÑ‡Ð¸Ð¼ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ðµ Ð¿Ð¾ Ð¿Ð¾Ð»Ð¾Ð²Ð¸Ð½Ð½Ð¾Ð¹ Ð¿ÐµÑ€ÐµÐ´Ð°Ñ‡Ðµ
+	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_TEIE); //Ð’ÐºÐ»ÑŽÑ‡Ð¸Ð¼ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ðµ Ð¿Ð¾ Ð¾ÑˆÐ¸Ð±ÐºÐµ Ð¿ÐµÑ€ÐµÐ´Ð°Ñ‡Ð¸.
+	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_MINC); //Ð’ÐºÐ»ÑŽÑ‡Ð¸Ð¼ Ð¸Ð½ÐºÑ€ÐµÐ¼ÐµÐ½Ñ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¿Ð°Ð¼ÑÑ‚Ð¸
 	SET_BIT(DMA1_Channel1->CCR, DMA_CCR_EN); //DMA ON
 	NVIC_EnableIRQ(DMA1_Channel1_IRQn);
 
 	
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_ADC1EN); //Âêëþ÷åíèå òàêòèðîâàíèÿ ADC1.
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Âêëþ÷åíèå òàêòèðîâàíèÿ ïîðòà À.
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_ADC1EN); //Ð’ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ‚Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ ADC1.
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Ð’ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ‚Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ Ð¿Ð¾Ñ€Ñ‚Ð° Ð.
 	
-	/*Íàñòðîéêà íîæåê PA0 è PA1 íà àíàëîãîâûé âõîä*/
+	/*ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° Ð½Ð¾Ð¶ÐµÐº PA0 Ð¸ PA1 Ð½Ð° Ð°Ð½Ð°Ð»Ð¾Ð³Ð¾Ð²Ñ‹Ð¹ Ð²Ñ…Ð¾Ð´*/
 	/*Pin PA0 - Analog*/
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF0_Msk, 0b00 << GPIO_CRL_CNF0_Pos);
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE0_Msk, 0b00 << GPIO_CRL_MODE0_Pos);
@@ -65,17 +65,17 @@ int main(void) {
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE1_Msk, 0b00 << GPIO_CRL_MODE1_Pos);
 	
 	
-	/*11.12 ADC registers(ñòðàíèöà 237)*/
-	//11.12.2 ADC control register 1 (ADC_CR1)(ñòðàíèöà 238)
+	/*11.12 ADC registers(ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° 237)*/
+	//11.12.2 ADC control register 1 (ADC_CR1)(ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° 238)
 	
 	CLEAR_BIT(ADC1->CR1, ADC_CR1_EOCIE); //EOC interrupt enabled/disabled. An interrupt is generated when the EOC bit is set
 	CLEAR_BIT(ADC1->CR1, ADC_CR1_AWDIE); //Analog watchdog interrupt disabled
 	CLEAR_BIT(ADC1->CR1, ADC_CR1_JEOCIE); //JEOC interrupt disabled
 	SET_BIT(ADC1->CR1, ADC_CR1_SCAN); //Scan mode enabled
 	
-	/* Ïðèìå÷àíèå:
-	* Ïðåðûâàíèå EOC èëè JEOC ãåíåðèðóåòñÿ òîëüêî â êîíöå ïðåîáðàçîâàíèÿ ïîñëåäíåãî êàíàëà, 
-	* åñëè óñòàíîâëåí ñîîòâåòñòâóþùèé áèò EOCIE èëè JEOCIE.*/
+	/* ÐŸÑ€Ð¸Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ:
+	* ÐŸÑ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ðµ EOC Ð¸Ð»Ð¸ JEOC Ð³ÐµÐ½ÐµÑ€Ð¸Ñ€ÑƒÐµÑ‚ÑÑ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð² ÐºÐ¾Ð½Ñ†Ðµ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ñ Ð¿Ð¾ÑÐ»ÐµÐ´Ð½ÐµÐ³Ð¾ ÐºÐ°Ð½Ð°Ð»Ð°, 
+	* ÐµÑÐ»Ð¸ ÑƒÑÑ‚Ð°Ð½Ð¾Ð²Ð»ÐµÐ½ ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¹ Ð±Ð¸Ñ‚ EOCIE Ð¸Ð»Ð¸ JEOCIE.*/
 	
 	CLEAR_BIT(ADC1->CR1, ADC_CR1_AWDSGL); //Analog watchdog enabled on all channels
 	CLEAR_BIT(ADC1->CR1, ADC_CR1_JAUTO); //Automatic injected group conversion disabled
@@ -85,30 +85,30 @@ int main(void) {
 	CLEAR_BIT(ADC1->CR1, ADC_CR1_JAWDEN); //Analog watchdog disabled on injected channels
 	CLEAR_BIT(ADC1->CR1, ADC_CR1_AWDEN); //Analog watchdog disabled on regular channels
 	
-	/*11.12.3 ADC control register 2 (ADC_CR2)(ñòðàíèöà 240)*/
+	/*11.12.3 ADC control register 2 (ADC_CR2)(ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° 240)*/
 	
-	SET_BIT(ADC1->CR2, ADC_CR2_ADON); //Çàïóñòèòü ÀÖÏ
+	SET_BIT(ADC1->CR2, ADC_CR2_ADON); //Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ñ‚ÑŒ ÐÐ¦ÐŸ
 	
-	/* Ïðèìå÷àíèå:
-	* Åñëè â ýòîò æå ìîìåíò èçìåíÿåòñÿ êàêîé-ëèáî äðóãîé áèò â ýòîì ðåãèñòðå, 
-	* êðîìå ADON, òî êîíâåðñèÿ íå çàïóñêàåòñÿ. 
-	* Ýòî ñäåëàíî äëÿ ïðåäîòâðàùåíèÿ îøèáî÷íîãî ïðåîáðàçîâàíèÿ.*/
+	/* ÐŸÑ€Ð¸Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ:
+	* Ð•ÑÐ»Ð¸ Ð² ÑÑ‚Ð¾Ñ‚ Ð¶Ðµ Ð¼Ð¾Ð¼ÐµÐ½Ñ‚ Ð¸Ð·Ð¼ÐµÐ½ÑÐµÑ‚ÑÑ ÐºÐ°ÐºÐ¾Ð¹-Ð»Ð¸Ð±Ð¾ Ð´Ñ€ÑƒÐ³Ð¾Ð¹ Ð±Ð¸Ñ‚ Ð² ÑÑ‚Ð¾Ð¼ Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ðµ, 
+	* ÐºÑ€Ð¾Ð¼Ðµ ADON, Ñ‚Ð¾ ÐºÐ¾Ð½Ð²ÐµÑ€ÑÐ¸Ñ Ð½Ðµ Ð·Ð°Ð¿ÑƒÑÐºÐ°ÐµÑ‚ÑÑ. 
+	* Ð­Ñ‚Ð¾ ÑÐ´ÐµÐ»Ð°Ð½Ð¾ Ð´Ð»Ñ Ð¿Ñ€ÐµÐ´Ð¾Ñ‚Ð²Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ Ð¾ÑˆÐ¸Ð±Ð¾Ñ‡Ð½Ð¾Ð³Ð¾ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ñ.*/
 	
-	SET_BIT(ADC1->CR2, ADC_CR2_CONT); //Continuous conversion mode(íåïðåðûâíûå ïðåîáðàçîâàíèÿ) 
+	SET_BIT(ADC1->CR2, ADC_CR2_CONT); //Continuous conversion mode(Ð½ÐµÐ¿Ñ€ÐµÑ€Ñ‹Ð²Ð½Ñ‹Ðµ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ñ) 
 	SET_BIT(ADC1->CR2, ADC_CR2_CAL); //Enable calibration
     
-	/*Ïðèìå÷àíèå:
-     * Ýòîò áèò óñòàíàâëèâàåòñÿ ïðîãðàììîé äëÿ çàïóñêà êàëèáðîâêè. 
-     * Îí ñáðàñûâàåòñÿ àïïàðàòíî ïîñëå çàâåðøåíèÿ êàëèáðîâêè.*/
+	/*ÐŸÑ€Ð¸Ð¼ÐµÑ‡Ð°Ð½Ð¸Ðµ:
+     * Ð­Ñ‚Ð¾Ñ‚ Ð±Ð¸Ñ‚ ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ð¾Ð¹ Ð´Ð»Ñ Ð·Ð°Ð¿ÑƒÑÐºÐ° ÐºÐ°Ð»Ð¸Ð±Ñ€Ð¾Ð²ÐºÐ¸. 
+     * ÐžÐ½ ÑÐ±Ñ€Ð°ÑÑ‹Ð²Ð°ÐµÑ‚ÑÑ Ð°Ð¿Ð¿Ð°Ñ€Ð°Ñ‚Ð½Ð¾ Ð¿Ð¾ÑÐ»Ðµ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ñ ÐºÐ°Ð»Ð¸Ð±Ñ€Ð¾Ð²ÐºÐ¸.*/
 	
-	while (READ_BIT(ADC1->CR2, ADC_CR2_CAL)) ;//Ïîäîæäåì îêîí÷àíèÿ êàëèáðîâêè
-	Delay_ms(1); //Çàäåðæêà äëÿ GD32F103CBT6. Íà STM32F103CBT6 ðàáîòàåò è òàê. 
+	while (READ_BIT(ADC1->CR2, ADC_CR2_CAL)) ;//ÐŸÐ¾Ð´Ð¾Ð¶Ð´ÐµÐ¼ Ð¾ÐºÐ¾Ð½Ñ‡Ð°Ð½Ð¸Ñ ÐºÐ°Ð»Ð¸Ð±Ñ€Ð¾Ð²ÐºÐ¸
+	Delay_ms(1); //Ð—Ð°Ð´ÐµÑ€Ð¶ÐºÐ° Ð´Ð»Ñ GD32F103CBT6. ÐÐ° STM32F103CBT6 Ñ€Ð°Ð±Ð¾Ñ‚Ð°ÐµÑ‚ Ð¸ Ñ‚Ð°Ðº. 
 	
-	SET_BIT(ADC1->CR2, ADC_CR2_DMA); //DMA âêëþ÷åí
-	CLEAR_BIT(ADC1->CR2, ADC_CR2_ALIGN); //Âûðàâíèâàíèå ïî ïðàâîìó êðàþ
-	MODIFY_REG(ADC1->CR2, ADC_CR2_EXTSEL_Msk, 0b111 << ADC_CR2_EXTSEL_Pos); //Çàïóñêàòü ïðåîáðàçîâàíèå ïðîãðàììíî
+	SET_BIT(ADC1->CR2, ADC_CR2_DMA); //DMA Ð²ÐºÐ»ÑŽÑ‡ÐµÐ½
+	CLEAR_BIT(ADC1->CR2, ADC_CR2_ALIGN); //Ð’Ñ‹Ñ€Ð°Ð²Ð½Ð¸Ð²Ð°Ð½Ð¸Ðµ Ð¿Ð¾ Ð¿Ñ€Ð°Ð²Ð¾Ð¼Ñƒ ÐºÑ€Ð°ÑŽ
+	MODIFY_REG(ADC1->CR2, ADC_CR2_EXTSEL_Msk, 0b111 << ADC_CR2_EXTSEL_Pos); //Ð—Ð°Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð¿Ñ€Ð¾Ð³Ñ€Ð°Ð¼Ð¼Ð½Ð¾
 	CLEAR_BIT(ADC1->CR2, ADC_CR2_EXTTRIG); //Conversion on external event disabled
-	//SET_BIT(ADC1->CR2, ADC_CR2_SWSTART); //Íà÷àòü ïðåîáðàçîâàíèå
+	//SET_BIT(ADC1->CR2, ADC_CR2_SWSTART); //ÐÐ°Ñ‡Ð°Ñ‚ÑŒ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ðµ
 	SET_BIT(ADC1->CR2, ADC_CR2_TSVREFE); //Temperature sensor and VREFINT channel enabled
 
 
@@ -118,21 +118,21 @@ int main(void) {
      * ADC2 analog input Channel16 and Channel17 are internally connected to VSS.
      * ADC3 analog inputs Channel14, Channel15, Channel16 and Channel17 are connected to VSS.*/
 	
-	// 11.12.5 ADC sample time register 2 (ADC_SMPR2)(ñòðàíèöà 245)
+	// 11.12.5 ADC sample time register 2 (ADC_SMPR2)(ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° 245)
 	MODIFY_REG(ADC1->SMPR2, ADC_SMPR2_SMP0_Msk, 0b111 << ADC_SMPR2_SMP0_Pos); //239.5 cycles 
 	MODIFY_REG(ADC1->SMPR2, ADC_SMPR2_SMP1_Msk, 0b111 << ADC_SMPR2_SMP1_Pos); //239.5 cycles 
 	MODIFY_REG(ADC1->SMPR1, ADC_SMPR1_SMP17_Msk, 0b111 << ADC_SMPR1_SMP17_Pos); //239.5 cycles 
 	
-	// 11.12.9 ADC regular sequence register 1 (ADC_SQR1)(ñòðàíèöà 247)
-	MODIFY_REG(ADC1->SQR1, ADC_SQR1_L_Msk, 0b0001 << ADC_SQR1_L_Pos); //2 ïðåîáðàçîâàíèÿ
+	// 11.12.9 ADC regular sequence register 1 (ADC_SQR1)(ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° 247)
+	MODIFY_REG(ADC1->SQR1, ADC_SQR1_L_Msk, 0b0001 << ADC_SQR1_L_Pos); //2 Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ñ
 	
-	// 11.12.11 ADC regular sequence register 3 (ADC_SQR3)(ñòðàíèöà 249)
+	// 11.12.11 ADC regular sequence register 3 (ADC_SQR3)(ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° 249)
 	MODIFY_REG(ADC1->SQR3, ADC_SQR3_SQ1_Msk, 0 << ADC_SQR3_SQ1_Pos);
 	MODIFY_REG(ADC1->SQR3, ADC_SQR3_SQ2_Msk, 17 << ADC_SQR3_SQ2_Pos);
-	//NVIC_EnableIRQ(ADC1_IRQn); //Ðàçðåøèòü ïðåðûâàíèÿ ïî ÀÖÏ
+	//NVIC_EnableIRQ(ADC1_IRQn); //Ð Ð°Ð·Ñ€ÐµÑˆÐ¸Ñ‚ÑŒ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ñ Ð¿Ð¾ ÐÐ¦ÐŸ
 	
 	
-	//SET_BIT(ADC1->CR2, ADC_CR2_SWSTART); //Íà÷àòü ïðåîáðàçîâàíèå. Íå íóæíî çàïóñêàòü, åñëè circular mode.
+	//SET_BIT(ADC1->CR2, ADC_CR2_SWSTART); //ÐÐ°Ñ‡Ð°Ñ‚ÑŒ Ð¿Ñ€ÐµÐ¾Ð±Ñ€Ð°Ð·Ð¾Ð²Ð°Ð½Ð¸Ðµ. ÐÐµ Ð½ÑƒÐ¶Ð½Ð¾ Ð·Ð°Ð¿ÑƒÑÐºÐ°Ñ‚ÑŒ, ÐµÑÐ»Ð¸ circular mode.
 	
 	while (1) {
 		GPIOC->BSRR = GPIO_BSRR_BR13;
