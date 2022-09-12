@@ -34,6 +34,7 @@ extern "C" {
 	void Delay_ms(uint32_t Milliseconds); //Функция задержки
 	void SysTick_Handler(void); //Прерывания от системного таймера
 	void CMSIS_PC13_OUTPUT_Push_Pull_init(void); //Пример настройки ножки PC13 в режим Push-Pull 50 MHz
+	void CMSIS_Blink_PC13(uint32_t ms); //Обычный blink
 	void CMSIS_PA8_MCO_init(void); //Пример настройки ножки PA8 в выход тактирующего сигнала c MCO
 	void CMSIS_RCC_AFIO_enable(void);//Включить тактирование для альтернативных функций
 	void CMSIS_AFIO_EXTICR1_B0_select(void);//Пример выбора ножки PB0 для работы с EXTI0
@@ -44,6 +45,9 @@ extern "C" {
 	void CMSIS_TIM3_PWM_CHANNEL1_init(void);//Запуск шим канала 1 (PA6 - Pin)
 	void CMSIS_TIM3_PWM_CHANNEL2_init(void);//Запуск шим канала 2 (PA7 - Pin)
 	void TIM3_IRQHandler(void);//Прерывание по таймеру 3.
+	void CMSIS_ADC_DMA_init(void); //Пример настройки АЦП + DMA на 2 канала. PA0 и Vrefint
+	void ADC1_2_IRQHandler(void); //Прерывание по АЦП
+	void DMA1_Channel1_IRQHandler(void); //Прерывание по DMA(АЦП)
 	
 #ifdef __cplusplus
 }
