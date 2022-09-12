@@ -132,7 +132,7 @@ int main(void) {
 	//NVIC_EnableIRQ(ADC1_IRQn); //Разрешить прерывания по АЦП
 	
 	
-	//SET_BIT(ADC1->CR2, ADC_CR2_SWSTART); //Начать преобразование. Не нужно запускать, если circular mode.
+	//SET_BIT(ADC1->CR2, ADC_CR2_SWSTART); //Начать преобразование. Не нужно запускать, если Continuous conversion mode(непрерывные преобразования) включен
 	
 	while (1) {
 		GPIOC->BSRR = GPIO_BSRR_BR13;
