@@ -28,7 +28,16 @@ extern "C" {
 	
 #include <main.h>
 #include <stdbool.h>
-        void CMSIS_Debug_init(void); //Настройка Debug (Serial Wire)
+	
+	//Структура по USART
+	struct USART_name {
+		uint8_t tx_buffer[64]; //Буфер под выходящие данные
+		uint8_t rx_buffer[64]; //Буфер под входящие данные
+		uint16_t rx_counter; //Счетчик приходящих данных типа uint8_t по USART
+		uint16_t rx_len; //Количество принятых байт после сработки флага IDLE
+	};
+    
+	void CMSIS_Debug_init(void); //Настройка Debug (Serial Wire)
 	void CMSIS_RCC_SystemClock_72MHz(void); //Настрока тактирования микроконтроллера на частоту 72MHz
 	void CMSIS_SysTick_Timer_init(void); //Инициализация системного таймера
 	void Delay_ms(uint32_t Milliseconds); //Функция задержки
@@ -48,6 +57,9 @@ extern "C" {
 	void CMSIS_ADC_DMA_init(void); //Пример настройки АЦП + DMA на 2 канала. PA0 и Vrefint
 	void ADC1_2_IRQHandler(void); //Прерывание по АЦП
 	void DMA1_Channel1_IRQHandler(void); //Прерывание по DMA(АЦП)
+	void CMSIS_USART_Init(void); //Инициализация USART
+	void CMSIS_USART_Transmit(USART_TypeDef *USART, uint8_t *data, uint16_t Size); //Отправка данных по USART
+	void USART1_IRQHandler(void); //Прерывание по USART1
 	
 #ifdef __cplusplus
 }
