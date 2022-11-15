@@ -267,7 +267,7 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 *  010 Two wait states, if 48 MHz < SYSCLK <= 72 MHz
 */	
 	
-	MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, FLASH_ACR_LATENCY_2); //010 Two wait states, if 48 MHz < SYSCLK <= 72 MHz
+	MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, 0b010 << FLASH_ACR_LATENCY_Pos); //010 Two wait states, if 48 MHz < SYSCLK <= 72 MHz
 	
 /**
 *  Bit 3 HLFCYA: Flash half cycle access enable
