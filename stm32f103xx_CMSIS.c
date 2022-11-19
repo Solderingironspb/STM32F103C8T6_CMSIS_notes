@@ -1492,3 +1492,422 @@ void CMSIS_USART_Transmit(USART_TypeDef *USART, uint8_t *data, uint16_t Size) {
 		USART->DR = *data++; //Кидаем данные  
 	}	
 }
+
+
+
+/*================================= НАСТРОЙКА I2C ============================================*/
+	
+/**
+***************************************************************************************
+*  @breif Inter-integrated circuit (I2C) interface
+*  Reference Manual/см. п.26 Inter-integrated circuit (I2C) interface (стр. 752)
+***************************************************************************************
+*/
+
+/*Функциональное описание*/
+/*
+ * Помимо приема и передачи данных, этот интерфейс преобразует из последовательного формата
+ * в параллельный и наоборот. Прерывания включаются или отключаются программно.
+ * Интерфейс имеет вывод данных (SDA) и вывод синхронизации (SCL)
+ * Его можно подключить с стандартной скоростью до 100 кГц или FastMode (до 400 кГц).
+ */
+
+/*Выбор режима*/
+/*
+ Интерфейс может работать в одном из четырех режимов:
+   - Slave transmitter
+   - Slave receiver
+   - Master transmitter
+   - Master receiver
+
+По-умолчанию он работает в slave режиме. Интерфейм автоматически переключается с slave на 
+master после того, как он сгенерирует условие START, и с master на slave, если происходит потеря
+арбитража или генерация STOP, что обеспечивает возможность работы в резиме мультимастера.
+*/
+
+
+/*Коммуникационный поток*/
+/*
+ * В режиме Master интерфейс I2C инициирует передачу данных и генерирует тактовый сигнал. 
+ * A последовательная передача данных всегда начинается с условия "старт" и заканчивается условием "стоп". 
+ * В режиме ведущего устройства условия старта и останова генерируются программно.
+ * В режиме Slave интерфейс способен распознавать свои собственные адреса (7 или 10-битные), а также
+ * адрес общего вызова. Распознавание адреса общего вызова может быть включено или отключено программным путем.
+ * Данные и адреса передаются в виде 8-битных байтов, MSB первым. 
+ * Первый байт(ы) содержат адрес (один в 7-битном режиме, два в 10-битном режиме). 
+ * Адрес всегда передается в режиме ведущего устройства.
+ * За 8 тактами передачи байта следует 9-й тактовый импульс, в течение которого приемник должен передать передатчику бит подтверждения
+*/
+
+/*Регистры(См. ReferenceManual стр. 772)*/
+
+/**
+ *************************************************************************************
+ *  @breif Функция инициализации шины I2C1. Sm.
+ *************************************************************************************
+ */
+
+void CMSIS_I2C1_Init(void) {
+	//Настройки тактирования
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN); //Запуск тактирование порта B
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Запуск тактирования альтернативных функций
+	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_I2C1EN); //Запуск тактирования I2C1
+	
+	//Настройки ножек SDA и SCL
+	//PB7 SDA (I2C Data I/O) Alternate function open drain
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_CNF7_Msk, 0b11 << GPIO_CRL_CNF7_Pos); //Alternate function open drain
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_MODE7_Msk, 0b11 << GPIO_CRL_MODE7_Pos); //Maximum output speed 50 MHz
+	//PB6 SCL (I2C clock) Alternate function open drain
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_CNF6_Msk, 0b11 << GPIO_CRL_CNF6_Pos); //Alternate function open drain
+	MODIFY_REG(GPIOB->CRL, GPIO_CRL_MODE6_Msk, 0b11 << GPIO_CRL_MODE6_Pos); //Maximum output speed 50 MHz
+	
+	//26.6 I2C registers(См. Reference Manual стр. 772)
+	
+	//п.п. 26.6.1 I2C Control register 1 (I2C_CR1) (стр. 772)
+	SET_BIT(I2C1->CR1, I2C_CR1_SWRST); //: I2C Peripheral not under reset
+	while (READ_BIT(I2C1->CR1, I2C_CR1_SWRST) == 0) ;
+	CLEAR_BIT(I2C1->CR1, I2C_CR1_SWRST); //: I2C Peripheral not under reset
+	while (READ_BIT(I2C1->CR1, I2C_CR1_SWRST)) ;
+	/* Примечание: Этот бит можно использовать для повторной инициализации 
+	 * периферийного устройства после ошибки или заблокированного состояния.
+	 * Например, если бит BUSY установлен и остается заблокированным из-за сбоя на шине,
+	 * бит SWRST можно использовать для выхода из этого состояния.*/
+	
+	CLEAR_BIT(I2C1->CR1, I2C_CR1_PEC); //No PEC transfer
+	
+	CLEAR_BIT(I2C1->CR1, I2C_CR1_ENGC); //General call disabled. Address 00h is NACKed.
+	CLEAR_BIT(I2C1->CR1, I2C_CR1_ENPEC); //PEC calculation disabled
+	CLEAR_BIT(I2C1->CR1, I2C_CR1_SMBUS); //I2C mode
+	
+	MODIFY_REG(I2C1->CR2, I2C_CR2_FREQ_Msk, 36 << I2C_CR2_FREQ_Pos);
+	
+	CLEAR_BIT(I2C1->OAR2, I2C_OAR2_ENDUAL); //Only OAR1 is recognized in 7-bit addressing mode
+	
+	CLEAR_BIT(I2C1->CCR, I2C_CCR_FS); //Standard mode I2C
+	
+	/*Расчет CCR для Sm 100кгц:
+	  Из Reference Manual следует:
+	  Sm mode or SMBus:
+	  Thigh = CCR * TPCLK1
+	  Tlow = CCR * TPCLK1
+
+	  If FREQ = 08, TPCLK1 = 125 ns so CCR must be programmed with 0x28
+	  (0x28 <=> 40d x 125 ns = 5000 ns.)
+      
+	  Период = 1/частоту., т.е. в нашем случае FREQ = 36, а это значит, что
+	  TPCLK1 = 1/36
+	  CCR * (1/36) = 5000 ns
+	  Тогда CCR = (5000/36)/1000 = 180  
+	*/
+	MODIFY_REG(I2C1->CCR, I2C_CCR_CCR_Msk, 180 << I2C_CCR_CCR_Pos);
+	MODIFY_REG(I2C1->TRISE, I2C_TRISE_TRISE_Msk, 37 << I2C_TRISE_TRISE_Pos);
+	SET_BIT(I2C1->CR1, I2C_CR1_PE); //I2C1 enable
+}
+
+/**
+ *************************************************************************************
+ *  @breif Функция сканирования устройства по заданному 7-битному адресу
+ *  @param  *I2C - шина I2C
+ *  @param  Adress_Device - Адрес устройства         
+ *  @retval  Возвращает статус true - если устройство по заданному адресу отозвалось, 
+ *           false - если устройство по заданному адресу не отвечает
+ *************************************************************************************
+ */
+bool CMSIS_I2C_Adress_Device_Scan(I2C_TypeDef *I2C, uint8_t Adress_Device) {
+	CLEAR_BIT(I2C->CR1, I2C_CR1_POS); //Бит ACK управляет (N)ACK текущего байта, принимаемого в сдвиговом регистре.
+	SET_BIT(I2C->CR1, I2C_CR1_START); //Стартуем.
+	while (READ_BIT(I2C->SR1, I2C_SR1_SB) == 0) ; //Ожидаем до момента, пока не сработает Start condition generated
+	//ВНИМАНИЕ!
+	/* Бит I2C_SR1_SB очищается программно путем чтения регистра SR1 с последующей записью в регистр DR или когда PE=0*/
+	I2C->SR1;
+	I2C->DR = (Adress_Device << 1); //Адрес + Write
+	
+	while ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 0) && (READ_BIT(I2C->SR1, I2C_SR1_ADDR) == 0)) ; //Ждем, пока адрес отзовется
+	
+	if (READ_BIT(I2C->SR1, I2C_SR1_ADDR)) {
+		//Если устройство отозвалось
+		SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+		/*Сброс бита ADDR производится чтением SR1, а потом SR2*/
+		I2C->SR1;
+		I2C->SR2;
+		return true;
+	} else {
+		//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+		SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+		CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+		return false;
+	}
+}
+
+
+
+/**
+ **************************************************************************************************
+ *  @breif Функция записи в память по указанному адресу
+ *  @param  *I2C - шина I2C
+ *  @param  Adress_Device - Адрес устройства      
+ *  @param  Adress_data - Адрес в памяти, куда будем записывать данные
+ *  @param  Size_adress - Размер адреса в байтах. Пример: 1 - 8 битный адрес. 2 - 16 битный адрес.
+ *  @param  *data - Данные, которые будем записывать
+ *  @param  Size_data - Размер, сколько байт будем записывать.
+ *  @retval  Возвращает статус записи. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_I2C_MemWrite(I2C_TypeDef *I2C, uint8_t Adress_Device, uint16_t Adress_data, uint8_t Size_adress, uint8_t* data, uint16_t Size_data) {
+	CLEAR_BIT(I2C->CR1, I2C_CR1_POS); //Бит ACK управляет (N)ACK текущего байта, принимаемого в сдвиговом регистре.
+	SET_BIT(I2C->CR1, I2C_CR1_START); //Стартуем.
+	while (READ_BIT(I2C->SR1, I2C_SR1_SB) == 0) ; //Ожидаем до момента, пока не сработает Start condition generated
+	//ВНИМАНИЕ!
+	/* Бит I2C_SR1_SB очищается программно путем чтения регистра SR1 с последующей записью в регистр DR или когда PE=0*/
+	I2C->SR1;
+	I2C->DR = (Adress_Device << 1); //Адрес + Write
+	while ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 0) && (READ_BIT(I2C->SR1, I2C_SR1_ADDR) == 0)) ; //Ждем, пока адрес отзовется
+	if (READ_BIT(I2C->SR1, I2C_SR1_ADDR)) {
+		//Если устройство отозвалось, сбросим бит ADDR
+		/*Сброс бита ADDR производится чтением SR1, а потом SR2*/
+		I2C->SR1;
+		I2C->SR2;
+		
+		/*Отправим адрес памяти*/
+		for (uint16_t i = 0; i < Size_adress; i++) {
+			I2C->DR = *((uint8_t*)&Adress_data + (Size_adress - 1 - i)); //Запись байта
+			while (READ_BIT(I2C->SR1, I2C_SR1_TXE) == 0) { 
+				//Ждем, пока данные загрузятся в регистр сдвига.
+				
+				if ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 1)) {
+					//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+					SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+					CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+					return false;
+				}	
+			}
+		}
+	
+		/*Будем записывать данные в ячейку памяти, начиная с указанного адреса*/
+		for (uint16_t i = 0; i < Size_data; i++) {
+			I2C->DR = *(data + i); //Запись байта
+			while (READ_BIT(I2C->SR1, I2C_SR1_TXE) == 0) {
+				//Ждем, пока данные загрузятся в регистр сдвига.
+				
+				if ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 1)) {
+					//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+					SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+					CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+					return false;
+				}
+			} 
+		}
+		
+		SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+
+		return true;
+	
+	} else {
+		//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+		SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+		CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+		
+		return false;
+	}
+}
+
+
+
+/**
+ **************************************************************************************************
+ *  @breif Функция чтения из памяти по указанному адресу
+ *  @param  *I2C - шина I2C
+ *  @param  Adress_Device - Адрес устройства      
+ *  @param  Adress_data - Адрес в памяти, откуда будем считывать данные
+ *  @param  Size_adress - Размер адреса в байтах. Пример: 1 - 8 битный адрес. 2 - 16 битный адрес.
+ *  @param  *data - Данные, в которые будем записывать считанную информацию.
+ *  @param  Size_data - Размер, сколько байт будем считывать.
+ *  @retval  Возвращает статус считывания. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_I2C_MemRead(I2C_TypeDef *I2C, uint8_t Adress_Device, uint16_t Adress_data, uint8_t Size_adress, uint8_t* data, uint16_t Size_data) {
+	CLEAR_BIT(I2C->CR1, I2C_CR1_POS); //Бит ACK управляет (N)ACK текущего байта, принимаемого в сдвиговом регистре.
+	SET_BIT(I2C->CR1, I2C_CR1_START); //Стартуем.
+	while (READ_BIT(I2C->SR1, I2C_SR1_SB) == 0) ; //Ожидаем до момента, пока не сработает Start condition generated
+	//ВНИМАНИЕ!
+	/* Бит I2C_SR1_SB очищается программно путем чтения регистра SR1 с последующей записью в регистр DR или когда PE=0*/
+	I2C->SR1;
+	I2C->DR = (Adress_Device << 1); //Адрес + команда Write
+	
+	while ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 0) && (READ_BIT(I2C->SR1, I2C_SR1_ADDR) == 0)) ; //Ждем, пока адрес отзовется
+	
+	if (READ_BIT(I2C->SR1, I2C_SR1_ADDR)) {
+		//Если устройство отозвалось, сбросим бит ADDR
+        /*Сброс бита ADDR производится чтением SR1, а потом SR2*/
+		I2C->SR1;
+		I2C->SR2;
+		
+		/*Отправим адрес памяти*/
+		for (uint16_t i = 0; i < Size_adress; i++) {
+			I2C->DR = *((uint8_t*)&Adress_data + (Size_adress - 1 - i)); //Запись байта
+			while (READ_BIT(I2C->SR1, I2C_SR1_TXE) == 0) { 
+				//Ждем, пока данные загрузятся в регистр сдвига.
+				
+				if ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 1)) {
+					//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+					SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+					CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+					return false;
+				}	
+			}
+		}
+		
+		//Повторный старт
+		SET_BIT(I2C->CR1, I2C_CR1_START); //Стартуем.
+		while (READ_BIT(I2C->SR1, I2C_SR1_SB) == 0) ; //Ожидаем до момента, пока не сработает Start condition generated
+		//ВНИМАНИЕ!
+		/* Бит I2C_SR1_SB очищается программно путем чтения регистра SR1 с последующей записью в регистр DR или когда PE=0*/
+		I2C->SR1;
+		I2C->DR = (Adress_Device << 1 | 1); //Адрес + команда Read
+		
+		while ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 0) && (READ_BIT(I2C->SR1, I2C_SR1_ADDR) == 0)) ; //Ждем, пока адрес отзовется
+		
+		if (READ_BIT(I2C->SR1, I2C_SR1_ADDR)) {
+			//Если устройство отозвалось, сбросим бит ADDR
+			/*Сброс бита ADDR производится чтением SR1, а потом SR2*/
+			I2C->SR1;
+			I2C->SR2;
+			
+			/*Прочтем данные, начиная с указанного адреса*/
+			for (uint16_t i = 0; i < Size_data; i++) {
+				if (i < Size_data - 1) {
+					SET_BIT(I2C->CR1, I2C_CR1_ACK); //Если мы хотим принять следующий байт, то отправляем ACK 
+					while (READ_BIT(I2C->SR1, I2C_SR1_RXNE) == 0) ;
+					*(data + i) = I2C->DR; //Чтение байта
+				} else {
+					CLEAR_BIT(I2C->CR1, I2C_CR1_ACK); //Если мы знаем, что следующий принятый байт будет последним, то отправим NACK
+		
+					SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+					while (READ_BIT(I2C->SR1, I2C_SR1_RXNE) == 0) ; //Подождем, пока сдвиговый регистр пополнится новым байтом данных
+					*(data + i) = I2C->DR; //Чтение байта
+				}
+			} return true;
+			
+		} else {
+			//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+			SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+			CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+			return false;
+		}
+		
+	} else {
+		//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+		SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+		CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+		return false;
+	}
+}
+
+
+/**
+ **************************************************************************************************
+ *  @breif Функция передачи данных по I2C
+ *  @param  *I2C - шина I2C
+ *  @param  Adress_Device - Адрес устройства      
+ *  @param  *data - Данные, которые будем отправлять
+ *  @param  Size_data - Размер, сколько байт будем отправлять.
+ *  @retval  Возвращает статус отправки данных. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_I2C_Data_Transmit(I2C_TypeDef *I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data) {
+	CLEAR_BIT(I2C->CR1, I2C_CR1_POS); //Бит ACK управляет (N)ACK текущего байта, принимаемого в сдвиговом регистре.
+	SET_BIT(I2C->CR1, I2C_CR1_START); //Стартуем.
+	while (READ_BIT(I2C->SR1, I2C_SR1_SB) == 0) ; //Ожидаем до момента, пока не сработает Start condition generated
+	//ВНИМАНИЕ!
+	/* Бит I2C_SR1_SB очищается программно путем чтения регистра SR1 с последующей записью в регистр DR или когда PE=0*/
+	I2C->SR1;
+	I2C->DR = (Adress_Device << 1); //Адрес + Write
+	
+	while ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 0) && (READ_BIT(I2C->SR1, I2C_SR1_ADDR) == 0)) ; //Ждем, пока адрес отзовется
+	
+	if (READ_BIT(I2C->SR1, I2C_SR1_ADDR)) {
+		//Если устройство отозвалось, сбросим бит ADDR
+		/*Сброс бита ADDR производится чтением SR1, а потом SR2*/
+		I2C->SR1;
+		I2C->SR2;
+		
+		/*Отправим данные*/
+		for (uint16_t i = 0; i < Size_data; i++) {
+			I2C->DR = *(data + i); //Запись байта
+			while (READ_BIT(I2C->SR1, I2C_SR1_TXE) == 0) {
+				//Ждем, пока данные загрузятся в регистр сдвига.
+				
+				if ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 1)) {
+					//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+					SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+					CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+					return false;
+				}
+			} 
+		}
+		
+		SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+
+		return true;
+	
+	} else {
+		//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+		SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+		CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+		
+		return false;
+	}
+}
+
+
+
+/**
+ **************************************************************************************************
+ *  @breif Функция приема данных по I2C
+ *  @param  *I2C - шина I2C
+ *  @param  Adress_Device - Адрес устройства      
+ *  @param  *data - Куда будем записывать принятые данные
+ *  @param  Size_data - Размер, сколько байт будем принимать.
+ *  @retval  Возвращает статус приема данных. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_I2C_Data_Receive(I2C_TypeDef *I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data) {
+	CLEAR_BIT(I2C->CR1, I2C_CR1_POS); //Бит ACK управляет (N)ACK текущего байта, принимаемого в сдвиговом регистре.
+	SET_BIT(I2C->CR1, I2C_CR1_START); //Стартуем.
+	while (READ_BIT(I2C->SR1, I2C_SR1_SB) == 0) ; //Ожидаем до момента, пока не сработает Start condition generated
+		//ВНИМАНИЕ!
+		/* Бит I2C_SR1_SB очищается программно путем чтения регистра SR1 с последующей записью в регистр DR или когда PE=0*/
+	I2C->SR1;
+	I2C->DR = (Adress_Device << 1 | 1); //Адрес + команда Read
+		
+	while ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 0) && (READ_BIT(I2C->SR1, I2C_SR1_ADDR) == 0)) ; //Ждем, пока адрес отзовется
+		
+	if (READ_BIT(I2C->SR1, I2C_SR1_ADDR)) {
+		//Если устройство отозвалось, сбросим бит ADDR
+		/*Сброс бита ADDR производится чтением SR1, а потом SR2*/
+		I2C->SR1;
+		I2C->SR2;
+			
+		/*Прочтем данные*/
+		for (uint16_t i = 0; i < Size_data; i++) {
+			if (i < Size_data - 1) {
+				SET_BIT(I2C->CR1, I2C_CR1_ACK); //Если мы хотим принять следующий байт, то отправляем ACK 
+				while (READ_BIT(I2C->SR1, I2C_SR1_RXNE) == 0) ;
+				*(data + i) = I2C->DR; //Чтение байта
+			} else {
+				CLEAR_BIT(I2C->CR1, I2C_CR1_ACK); //Если мы знаем, что следующий принятый байт будет последним, то отправим NACK
+		
+				SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+				while (READ_BIT(I2C->SR1, I2C_SR1_RXNE) == 0) ; //Подождем, пока сдвиговый регистр пополнится новым байтом данных
+				*(data + i) = I2C->DR; //Чтение байта
+			}
+		} return true;
+			
+	} else {
+		//Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF 
+		SET_BIT(I2C->CR1, I2C_CR1_STOP); //Останавливаем
+		CLEAR_BIT(I2C->SR1, I2C_SR1_AF); //Сбрасываем бит AF
+		return false;
+	}
+		
+} 
