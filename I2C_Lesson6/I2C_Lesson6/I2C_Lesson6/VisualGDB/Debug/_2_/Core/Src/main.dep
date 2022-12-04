@@ -1,0 +1,32 @@
+VisualGDB/Debug/_2_/Core/Src/main.o: \
+ C:/dev/VisualGDB/I2C_Lesson6/Core/Src/main.c ../../Core/Inc/main.h \
+ ../../Drivers/CMSIS/stm32f1xx.h ../../Drivers/CMSIS/stm32f103xb.h \
+ ../../Drivers/CMSIS/core_cm3.h \
+ c:\sysgcc\arm-eabi\lib\gcc\arm-none-eabi\10.3.1\include\stdint.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\stdint.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\machine\_default_types.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\features.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\_newlib_version.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\_intsup.h \
+ c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\_stdint.h \
+ ../../Drivers/CMSIS/cmsis_version.h ../../Drivers/CMSIS/cmsis_compiler.h \
+ ../../Drivers/CMSIS/cmsis_gcc.h ../../Drivers/CMSIS/system_stm32f1xx.h \
+ ../../Core/Inc/stm32f103xx_CMSIS.h \
+ c:\sysgcc\arm-eabi\lib\gcc\arm-none-eabi\10.3.1\include\stdbool.h
+../../Core/Inc/main.h:
+../../Drivers/CMSIS/stm32f1xx.h:
+../../Drivers/CMSIS/stm32f103xb.h:
+../../Drivers/CMSIS/core_cm3.h:
+c:\sysgcc\arm-eabi\lib\gcc\arm-none-eabi\10.3.1\include\stdint.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\stdint.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\machine\_default_types.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\features.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\_newlib_version.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\_intsup.h:
+c:\sysgcc\arm-eabi\arm-none-eabi\include\sys\_stdint.h:
+../../Drivers/CMSIS/cmsis_version.h:
+../../Drivers/CMSIS/cmsis_compiler.h:
+../../Drivers/CMSIS/cmsis_gcc.h:
+../../Drivers/CMSIS/system_stm32f1xx.h:
+../../Core/Inc/stm32f103xx_CMSIS.h:
+c:\sysgcc\arm-eabi\lib\gcc\arm-none-eabi\10.3.1\include\stdbool.h:
