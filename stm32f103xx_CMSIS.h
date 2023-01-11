@@ -31,8 +31,8 @@ extern "C" {
 	
 	//Структура по USART
 	struct USART_name {
-		uint8_t tx_buffer[64]; //Буфер под выходящие данные
-		uint8_t rx_buffer[64]; //Буфер под входящие данные
+		uint8_t tx_buffer[20]; //Буфер под выходящие данные
+		uint8_t rx_buffer[20]; //Буфер под входящие данные
 		uint16_t rx_counter; //Счетчик приходящих данных типа uint8_t по USART
 		uint16_t rx_len; //Количество принятых байт после сработки флага IDLE
 	};
@@ -57,16 +57,17 @@ extern "C" {
 	void CMSIS_ADC_DMA_init(void); //Пример настройки АЦП + DMA на 2 канала. PA0 и Vrefint
 	void ADC1_2_IRQHandler(void); //Прерывание по АЦП
 	void DMA1_Channel1_IRQHandler(void); //Прерывание по DMA(АЦП)
-	void CMSIS_USART_Init(void); //Инициализация USART1
-	void CMSIS_USART_Transmit(USART_TypeDef *USART, uint8_t *data, uint16_t Size); //Отправка данных по USART
+	void CMSIS_USART1_Init(void); //Инициализация USART1
+	void CMSIS_USART2_Init(void); //Инициализация USART2
+	bool CMSIS_USART_Transmit(USART_TypeDef* USART, uint8_t* data, uint16_t Size, uint32_t Timeout_ms); //Отправка данных по USART
 	void USART1_IRQHandler(void); //Прерывание по USART1
-        void CMSIS_I2C_Reset(void); //Сброс настроек I2C
-    	void CMSIS_I2C1_Init(void); //Функция инициализации шины I2C1. Sm.
-    	bool CMSIS_I2C_Adress_Device_Scan(I2C_TypeDef *I2C, uint8_t Adress_Device, uint32_t Timeout_ms); //Функция сканирования устройства по заданному 7-битному адресу
-    	bool CMSIS_I2C_Data_Transmit(I2C_TypeDef *I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция передачи данных по I2C
-    	bool CMSIS_I2C_Data_Receive(I2C_TypeDef *I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция приема данных по I2C
-    	bool CMSIS_I2C_MemWrite(I2C_TypeDef *I2C, uint8_t Adress_Device, uint16_t Adress_data, uint8_t Size_adress, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция записи в память по указанному адресу
-    	bool CMSIS_I2C_MemRead(I2C_TypeDef *I2C, uint8_t Adress_Device, uint16_t Adress_data, uint8_t Size_adress, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция чтения из памяти по указанному адресу
+    void CMSIS_I2C_Reset(void); //Сброс настроек I2C
+    void CMSIS_I2C1_Init(void); //Функция инициализации шины I2C1. Sm.
+    bool CMSIS_I2C_Adress_Device_Scan(I2C_TypeDef *I2C, uint8_t Adress_Device, uint32_t Timeout_ms); //Функция сканирования устройства по заданному 7-битному адресу
+    bool CMSIS_I2C_Data_Transmit(I2C_TypeDef *I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция передачи данных по I2C
+    bool CMSIS_I2C_Data_Receive(I2C_TypeDef *I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция приема данных по I2C
+    bool CMSIS_I2C_MemWrite(I2C_TypeDef *I2C, uint8_t Adress_Device, uint16_t Adress_data, uint8_t Size_adress, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция записи в память по указанному адресу
+    bool CMSIS_I2C_MemRead(I2C_TypeDef *I2C, uint8_t Adress_Device, uint16_t Adress_data, uint8_t Size_adress, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция чтения из памяти по указанному адресу
 	
 	
 	
