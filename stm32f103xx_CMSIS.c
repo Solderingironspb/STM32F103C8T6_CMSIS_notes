@@ -1383,14 +1383,16 @@ baud rate generator.
   */
   
 struct USART_name husart1; //Объявляем структуру по USART.(см. stm32f103xx_CMSIS.h)
+struct USART_name husart2; //Объявляем структуру по USART.(см. stm32f103xx_CMSIS.h)
+
 
 /**
  ******************************************************************************
- *  @breif Настройка USART. Параметры 115200 8 N 1
+ *  @breif Настройка USART1. Параметры 9600 8 N 1
  ******************************************************************************
  */
 
-void CMSIS_USART_Init(void) {
+void CMSIS_USART1_Init(void) {
 	
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включение тактирование порта А
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Включение альтернативных функций
@@ -1430,8 +1432,8 @@ void CMSIS_USART_Init(void) {
 
 	*/
 	
-	MODIFY_REG(USART1->BRR, USART_BRR_DIV_Mantissa_Msk, 0x27 << USART_BRR_DIV_Mantissa_Pos);
-	MODIFY_REG(USART1->BRR, USART_BRR_DIV_Fraction_Msk, 0x1 << USART_BRR_DIV_Fraction_Pos);
+	MODIFY_REG(USART1->BRR, USART_BRR_DIV_Mantissa_Msk, 0x1D4 << USART_BRR_DIV_Mantissa_Pos);
+	MODIFY_REG(USART1->BRR, USART_BRR_DIV_Fraction_Msk, 0xC << USART_BRR_DIV_Fraction_Pos);
 	
 	//27.6.4 Control register 1(USART_CR1)(см. стр 821 Reference Manual)
 	SET_BIT(USART1->CR1, USART_CR1_UE); //USART enable
@@ -1455,7 +1457,81 @@ void CMSIS_USART_Init(void) {
 	USART1->CR3 = 0;
 	USART1->GTPR = 0;
 
-	NVIC_EnableIRQ(USART1_IRQn); //Включим прерывания по USART
+	NVIC_EnableIRQ(USART1_IRQn); //Включим прерывания по USART1
+}
+
+/**
+ ******************************************************************************
+ *  @breif Настройка USART2. Параметры 9600 8 N 1
+ ******************************************************************************
+ */
+
+void CMSIS_USART2_Init(void) {
+	
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включение тактирование порта А
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Включение альтернативных функций
+	
+	//Для конфигурирование ножек UART для Full Duplex нужно использовать Alternate function push-pull(См. п.п. 9.1.11 GPIO configurations for device peripherals стр.111 Reference Manual)
+	//Tx - Alternative Function output Push-pull(Maximum output speed 50 MHz)
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF2_Msk, 0b10 << GPIO_CRL_CNF2_Pos); 
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE2_Msk, 0b11 << GPIO_CRL_MODE2_Pos);
+	//Rx - Input floating
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF3_Msk, 0b1 << GPIO_CRL_CNF3_Pos);
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE3_Msk, 0b00 << GPIO_CRL_MODE3_Pos);
+	
+	//Запустим тактирование USART2
+	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_USART2EN);
+	
+	/*Расчет Fractional baud rate generation
+	есть формула:
+	Tx/Rx baud = fCK/(16*USARTDIV)
+	где fCK - Input clock to the peripheral (PCLK1 for USART2, 3, 4, 5 or PCLK2 for USART1)
+	в нашем случае fCK = 36000000
+	допустим нам нужна скорость 9600
+	9600 = 36000000/(16*USARTDIV)
+	
+	Тогда USARTDIV = 36000000/9600*16 = 234.375
+	DIV_Mantissa в данном случае будет 234, что есть 0xEA
+	DIV_Fraction будет, как 0.375*16 = 6, что есть 0x6
+	
+	Тогда весь регистр USART->BRR для скорости 9600 будет выглядеть, как 0xEA6.
+	
+	для примера еще разберем скорость 115200: (Неточность по скорости будет 0.15%. Не рекомендуется)
+	115200 = 36000000/(16*USARTDIV)
+	Тогда USARTDIV = 36000000/115200*16 = 19.53125
+	DIV_Mantissa в данном случае будет 19, что есть 0x13
+	DIV_Fraction будет, как 0.53125*16 = 8, что есть 0x8
+	
+	Тогда весь регистр USART->BRR для скорости 115200 будет выглядеть, как 0x138.
+
+	*/
+	
+	MODIFY_REG(USART2->BRR, USART_BRR_DIV_Mantissa_Msk, 0xEA << USART_BRR_DIV_Mantissa_Pos);
+	MODIFY_REG(USART2->BRR, USART_BRR_DIV_Fraction_Msk, 0x6 << USART_BRR_DIV_Fraction_Pos);
+	
+	//27.6.4 Control register 1(USART_CR1)(см. стр 821 Reference Manual)
+	SET_BIT(USART2->CR1, USART_CR1_UE); //USART enable
+	CLEAR_BIT(USART2->CR1, USART_CR1_M); //Word lenght 1 Start bit, 8 Data bits, n Stop bit
+	CLEAR_BIT(USART2->CR1, USART_CR1_WAKE); //Wake up idle Line
+	CLEAR_BIT(USART2->CR1, USART_CR1_PCE); //Partity control disabled
+	//настройка прерываний
+	CLEAR_BIT(USART2->CR1, USART_CR1_PEIE); //partity error interrupt disabled
+	CLEAR_BIT(USART2->CR1, USART_CR1_TXEIE); //TXE interrupt is inhibited
+	CLEAR_BIT(USART2->CR1, USART_CR1_TCIE); //Transmission complete interrupt disabled
+	SET_BIT(USART2->CR1, USART_CR1_RXNEIE); //Прерывание по приему данных включено
+	SET_BIT(USART2->CR1, USART_CR1_IDLEIE); //Прерывание по флагу IDLE включено
+	SET_BIT(USART2->CR1, USART_CR1_TE); //Transmitter is enabled
+	SET_BIT(USART2->CR1, USART_CR1_RE); //Receiver is enabled and begins searching for a start bit
+	CLEAR_BIT(USART2->CR1, USART_CR1_RWU);
+	CLEAR_BIT(USART2->CR1, USART_CR1_SBK);
+	
+	//Остальную настройку, не касающуюся стандартного USART, мы пока трогать не будем, но на всякий случай обнулим
+	USART2->CR2 = 0;
+	CLEAR_BIT(USART2->CR2, USART_CR2_STOP); //1 стоп бит.
+	USART2->CR3 = 0;
+	USART2->GTPR = 0;
+
+	NVIC_EnableIRQ(USART2_IRQn); //Включим прерывания по USART2
 }
 
 /**
@@ -1474,8 +1550,22 @@ __WEAK void USART1_IRQHandler(void) {
 		//Если прилетел флаг IDLE
 		USART1->DR; //Сбросим флаг IDLE
 		husart1.rx_len = husart1.rx_counter; //Узнаем, сколько байт получили
-		//CMSIS_USART_Transmit(USART1, husart1.rx_buffer, husart1.rx_len); //Отправим в порт то, что прилетело для проверки.
 		husart1.rx_counter = 0; //сбросим счетчик приходящих данных
+	}
+}
+
+
+__WEAK void USART2_IRQHandler(void) {
+	if (READ_BIT(USART2->SR, USART_SR_RXNE)) {
+		//Если пришли данные по USART
+		husart2.rx_buffer[husart2.rx_counter] = USART2->DR; //Считаем данные в соответствующую ячейку в rx_buffer
+		husart2.rx_counter++; //Увеличим счетчик принятых байт на 1
+	}
+	if (READ_BIT(USART2->SR, USART_SR_IDLE)) {
+		//Если прилетел флаг IDLE
+		USART2->DR; //Сбросим флаг IDLE
+		husart2.rx_len = husart2.rx_counter; //Узнаем, сколько байт получили
+		husart2.rx_counter = 0; //сбросим счетчик приходящих данных
 	}
 }
 
@@ -1489,11 +1579,18 @@ __WEAK void USART1_IRQHandler(void) {
  ******************************************************************************
  */
 
-void CMSIS_USART_Transmit(USART_TypeDef *USART, uint8_t *data, uint16_t Size) {
+bool CMSIS_USART_Transmit(USART_TypeDef *USART, uint8_t *data, uint16_t Size, uint32_t Timeout_ms) {
 	for (uint16_t i = 0; i < Size; i++) {
-		while (READ_BIT(USART->SR, USART_SR_TXE) == 0) ; //Ждем, пока линия не освободится
+		Timeout_counter_ms = Timeout_ms;
+		//Ждем, пока линия не освободится
+		while (READ_BIT(USART->SR, USART_SR_TXE) == 0) {
+			if (!Timeout_counter_ms) {
+				return false;
+			}
+		}
 		USART->DR = *data++; //Кидаем данные  
-	}	
+	}
+	return true;
 }
 
 
@@ -1609,8 +1706,8 @@ void CMSIS_I2C1_Init(void) {
 	I2C1->OAR2 = 0;
 	
 	//п.п. 26.6.8 I2C Clock control register (I2C_CCR)(стр.781)
-	//CLEAR_BIT(I2C1->CCR, I2C_CCR_FS); //Standard mode I2C
-	SET_BIT(I2C1->CCR, I2C_CCR_FS); //Fast mode I2C
+	CLEAR_BIT(I2C1->CCR, I2C_CCR_FS); //Standard mode I2C
+	//SET_BIT(I2C1->CCR, I2C_CCR_FS); //Fast mode I2C
 
 	CLEAR_BIT(I2C1->CCR, I2C_CCR_DUTY); //Fm mode tlow/thigh = 2
 	//SET_BIT(I2C1->CCR, I2C_CCR_DUTY); //Fm mode tlow/thigh = 16/9 (see CCR)
@@ -1621,8 +1718,8 @@ void CMSIS_I2C1_Init(void) {
 	//MODIFY_REG(I2C1->CCR, I2C_CCR_CCR_Msk, 4 << I2C_CCR_CCR_Pos); //для Fm mode. DUTY 1.
 	
 	//п.п. 26.6.9 I2C TRISE register (I2C_TRISE)(стр. 782)
-	//MODIFY_REG(I2C1->TRISE, I2C_TRISE_TRISE_Msk, 37 << I2C_TRISE_TRISE_Pos); //для Sm mode
-	MODIFY_REG(I2C1->TRISE, I2C_TRISE_TRISE_Msk, 12 << I2C_TRISE_TRISE_Pos); //для Fm mode
+	MODIFY_REG(I2C1->TRISE, I2C_TRISE_TRISE_Msk, 37 << I2C_TRISE_TRISE_Pos); //для Sm mode
+	//MODIFY_REG(I2C1->TRISE, I2C_TRISE_TRISE_Msk, 12 << I2C_TRISE_TRISE_Pos); //для Fm mode
 	
 	SET_BIT(I2C1->CR1, I2C_CR1_PE); //I2C1 enable
 }
