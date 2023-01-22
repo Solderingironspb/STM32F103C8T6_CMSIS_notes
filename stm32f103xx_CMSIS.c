@@ -32,43 +32,43 @@
 */
 
 void CMSIS_Debug_init(void) { 
-/**
-*  Alternate function GPIO port
-*  JTMS / SWDIO PA13
-*  JTCK / SWCLK PA14
-*  JTDI PA15
-*  JTDO / TRACESWO PB3
-*  NJTRST PB4
-*/
+	/**
+	*  Alternate function GPIO port
+	*  JTMS / SWDIO PA13
+	*  JTCK / SWCLK PA14
+	*  JTDI PA15
+	*  JTDO / TRACESWO PB3
+	*  NJTRST PB4
+	*/
 	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включим тактирование порта A
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN);//Включим тактирование альтернативных функций
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Включим тактирование альтернативных функций
 
-/**
- *  Выберем режим отладки см.п 9.4.2 AF remap and debug I/O configuration register (AFIO_MAPR)(стр 184)
- */
+	/**
+	 *  Выберем режим отладки см.п 9.4.2 AF remap and debug I/O configuration register (AFIO_MAPR)(стр 184)
+	 */
 
-/**
-*  Bits 26:24 SWJ_CFG[2:0]: Serial wire JTAG configuration
-*  These bits are write-only (when read, the value is undefined). They are used to configure the
-*  SWJ and trace alternate function I/Os. The SWJ (Serial Wire JTAG) supports JTAG or SWD
-*  access to the Cortex® debug port. The default state after reset is SWJ ON without trace.
-*  This allows JTAG or SW mode to be enabled by sending a specific sequence on the JTMS / JTCK pin.
-*  000: Full SWJ (JTAG-DP + SW-DP): Reset State          (JTAG 5 pins ) по-умолчанию
-*  001: Full SWJ (JTAG-DP + SW-DP) but without NJTRST    (JTAG 4 pins)
-*  010: JTAG-DP Disabled and SW-DP Enabled               (Serial wire)
-*  100: JTAG-DP Disabled and SW-DP Disabled              (No Debug)
-*  Other combinations: no effect
-*/
+	 /**
+	 *  Bits 26:24 SWJ_CFG[2:0]: Serial wire JTAG configuration
+	 *  These bits are write-only (when read, the value is undefined). They are used to configure the
+	 *  SWJ and trace alternate function I/Os. The SWJ (Serial Wire JTAG) supports JTAG or SWD
+	 *  access to the Cortex® debug port. The default state after reset is SWJ ON without trace.
+	 *  This allows JTAG or SW mode to be enabled by sending a specific sequence on the JTMS / JTCK pin.
+	 *  000: Full SWJ (JTAG-DP + SW-DP): Reset State          (JTAG 5 pins ) по-умолчанию
+	 *  001: Full SWJ (JTAG-DP + SW-DP) but without NJTRST    (JTAG 4 pins)
+	 *  010: JTAG-DP Disabled and SW-DP Enabled               (Serial wire)
+	 *  100: JTAG-DP Disabled and SW-DP Disabled              (No Debug)
+	 *  Other combinations: no effect
+	 */
 
 	MODIFY_REG(AFIO->MAPR, AFIO_MAPR_SWJ_CFG, 0b010 << AFIO_MAPR_SWJ_CFG_Pos); //Serial wire
 
-/**
-*  При выборе Serial wire:
-*  PA13 /JTMS/SWDIO 
-*  PA14 /JTCK/SWCLK. 
-*  PA15, PB3 и PB4 свободны
-*/
-	/*Заблокируем доступ для редактирования конфигурации PA13 и PA14*/
+	/**
+	*  При выборе Serial wire:
+	*  PA13 /JTMS/SWDIO 
+	*  PA14 /JTCK/SWCLK. 
+	*  PA15, PB3 и PB4 свободны
+	*/
+		/*Заблокируем доступ для редактирования конфигурации PA13 и PA14*/
 	GPIOA->LCKR = GPIO_LCKR_LCKK | GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14;
 	GPIOA->LCKR = GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14;
 	GPIOA->LCKR = GPIO_LCKR_LCKK | GPIO_LCKR_LCK13 | GPIO_LCKR_LCK14; 
@@ -107,328 +107,328 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	
 	SET_BIT(RCC->CR, RCC_CR_HSION); //Запустим внутренний RC генератор на 8 МГц
 	
-/** 
-*  Bit 1 HSIRDY : Internal high - speed clock ready flag
-*  Set by hardware to indicate that internal 8 MHz RC oscillator is stable.After the HSION bit is
-*  cleared, HSIRDY goes low after 6 internal 8 MHz RC oscillator clock cycles.
-*  0 : internal 8 MHz RC oscillator not ready
-*  1 : internal 8 MHz RC oscillator ready
-*/
+	/** 
+	*  Bit 1 HSIRDY : Internal high - speed clock ready flag
+	*  Set by hardware to indicate that internal 8 MHz RC oscillator is stable.After the HSION bit is
+	*  cleared, HSIRDY goes low after 6 internal 8 MHz RC oscillator clock cycles.
+	*  0 : internal 8 MHz RC oscillator not ready
+	*  1 : internal 8 MHz RC oscillator ready
+	*/
 	
-	while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == 0); //Дождемся поднятия флага о готовности
+	while (READ_BIT(RCC->CR, RCC_CR_HSIRDY) == 0) ; //Дождемся поднятия флага о готовности
 	
-/**
-*  Bit 2 Reserved, must be kept at reset value.
-*/
+	/**
+	*  Bit 2 Reserved, must be kept at reset value.
+	*/
 
-/**
-*  Bits 7:3 HSITRIM[4:0]: Internal high-speed clock trimming
-*  These bits provide an additional user-programmable trimming value that is added to the
-*  HSICAL[7:0] bits. It can be programmed to adjust to variations in voltage and temperature
-*  that influence the frequency of the internal HSI RC.
-*  The default value is 16, which, when added to the HSICAL value, should trim the HSI to 8
-*  MHz ± 1%. The trimming step (Fhsitrim) is around 40 kHz between two consecutive HSICAL steps.
-*/
-	//Тут оставим по-умолчанию
+	/**
+	*  Bits 7:3 HSITRIM[4:0]: Internal high-speed clock trimming
+	*  These bits provide an additional user-programmable trimming value that is added to the
+	*  HSICAL[7:0] bits. It can be programmed to adjust to variations in voltage and temperature
+	*  that influence the frequency of the internal HSI RC.
+	*  The default value is 16, which, when added to the HSICAL value, should trim the HSI to 8
+	*  MHz ± 1%. The trimming step (Fhsitrim) is around 40 kHz between two consecutive HSICAL steps.
+	*/
+		//Тут оставим по-умолчанию
 
-/**
-*  Bits 15:8 HSICAL[7:0]: Internal high-speed clock calibration
-*  These bits are initialized automatically at startup. 
-*/
-	//Тут тоже пусть будет все по-умолчанию
+		/**
+		*  Bits 15:8 HSICAL[7:0]: Internal high-speed clock calibration
+		*  These bits are initialized automatically at startup. 
+		*/
+			//Тут тоже пусть будет все по-умолчанию
 
-	//Далее чуть-чуть поменяем порядок выполнения команд, т.к. 18 бит должен быть определен до включения HSE(16-17 бит).
+			//Далее чуть-чуть поменяем порядок выполнения команд, т.к. 18 бит должен быть определен до включения HSE(16-17 бит).
 
-/**
-*  Bit 18 HSEBYP: External high-speed clock bypass
-*  Set and cleared by software to bypass the oscillator with an external clock. The external
-*  clock must be enabled with the HSEON bit set, to be used by the device. The HSEBYP bit
-*  can be written only if the HSE oscillator is disabled.
-*  0: external 4-16 MHz oscillator not bypassed
-*  1: external 4-16 MHz oscillator bypassed with external clock
-*/
+			/**
+			*  Bit 18 HSEBYP: External high-speed clock bypass
+			*  Set and cleared by software to bypass the oscillator with an external clock. The external
+			*  clock must be enabled with the HSEON bit set, to be used by the device. The HSEBYP bit
+			*  can be written only if the HSE oscillator is disabled.
+			*  0: external 4-16 MHz oscillator not bypassed
+			*  1: external 4-16 MHz oscillator bypassed with external clock
+			*/
 	
 	CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP); //Просто сбросим этот бит в 0(Хотя изначально он и так должен быть в 0).
 	
-/**
-*  Bit 16 HSEON: HSE clock enable
-*  Set and cleared by software.
-*  Cleared by hardware to stop the HSE oscillator when entering Stop or Standby mode. This
-*  bit cannot be reset if the HSE oscillator is used directly or indirectly as the system clock.
-*  0: HSE oscillator OFF
-*  1: HSE oscillator ON 
-*/
+	/**
+	*  Bit 16 HSEON: HSE clock enable
+	*  Set and cleared by software.
+	*  Cleared by hardware to stop the HSE oscillator when entering Stop or Standby mode. This
+	*  bit cannot be reset if the HSE oscillator is used directly or indirectly as the system clock.
+	*  0: HSE oscillator OFF
+	*  1: HSE oscillator ON 
+	*/
 
 	SET_BIT(RCC->CR, RCC_CR_HSEON); //Запустим внешний кварцевый резонатор. Он у нас на 8 MHz.
 	
-/**
-*  Bit 17 HSERDY: External high-speed clock ready flag
-*  Set by hardware to indicate that the HSE oscillator is stable. This bit needs 6 cycles of the
-*  HSE oscillator clock to fall down after HSEON reset.
-*  0: HSE oscillator not ready
-*  1: HSE oscillator ready 
-*/
+	/**
+	*  Bit 17 HSERDY: External high-speed clock ready flag
+	*  Set by hardware to indicate that the HSE oscillator is stable. This bit needs 6 cycles of the
+	*  HSE oscillator clock to fall down after HSEON reset.
+	*  0: HSE oscillator not ready
+	*  1: HSE oscillator ready 
+	*/
 
-	while (READ_BIT(RCC->CR, RCC_CR_HSERDY) == 0); //Дождемся поднятия флага о готовности
+	while (READ_BIT(RCC->CR, RCC_CR_HSERDY) == 0) ; //Дождемся поднятия флага о готовности
 
-/**
-*  Bit 19 CSSON: Clock security system enable
-*  Set and cleared by software to enable the clock security system. When CSSON is set, the
-*  clock detector is enabled by hardware when the HSE oscillator is ready, and disabled by
-*  hardware if a HSE clock failure is detected.
-*  0: Clock detector OFF
-*  1: Clock detector ON (Clock detector ON if the HSE oscillator is ready , OFF if not).
-*/
+	/**
+	*  Bit 19 CSSON: Clock security system enable
+	*  Set and cleared by software to enable the clock security system. When CSSON is set, the
+	*  clock detector is enabled by hardware when the HSE oscillator is ready, and disabled by
+	*  hardware if a HSE clock failure is detected.
+	*  0: Clock detector OFF
+	*  1: Clock detector ON (Clock detector ON if the HSE oscillator is ready , OFF if not).
+	*/
 	
 	SET_BIT(RCC->CR, RCC_CR_CSSON); //Включим CSS
 	
-/**
-*  Bits 23 : 20 Reserved, must be kept at reset value.
-*/	
+	/**
+	*  Bits 23 : 20 Reserved, must be kept at reset value.
+	*/	
 
 	
-/**
-*  Bit 24 PLLON: PLL enable
-*  Set and cleared by software to enable PLL.
-*  Cleared by hardware when entering Stop or Standby mode. This bit can not be reset if the
-*  PLL clock is used as system clock or is selected to become the system clock.
-*  0: PLL OFF
-*  1: PLL ON
-*/
+	/**
+	*  Bit 24 PLLON: PLL enable
+	*  Set and cleared by software to enable PLL.
+	*  Cleared by hardware when entering Stop or Standby mode. This bit can not be reset if the
+	*  PLL clock is used as system clock or is selected to become the system clock.
+	*  0: PLL OFF
+	*  1: PLL ON
+	*/
 	
-	//SET_BIT(RCC->CR, RCC_CR_PLLON); //Запустим PLL, но чуточку позже, т.к. перед его включением нужно настроить другие регистры, иначе придется вкл/выкл постоянно.
+		//SET_BIT(RCC->CR, RCC_CR_PLLON); //Запустим PLL, но чуточку позже, т.к. перед его включением нужно настроить другие регистры, иначе придется вкл/выкл постоянно.
 	
-/**
-*  Bit 25 PLLRDY: PLL clock ready flag
-*  Set by hardware to indicate that the PLL is locked.
-*  0: PLL unlocked
-*  1: PLL locked
-*/
+		/**
+		*  Bit 25 PLLRDY: PLL clock ready flag
+		*  Set by hardware to indicate that the PLL is locked.
+		*  0: PLL unlocked
+		*  1: PLL locked
+		*/
 	
-	//while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0) ; //Тут мы должны дожидаться поднятия флага включения PLL
+			//while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0) ; //Тут мы должны дожидаться поднятия флага включения PLL
 
-/**
-*  Bits 31:26 Reserved, must be kept at reset value.
-*/
+			/**
+			*  Bits 31:26 Reserved, must be kept at reset value.
+			*/
 
-	// Переходим к следующему пункту 7.3.2 Clock configuration register (RCC_CFGR)
-	//Не забываем, что PPL мы пока не включали, чтоб сделать настройки далее.
+				// Переходим к следующему пункту 7.3.2 Clock configuration register (RCC_CFGR)
+				//Не забываем, что PPL мы пока не включали, чтоб сделать настройки далее.
 	
-/**
-*  Bits 1:0 SW: System clock switch
-*  Set and cleared by software to select SYSCLK source.
-*  Set by hardware to force HSI selection when leaving Stop and Standby mode or in case of
-*  failure of the HSE oscillator used directly or indirectly as system clock (if the Clock Security System is enabled).
-*  00: HSI selected as system clock
-*  01: HSE selected as system clock
-*  10: PLL selected as system clock
-*  11: not allowed
-*/	
+				/**
+				*  Bits 1:0 SW: System clock switch
+				*  Set and cleared by software to select SYSCLK source.
+				*  Set by hardware to force HSI selection when leaving Stop and Standby mode or in case of
+				*  failure of the HSE oscillator used directly or indirectly as system clock (if the Clock Security System is enabled).
+				*  00: HSI selected as system clock
+				*  01: HSE selected as system clock
+				*  10: PLL selected as system clock
+				*  11: not allowed
+				*/	
 	
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_HSE); //Выберем HSE в качестве System Clock(PLL лучше пока не выбирать, он у нас отключен)
 	//p.s. Спасибо KARMA Electronics за подсказку.
 
-/**
-*  Bits 3:2 SWS: System clock switch status
-*  Set and cleared by hardware to indicate which clock source is used as system clock.
-*  00: HSI oscillator used as system clock
-*  01: HSE oscillator used as system clock
-*  10: PLL used as system clock
-*  11: not applicable 
-*/
+	/**
+	*  Bits 3:2 SWS: System clock switch status
+	*  Set and cleared by hardware to indicate which clock source is used as system clock.
+	*  00: HSI oscillator used as system clock
+	*  01: HSE oscillator used as system clock
+	*  10: PLL used as system clock
+	*  11: not applicable 
+	*/
 	
-	//Это статус
+		//Это статус
 	
-/**
-*  Bits 7:4 HPRE: AHB prescaler
-*  Set and cleared by software to control the division factor of the AHB clock.
-*  0xxx: SYSCLK not divided
-*  1000: SYSCLK divided by 2
-*  1001: SYSCLK divided by 4
-*  1010: SYSCLK divided by 8
-*  1011: SYSCLK divided by 16
-*  1100: SYSCLK divided by 64
-*  1101: SYSCLK divided by 128
-*  1110: SYSCLK divided by 256
-*  1111: SYSCLK divided by 512
-*  Note: The prefetch buffer must be kept on when using a prescaler different from 1 on the
-*  AHB clock. Refer to Reading the Flash memory section for more details.
-*/	
+		/**
+		*  Bits 7:4 HPRE: AHB prescaler
+		*  Set and cleared by software to control the division factor of the AHB clock.
+		*  0xxx: SYSCLK not divided
+		*  1000: SYSCLK divided by 2
+		*  1001: SYSCLK divided by 4
+		*  1010: SYSCLK divided by 8
+		*  1011: SYSCLK divided by 16
+		*  1100: SYSCLK divided by 64
+		*  1101: SYSCLK divided by 128
+		*  1110: SYSCLK divided by 256
+		*  1111: SYSCLK divided by 512
+		*  Note: The prefetch buffer must be kept on when using a prescaler different from 1 on the
+		*  AHB clock. Refer to Reading the Flash memory section for more details.
+		*/	
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_CFGR_HPRE_DIV1); //APB Prescaler /1
 	//Вот тут в Note пишется отсылка к Flash(см. стр. 58)
 
 	//Поэтому прервемся и настроим Flash (Flash access control register (FLASH_ACR))
 	
-/**
-*  Bits 2:0 LATENCY: Latency
-*  These bits represent the ratio of the SYSCLK (system clock) period to the Flash access time.
-*  000 Zero wait state, if 0 < SYSCLK <= 24 MHz
-*  001 One wait state, if 24 MHz < SYSCLK <= 48 MHz
-*  010 Two wait states, if 48 MHz < SYSCLK <= 72 MHz
-*/	
+	/**
+	*  Bits 2:0 LATENCY: Latency
+	*  These bits represent the ratio of the SYSCLK (system clock) period to the Flash access time.
+	*  000 Zero wait state, if 0 < SYSCLK <= 24 MHz
+	*  001 One wait state, if 24 MHz < SYSCLK <= 48 MHz
+	*  010 Two wait states, if 48 MHz < SYSCLK <= 72 MHz
+	*/	
 	
 	MODIFY_REG(FLASH->ACR, FLASH_ACR_LATENCY, 0b010 << FLASH_ACR_LATENCY_Pos); //010 Two wait states, if 48 MHz < SYSCLK <= 72 MHz
 	
-/**
-*  Bit 3 HLFCYA: Flash half cycle access enable
-*  0: Half cycle is disabled
-*  1: Half cycle is enabled
-*/
-	//Тут я пока не понял, поэтому не трогал
+	/**
+	*  Bit 3 HLFCYA: Flash half cycle access enable
+	*  0: Half cycle is disabled
+	*  1: Half cycle is enabled
+	*/
+		//Тут я пока не понял, поэтому не трогал
 	
-/**
-*  Bit 4 PRFTBE: Prefetch buffer enable
-*  0: Prefetch is disabled
-*  1: Prefetch is enabled
-*/
+		/**
+		*  Bit 4 PRFTBE: Prefetch buffer enable
+		*  0: Prefetch is disabled
+		*  1: Prefetch is enabled
+		*/
 	
 	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBE); //Prefetch is enabled
 
-/**
-*  Bit 5 PRFTBS: Prefetch buffer status
-*  This bit provides the status of the prefetch buffer.
-*  0: Prefetch buffer is disabled
-*  1: Prefetch buffer is enabled
-*/
+	/**
+	*  Bit 5 PRFTBS: Prefetch buffer status
+	*  This bit provides the status of the prefetch buffer.
+	*  0: Prefetch buffer is disabled
+	*  1: Prefetch buffer is enabled
+	*/
 	
 
-/**
-*  Bits 31:6 Reserved, must be kept at reset value
-*/
+	/**
+	*  Bits 31:6 Reserved, must be kept at reset value
+	*/
 
-	// Вот теперь можно вернуться обратно к пункту 7.3.2 Clock configuration register (RCC_CFGR) стр.103
+		// Вот теперь можно вернуться обратно к пункту 7.3.2 Clock configuration register (RCC_CFGR) стр.103
 	
-/**
-*  Bits 10:8 PPRE1: APB low-speed prescaler (APB1)
-*  Set and cleared by software to control the division factor of the APB low-speed clock (PCLK1).
-*  Warning: the software has to set correctly these bits to not exceed 36 MHz on this domain.
-*  0xx: HCLK not divided
-*  100: HCLK divided by 2
-*  101: HCLK divided by 4
-*  110: HCLK divided by 8
-*  111: HCLK divided by 16
-*/
+		/**
+		*  Bits 10:8 PPRE1: APB low-speed prescaler (APB1)
+		*  Set and cleared by software to control the division factor of the APB low-speed clock (PCLK1).
+		*  Warning: the software has to set correctly these bits to not exceed 36 MHz on this domain.
+		*  0xx: HCLK not divided
+		*  100: HCLK divided by 2
+		*  101: HCLK divided by 4
+		*  110: HCLK divided by 8
+		*  111: HCLK divided by 16
+		*/
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, RCC_CFGR_PPRE1_DIV2); //APB1 Prescaler /2, т.к. PCLK1 max 36MHz
 	
-/**
-*  Bits 13:11 PPRE2: APB high-speed prescaler (APB2)
-*  Set and cleared by software to control the division factor of the APB high-speed clock (PCLK2).
-*  0xx: HCLK not divided
-*  100: HCLK divided by 2
-*  101: HCLK divided by 4
-*  110: HCLK divided by 8
-*  111: HCLK divided by 16
-*/	
+	/**
+	*  Bits 13:11 PPRE2: APB high-speed prescaler (APB2)
+	*  Set and cleared by software to control the division factor of the APB high-speed clock (PCLK2).
+	*  0xx: HCLK not divided
+	*  100: HCLK divided by 2
+	*  101: HCLK divided by 4
+	*  110: HCLK divided by 8
+	*  111: HCLK divided by 16
+	*/	
 	
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE2, RCC_CFGR_PPRE2_DIV1); //APB2 Prescaler /1. Тут нас ничего не ограничивает. Будет 72MHz.
 	
-/**
-*  Bits 15:14 ADCPRE: ADC prescaler
-*  Set and cleared by software to select the frequency of the clock to the ADCs.
-*  00: PCLK2 divided by 2
-*  01: PCLK2 divided by 4
-*  10: PCLK2 divided by 6
-*  11: PCLK2 divided by 8
-*/	
+	/**
+	*  Bits 15:14 ADCPRE: ADC prescaler
+	*  Set and cleared by software to select the frequency of the clock to the ADCs.
+	*  00: PCLK2 divided by 2
+	*  01: PCLK2 divided by 4
+	*  10: PCLK2 divided by 6
+	*  11: PCLK2 divided by 8
+	*/	
 
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_ADCPRE, RCC_CFGR_ADCPRE_DIV6); //ADC Prescaler /6, чтоб было 12MHz, т.к. максимальная частота тут 14 MHz
 	
-/**
-*  Bit 16 PLLSRC: PLL entry clock source
-*  Set and cleared by software to select PLL clock source. This bit can be written only when PLL is disabled.
-*  0: HSI oscillator clock / 2 selected as PLL input clock
-*  1: HSE oscillator clock selected as PLL input clock
-*/
+	/**
+	*  Bit 16 PLLSRC: PLL entry clock source
+	*  Set and cleared by software to select PLL clock source. This bit can be written only when PLL is disabled.
+	*  0: HSI oscillator clock / 2 selected as PLL input clock
+	*  1: HSE oscillator clock selected as PLL input clock
+	*/
 	
 	SET_BIT(RCC->CFGR, RCC_CFGR_PLLSRC); //В качестве входного сигнала для PLL выберем HSE
 	
-/**
-*  Bit 17 PLLXTPRE: HSE divider for PLL entry
-*  Set and cleared by software to divide HSE before PLL entry. This bit can be written only when PLL is disabled.
-*  0: HSE clock not divided
-*  1: HSE clock divided by 2
-*/	
+	/**
+	*  Bit 17 PLLXTPRE: HSE divider for PLL entry
+	*  Set and cleared by software to divide HSE before PLL entry. This bit can be written only when PLL is disabled.
+	*  0: HSE clock not divided
+	*  1: HSE clock divided by 2
+	*/	
 	
 	CLEAR_BIT(RCC->CFGR, RCC_CFGR_PLLXTPRE_HSE); //Никакое предделение перед PLL нам не нужно. Поэтому /1.
 	
-/**
-*  Bits 21:18 PLLMUL: PLL multiplication factor
-*  These bits are written by software to define the PLL multiplication factor. These bits can be
-*  written only when PLL is disabled.
-*  Caution: The PLL output frequency must not exceed 72 MHz.
-*  0000: PLL input clock x 2
-*  0001: PLL input clock x 3
-*  0010: PLL input clock x 4
-*  0011: PLL input clock x 5
-*  0100: PLL input clock x 6
-*  0101: PLL input clock x 7
-*  0110: PLL input clock x 8
-*  0111: PLL input clock x 9
-*  1000: PLL input clock x 10
-*  1001: PLL input clock x 11
-*  1010: PLL input clock x 12
-*  1011: PLL input clock x 13
-*  1100: PLL input clock x 14
-*  1101: PLL input clock x 15
-*  1110: PLL input clock x 16
-*  1111: PLL input clock x 16
-*/
+	/**
+	*  Bits 21:18 PLLMUL: PLL multiplication factor
+	*  These bits are written by software to define the PLL multiplication factor. These bits can be
+	*  written only when PLL is disabled.
+	*  Caution: The PLL output frequency must not exceed 72 MHz.
+	*  0000: PLL input clock x 2
+	*  0001: PLL input clock x 3
+	*  0010: PLL input clock x 4
+	*  0011: PLL input clock x 5
+	*  0100: PLL input clock x 6
+	*  0101: PLL input clock x 7
+	*  0110: PLL input clock x 8
+	*  0111: PLL input clock x 9
+	*  1000: PLL input clock x 10
+	*  1001: PLL input clock x 11
+	*  1010: PLL input clock x 12
+	*  1011: PLL input clock x 13
+	*  1100: PLL input clock x 14
+	*  1101: PLL input clock x 15
+	*  1110: PLL input clock x 16
+	*  1111: PLL input clock x 16
+	*/
 		
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_PLLMULL, RCC_CFGR_PLLMULL9); //т.к. кварц у нас 8Mhz, а нам нужно 72MHz, то в PLL нужно сделать умножение на 9. 8MHz * 9 = 72MHz.
 	
-/**
-*  Bit 22 USBPRE: USB prescaler
-*  Set and cleared by software to generate 48 MHz USB clock. This bit must be valid before
-*  enabling the USB clock in the RCC_APB1ENR register. This bit can’t be reset if the USB clock is enabled.
-*  0: PLL clock is divided by 1.5
-*  1: PLL clock is not divided
-*/
+	/**
+	*  Bit 22 USBPRE: USB prescaler
+	*  Set and cleared by software to generate 48 MHz USB clock. This bit must be valid before
+	*  enabling the USB clock in the RCC_APB1ENR register. This bit can’t be reset if the USB clock is enabled.
+	*  0: PLL clock is divided by 1.5
+	*  1: PLL clock is not divided
+	*/
 
 	CLEAR_BIT(RCC->CFGR, RCC_CFGR_USBPRE); //Для USB 72MHz/1.5 = 48MHz
 
-/**
-*  Bits 26:24 MCO: Microcontroller clock output
-*  Set and cleared by software.
-*  0xx: No clock
-*  100: System clock (SYSCLK) selected
-*  101: HSI clock selected
-*  110: HSE clock selected
-*  111: PLL clock divided by 2 selected
-*  Note: This clock output may have some truncated cycles at startup or during MCO clock source switching.
-*  When the System Clock is selected to output to the MCO pin, make sure that this clock does not exceed 50 MHz (the maximum IO speed). 
-*/
+	/**
+	*  Bits 26:24 MCO: Microcontroller clock output
+	*  Set and cleared by software.
+	*  0xx: No clock
+	*  100: System clock (SYSCLK) selected
+	*  101: HSI clock selected
+	*  110: HSE clock selected
+	*  111: PLL clock divided by 2 selected
+	*  Note: This clock output may have some truncated cycles at startup or during MCO clock source switching.
+	*  When the System Clock is selected to output to the MCO pin, make sure that this clock does not exceed 50 MHz (the maximum IO speed). 
+	*/
 	
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, RCC_CFGR_MCO_PLLCLK_DIV2); //В качестве тактирования для MCO выбрал PLL. Будет 36 MHz.
 	//Чтоб воспользоваться выводом MCO, нужно настроить ножку PA8 в альтернативную функцию на выход.
 
-/**
-*  Bits 31:27 Reserved, must be kept at reset value.
-*/
+	/**
+	*  Bits 31:27 Reserved, must be kept at reset value.
+	*/
 
-	//И наконец, после всех настроек, мы можем запустить PLL
+		//И наконец, после всех настроек, мы можем запустить PLL
 		
-/**
-*  Bit 24 PLLON: PLL enable
-*  Set and cleared by software to enable PLL.
-*  Cleared by hardware when entering Stop or Standby mode. This bit can not be reset if the
-*  PLL clock is used as system clock or is selected to become the system clock.
-*  0: PLL OFF
-*  1: PLL ON
-*/
+		/**
+		*  Bit 24 PLLON: PLL enable
+		*  Set and cleared by software to enable PLL.
+		*  Cleared by hardware when entering Stop or Standby mode. This bit can not be reset if the
+		*  PLL clock is used as system clock or is selected to become the system clock.
+		*  0: PLL OFF
+		*  1: PLL ON
+		*/
 	
 	SET_BIT(RCC->CR, RCC_CR_PLLON); //Запустим PLL
 	
 	//Т.к. PLL уже запущен, выберем его в качестве System Clock:
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_PLL); //Выберем PLL в качестве System Clock
 	
-/**
-*  Bit 25 PLLRDY: PLL clock ready flag
-*  Set by hardware to indicate that the PLL is locked.
-*  0: PLL unlocked
-*  1: PLL locked
-*/
+	/**
+	*  Bit 25 PLLRDY: PLL clock ready flag
+	*  Set by hardware to indicate that the PLL is locked.
+	*  0: PLL unlocked
+	*  1: PLL locked
+	*/
 	
-	while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0); //Дожидемся поднятия флага включения PLL
+	while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0) ; //Дожидемся поднятия флага включения PLL
 	
 	//В итоге должно получится:
 	//RCC->CR == 0x030B5A83
@@ -473,71 +473,71 @@ void CMSIS_SysTick_Timer_init(void) {
 	
 	CLEAR_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); //Выключим таймер для проведения настроек.
 
-/**
-*  Bit 1 TICKINT: SysTick exception request enable
-*  0: Counting down to zero does not assert the SysTick exception request
-*  1: Counting down to zero to asserts the SysTick exception request.
-*  Note: Software can use COUNTFLAG to determine if SysTick has ever counted to zero.
-*/
+	/**
+	*  Bit 1 TICKINT: SysTick exception request enable
+	*  0: Counting down to zero does not assert the SysTick exception request
+	*  1: Counting down to zero to asserts the SysTick exception request.
+	*  Note: Software can use COUNTFLAG to determine if SysTick has ever counted to zero.
+	*/
 	SET_BIT(SysTick->CTRL, SysTick_CTRL_TICKINT_Msk); //Разрешим прерывания по таймеру
 	//Прерывание будет происходить каждый раз, когда счетчик отсчитает от заданного значения до 0.
 	
-/**
-*  Bit 2 CLKSOURCE : Clock source selection
-*  Selects the clock source.
-*  0 : AHB / 8
-*  1 : Processor clock(AHB)
-*/
+	/**
+	*  Bit 2 CLKSOURCE : Clock source selection
+	*  Selects the clock source.
+	*  0 : AHB / 8
+	*  1 : Processor clock(AHB)
+	*/
 	SET_BIT(SysTick->CTRL, SysTick_CTRL_CLKSOURCE_Msk); //Выберем без делителя. Будет 72MHz
 	
-/**
-*  Bit 16 COUNTFLAG:
-*  Returns 1 if timer counted to 0 since last time this was read.
-*/
+	/**
+	*  Bit 16 COUNTFLAG:
+	*  Returns 1 if timer counted to 0 since last time this was read.
+	*/
 	
-/**
-*  Bits 15:3 Reserved, must be kept cleared.
-*/
+	/**
+	*  Bits 15:3 Reserved, must be kept cleared.
+	*/
 	
-/*Следующий п. 4.5.2 SysTick reload value register (STK_LOAD) (Стр 152)*/
-	//Помним, что таймер у нас все еще выключен.
+	/*Следующий п. 4.5.2 SysTick reload value register (STK_LOAD) (Стр 152)*/
+		//Помним, что таймер у нас все еще выключен.
 	
-/**
-*  Bits 23 : 0 RELOAD[23 : 0] : RELOAD value
-*  The LOAD register specifies the start value to load into the VAL register when the counter is
-*  enabled and when it reaches 0.
-*  Calculating the RELOAD value
-*  The RELOAD value can be any value in the range 0x00000001 - 0x00FFFFFF. A start value of
-*  0 is possible, but has no effect because the SysTick exception request and COUNTFLAG are
-*  activated when counting from 1 to 0.
-*  The RELOAD value is calculated according to its use :
-*  l To generate a multi - shot timer with a period of N processor clock cycles, use a RELOAD
-*  value of N - 1. For example, if the SysTick interrupt is required every 100 clock pulses, set
-*  RELOAD to 99.
-*  l To deliver a single SysTick interrupt after a delay of N processor clock cycles, use a
-*  RELOAD of value N.For example, if a SysTick interrupt is required after 400 clock
-*  pulses, set RELOAD to 400.
-*/
+		/**
+		*  Bits 23 : 0 RELOAD[23 : 0] : RELOAD value
+		*  The LOAD register specifies the start value to load into the VAL register when the counter is
+		*  enabled and when it reaches 0.
+		*  Calculating the RELOAD value
+		*  The RELOAD value can be any value in the range 0x00000001 - 0x00FFFFFF. A start value of
+		*  0 is possible, but has no effect because the SysTick exception request and COUNTFLAG are
+		*  activated when counting from 1 to 0.
+		*  The RELOAD value is calculated according to its use :
+		*  l To generate a multi - shot timer with a period of N processor clock cycles, use a RELOAD
+		*  value of N - 1. For example, if the SysTick interrupt is required every 100 clock pulses, set
+		*  RELOAD to 99.
+		*  l To deliver a single SysTick interrupt after a delay of N processor clock cycles, use a
+		*  RELOAD of value N.For example, if a SysTick interrupt is required after 400 clock
+		*  pulses, set RELOAD to 400.
+		*/
 	
 	MODIFY_REG(SysTick->LOAD, SysTick_LOAD_RELOAD_Msk, 71999 << SysTick_LOAD_RELOAD_Pos); //Настроим прерывание на частоту в 1 кГц(т.е. сработка будет каждую мс)
 	
-/**
-Bits 31:24 Reserved, must be kept cleared.
-*/
+	/**
+	Bits 31:24 Reserved, must be kept cleared.
+	*/
 	
-/*Следующий п. 4.5.3 SysTick current value register (STK_VAL) (Стр. 153)*/
+	/*Следующий п. 4.5.3 SysTick current value register (STK_VAL) (Стр. 153)*/
 	
-/**
-*  CURRENT[23:0]: Current counter value
-*  The VAL register contains the current value of the SysTick counter.
-*  Reads return the current value of the SysTick counter.
-*  A write of any value clears the field to 0, and also clears the COUNTFLAG bit in the
-*  STK_CTRL register to 0
-*/
+	/**
+	*  CURRENT[23:0]: Current counter value
+	*  The VAL register contains the current value of the SysTick counter.
+	*  Reads return the current value of the SysTick counter.
+	*  A write of any value clears the field to 0, and also clears the COUNTFLAG bit in the
+	*  STK_CTRL register to 0
+	*/
 	
 	MODIFY_REG(SysTick->VAL, SysTick_VAL_CURRENT_Msk, 71999 << SysTick_VAL_CURRENT_Pos); //Начнем считать с 71999
 	
-/*Есть там еще регистр калибровки, но я его трогать не буду*/
+	/*Есть там еще регистр калибровки, но я его трогать не буду*/
 
 	SET_BIT(SysTick->CTRL, SysTick_CTRL_ENABLE_Msk); //Запускаем таймер
 	
@@ -561,7 +561,7 @@ volatile uint32_t Timeout_counter_ms = 0; //Переменная для тайм
  */
 void Delay_ms(uint32_t Milliseconds) {
 	Delay_counter_ms = Milliseconds;
-	while (Delay_counter_ms != 0);
+	while (Delay_counter_ms != 0) ;
 }
 
 /**
@@ -784,81 +784,81 @@ void CMSIS_PB0_INPUT_Pull_Down_init(void) {
 
 void CMSIS_EXTI_0_init(void) {
 	
-/**
-*  Bits 19:0 MRx: Interrupt Mask on line x
-*  0: Interrupt request from Line x is masked
-*  1: Interrupt request from Line x is not masked
-*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise
-*/
+	/**
+	*  Bits 19:0 MRx: Interrupt Mask on line x
+	*  0: Interrupt request from Line x is masked
+	*  1: Interrupt request from Line x is not masked
+	*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise
+	*/
 	
-	SET_BIT(EXTI->IMR, EXTI_IMR_MR0);//Включаем прерывание EXTI0 по входному сигналу
+	SET_BIT(EXTI->IMR, EXTI_IMR_MR0); //Включаем прерывание EXTI0 по входному сигналу
 	
-/**
-*  Bits 31:20 Reserved, must be kept at reset value (0).
-*/
+	/**
+	*  Bits 31:20 Reserved, must be kept at reset value (0).
+	*/
 
-	/*То же самое и для EMR, только оно нам не нужно пока*/
-	//CLEAR_BIT(EXTI->EMR, EXTI_EMR_EM0);//Событие нам не нужно, поэтому поставим сюда 0.
+		/*То же самое и для EMR, только оно нам не нужно пока*/
+		//CLEAR_BIT(EXTI->EMR, EXTI_EMR_EM0);//Событие нам не нужно, поэтому поставим сюда 0.
 
-/*Реагирование по фронту и спаду сигнала см. п. 10.3.3 Rising trigger selection register (EXTI_RTSR) (Стр. 212)*/
+		/*Реагирование по фронту и спаду сигнала см. п. 10.3.3 Rising trigger selection register (EXTI_RTSR) (Стр. 212)*/
 	
-/**
-*  Bits 19:0 TRx: Rising trigger event configuration bit of line x
-*  0: Rising trigger disabled (for Event and Interrupt) for input line
-*  1: Rising trigger enabled (for Event and Interrupt) for input line.
-*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise
-*  
-*  Note: The external wakeup lines are edge triggered, no glitches must be generated on these lines.
-*  If a rising edge on external interrupt line occurs during writing of EXTI_RTSR register, the
-*  pending bit will not be set.
-*  Rising and Falling edge triggers can be set for the same interrupt line. In this configuration,
-*  both generate a trigger condition.
-*/
-	SET_BIT(EXTI->RTSR, EXTI_RTSR_TR0);//Реагирование по фронту вкл.
+		/**
+		*  Bits 19:0 TRx: Rising trigger event configuration bit of line x
+		*  0: Rising trigger disabled (for Event and Interrupt) for input line
+		*  1: Rising trigger enabled (for Event and Interrupt) for input line.
+		*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise
+		*  
+		*  Note: The external wakeup lines are edge triggered, no glitches must be generated on these lines.
+		*  If a rising edge on external interrupt line occurs during writing of EXTI_RTSR register, the
+		*  pending bit will not be set.
+		*  Rising and Falling edge triggers can be set for the same interrupt line. In this configuration,
+		*  both generate a trigger condition.
+		*/
+	SET_BIT(EXTI->RTSR, EXTI_RTSR_TR0); //Реагирование по фронту вкл.
 	//SET_BIT(EXTI->FTSR, EXTI_FTSR_TR0);//Реагирование по спаду вкл.
 	
-/**
-*  Bits 31:20 Reserved, must be kept at reset value (0)
-*/
+	/**
+	*  Bits 31:20 Reserved, must be kept at reset value (0)
+	*/
 
-/**
-*   10.3.5 Software interrupt event register (EXTI_SWIER)
-*   Используется для софтварного запуска прерывания
-*/
+	/**
+	*   10.3.5 Software interrupt event register (EXTI_SWIER)
+	*   Используется для софтварного запуска прерывания
+	*/
 
-/**
-*  Bits 19:0 SWIERx: Software interrupt on line x
-*  If the interrupt is enabled on this line in the EXTI_IMR, writing a '1' to this bit when it is set to
-*  '0' sets the corresponding pending bit in EXTI_PR resulting in an interrupt request generation.
-*  This bit is cleared by clearing the corresponding bit of EXTI_PR (by writing a 1 into the bit).
-*  Note: Bit 19 used in connectivity line devices and is reserved otherwise
-*/
-	//SET_BIT(EXTI->SWIER, EXTI_SWIER_SWIER0);//Это софтварное включение прерывания
+	/**
+	*  Bits 19:0 SWIERx: Software interrupt on line x
+	*  If the interrupt is enabled on this line in the EXTI_IMR, writing a '1' to this bit when it is set to
+	*  '0' sets the corresponding pending bit in EXTI_PR resulting in an interrupt request generation.
+	*  This bit is cleared by clearing the corresponding bit of EXTI_PR (by writing a 1 into the bit).
+	*  Note: Bit 19 used in connectivity line devices and is reserved otherwise
+	*/
+		//SET_BIT(EXTI->SWIER, EXTI_SWIER_SWIER0);//Это софтварное включение прерывания
 	
-/*
-*  Bits 31:20 Reserved, must be kept at reset value (0)
-*/
+		/*
+		*  Bits 31:20 Reserved, must be kept at reset value (0)
+		*/
 
-/** 
-*  п. 10.3.6 Pending register (EXTI_PR)
-*  Нужен для выхода из прерывания. Вставляется в Handler. 
-*  Если не сбросить, то так в прерывании и зависнем.
-*/	
+		/** 
+		*  п. 10.3.6 Pending register (EXTI_PR)
+		*  Нужен для выхода из прерывания. Вставляется в Handler. 
+		*  Если не сбросить, то так в прерывании и зависнем.
+		*/	
 	
-/**
-*  Bits 19:0 PRx: Pending bit
-*  0: No trigger request occurred
-*  1: selected trigger request occurred
-*  This bit is set when the selected edge event arrives on the external interrupt line. This bit is
-*  cleared by writing a ‘1’ into the bit.
-*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise.
-*/
+		/**
+		*  Bits 19:0 PRx: Pending bit
+		*  0: No trigger request occurred
+		*  1: selected trigger request occurred
+		*  This bit is set when the selected edge event arrives on the external interrupt line. This bit is
+		*  cleared by writing a ‘1’ into the bit.
+		*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise.
+		*/
 	
-	// SET_BIT(EXTI->PR, EXTI_PR_PR0); //Команда выхода из прерывания
+			// SET_BIT(EXTI->PR, EXTI_PR_PR0); //Команда выхода из прерывания
 
-/**
-*  Bits 31:20 Reserved, must be kept at reset value (0)
-*/
+			/**
+			*  Bits 31:20 Reserved, must be kept at reset value (0)
+			*/
 	
 	NVIC_EnableIRQ(EXTI0_IRQn); //Включим прерывание по вектору EXTI0
 }
@@ -938,18 +938,18 @@ __WEAK void EXTI0_IRQHandler(void) {
 
 void CMSIS_TIM3_init(void) {
 	/*Включим тактирование таймера (страница 48)*/
-	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM3EN);  //Запуск тактирования таймера 3
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN);  //Запуск тактирования альтернативных функций
+	SET_BIT(RCC->APB1ENR, RCC_APB1ENR_TIM3EN); //Запуск тактирования таймера 3
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Запуск тактирования альтернативных функций
 	
 	/*Настройка таймера 3 (Страница 404)*/
 	//15.4.1 TIMx control register 1 (TIMx_CR1)
 	
 	//SET_BIT(TIM3->CR1, TIM_CR1_CEN);  //Запуск таймера
-	CLEAR_BIT(TIM3->CR1, TIM_CR1_UDIS);  //Генерировать событие Update
-	CLEAR_BIT(TIM3->CR1, TIM_CR1_URS);  //Генерировать прерывание
-	CLEAR_BIT(TIM3->CR1, TIM_CR1_OPM);  //One pulse mode off(Счетчик не останавливается при обновлении)
-	CLEAR_BIT(TIM3->CR1, TIM_CR1_DIR);  //Считаем вверх
-	MODIFY_REG(TIM3->CR1, TIM_CR1_CMS_Msk, 0b00 << TIM_CR1_CMS_Pos);  //Выравнивание по краю
+	CLEAR_BIT(TIM3->CR1, TIM_CR1_UDIS); //Генерировать событие Update
+	CLEAR_BIT(TIM3->CR1, TIM_CR1_URS); //Генерировать прерывание
+	CLEAR_BIT(TIM3->CR1, TIM_CR1_OPM); //One pulse mode off(Счетчик не останавливается при обновлении)
+	CLEAR_BIT(TIM3->CR1, TIM_CR1_DIR); //Считаем вверх
+	MODIFY_REG(TIM3->CR1, TIM_CR1_CMS_Msk, 0b00 << TIM_CR1_CMS_Pos); //Выравнивание по краю
 	SET_BIT(TIM3->CR1, TIM_CR1_ARPE); //Auto-reload preload enable
 	MODIFY_REG(TIM3->CR1, TIM_CR1_CKD_Msk, 0b00 << TIM_CR1_CKD_Pos); //Предделение выключено
 	
@@ -963,19 +963,19 @@ void CMSIS_TIM3_init(void) {
 	TIM3->ARR = 10 - 1;
 	
 	NVIC_EnableIRQ(TIM3_IRQn); //Разрешить прерывания по таймеру 3
-	SET_BIT(TIM3->CR1, TIM_CR1_CEN);  //Запуск таймера
+	SET_BIT(TIM3->CR1, TIM_CR1_CEN); //Запуск таймера
 }
 
 void CMSIS_TIM3_PWM_CHANNEL1_init(void) {
 	/*Настройка ножки PA6 под ШИМ*/
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN);  //Включим тактирование порта А
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включим тактирование порта А
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF6_Msk, 0b10 << GPIO_CRL_CNF6_Pos);
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE6_Msk, 0b11 << GPIO_CRL_MODE6_Pos);
 	
 	/*Настройка шим(Канал 1)*/
-	MODIFY_REG(TIM3->CCMR1, TIM_CCMR1_CC1S_Msk, 0b00 << TIM_CCMR1_CC1S_Pos);  //CC1 channel is configured as output
+	MODIFY_REG(TIM3->CCMR1, TIM_CCMR1_CC1S_Msk, 0b00 << TIM_CCMR1_CC1S_Pos); //CC1 channel is configured as output
 	CLEAR_BIT(TIM3->CCMR1, TIM_CCMR1_OC1FE); //Fast mode disable
-	SET_BIT(TIM3->CCMR1, TIM_CCMR1_OC1PE);  //Preload enable
+	SET_BIT(TIM3->CCMR1, TIM_CCMR1_OC1PE); //Preload enable
 	MODIFY_REG(TIM3->CCMR1, TIM_CCMR1_OC1M_Msk, 0b110 << TIM_CCMR1_OC1M_Pos); //PWM MODE 1
 	CLEAR_BIT(TIM3->CCMR1, TIM_CCMR1_OC1CE); //OC1Ref is not affected by the ETRF input
 	
@@ -989,7 +989,7 @@ void CMSIS_TIM3_PWM_CHANNEL1_init(void) {
 
 void CMSIS_TIM3_PWM_CHANNEL2_init(void) {
 	/*Настройка ножки PA7 под ШИМ*/
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN);  //Включим тактирование порта А
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включим тактирование порта А
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF7_Msk, 0b10 << GPIO_CRL_CNF7_Pos);
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE7_Msk, 0b11 << GPIO_CRL_MODE7_Pos);
 		
@@ -1010,7 +1010,7 @@ void CMSIS_TIM3_PWM_CHANNEL2_init(void) {
 
 __WEAK void TIM3_IRQHandler(void) {
 	if (READ_BIT(TIM3->SR, TIM_SR_UIF)) {
-		CLEAR_BIT(TIM3->SR, TIM_SR_UIF);  //Сбросим флаг прерывания
+		CLEAR_BIT(TIM3->SR, TIM_SR_UIF); //Сбросим флаг прерывания
 	}
 }
 
@@ -1196,8 +1196,8 @@ void CMSIS_ADC_DMA_init(void) {
 	SET_BIT(ADC1->CR2, ADC_CR2_CAL); //Enable calibration
     
 	/*Примечание:
-     * Этот бит устанавливается программой для запуска калибровки. 
-     * Он сбрасывается аппаратно после завершения калибровки.*/
+	 * Этот бит устанавливается программой для запуска калибровки. 
+	 * Он сбрасывается аппаратно после завершения калибровки.*/
 	
 	while (READ_BIT(ADC1->CR2, ADC_CR2_CAL)) ;//Подождем окончания калибровки
 	Delay_ms(1); //Задержка для GD32F103CBT6. На STM32F103CBT6 работает и так. 
@@ -1212,9 +1212,9 @@ void CMSIS_ADC_DMA_init(void) {
 
 	/*Note: 
 	 * ADC1 analog Channel16 and Channel 17 are internally connected to the temperature
-     * sensor and to VREFINT, respectively.
-     * ADC2 analog input Channel16 and Channel17 are internally connected to VSS.
-     * ADC3 analog inputs Channel14, Channel15, Channel16 and Channel17 are connected to VSS.*/
+	 * sensor and to VREFINT, respectively.
+	 * ADC2 analog input Channel16 and Channel17 are internally connected to VSS.
+	 * ADC3 analog inputs Channel14, Channel15, Channel16 and Channel17 are connected to VSS.*/
 	
 	// 11.12.5 ADC sample time register 2 (ADC_SMPR2)(страница 245)
 	MODIFY_REG(ADC1->SMPR2, ADC_SMPR2_SMP0_Msk, 0b111 << ADC_SMPR2_SMP0_Pos); //239.5 cycles 
@@ -1641,7 +1641,8 @@ master после того, как он сгенерирует условие ST
 
 /*Регистры(См. ReferenceManual стр. 772)*/
 
-void CMSIS_I2C_Reset(void) { //Сброс настроек I2C
+void CMSIS_I2C_Reset(void) {
+	//Сброс настроек I2C
 	//п.п. 26.6.1 I2C Control register 1 (I2C_CR1) (стр. 772)
 	SET_BIT(I2C1->CR1, I2C_CR1_SWRST); //: I2C Peripheral not under reset
 	while (READ_BIT(I2C1->CR1, I2C_CR1_SWRST) == 0) ;
@@ -2196,7 +2197,7 @@ bool CMSIS_I2C_MemRead(I2C_TypeDef *I2C, uint8_t Adress_Device, uint16_t Adress_
 	
 	if (READ_BIT(I2C->SR1, I2C_SR1_ADDR)) {
 		//Если устройство отозвалось, сбросим бит ADDR
-        /*Сброс бита ADDR производится чтением SR1, а потом SR2*/
+		/*Сброс бита ADDR производится чтением SR1, а потом SR2*/
 		I2C->SR1;
 		I2C->SR2;
 		
@@ -2277,3 +2278,305 @@ bool CMSIS_I2C_MemRead(I2C_TypeDef *I2C, uint8_t Adress_Device, uint16_t Adress_
 		return false;
 	}
 }
+
+
+/*================================= НАСТРОЙКА SPI ============================================*/
+	
+/**
+***************************************************************************************
+*  @breif Serial peripheral interface (SPI)
+*  Reference Manual/см. п.25 Serial peripheral interface (SPI) (стр. 699)
+***************************************************************************************
+*/
+
+/*Функциональное описание*/
+/*
+ * Обеспечивает полудуплексную, синхронную, последовательную связь с внешними устройствами.
+ * Интерфейс может быть сконфигурирован, как ведущий, и в этом случае он обеспечивает 
+ * синхронизацию связи SCK с внешним ведомым устройством. Интерфейс также может работать
+ * в конфигурации с несколькими мастерами.
+ */
+
+/*Функции:*/
+/*
+ * - Полный дюплекс и синхронная передача по трем ляниям
+ * - Симплексная синхронная передача по двум линиям с двунаправленной линией данных или без нее
+ * - Выбор формата 8 или 16 битного кадра передачи
+ * - Работа в режиме Master и Slave
+ * - Возможность работы в режиме Multimaster
+ * - 8 предварительных делителей скорости передачи данных в ведущем режиме (fPCLK/2 max)
+ * - Частота слейв мода (fPCLK/2 max)
+ * - Более быстрая связь, как для мастера, так и для слейва(что?)
+ * - Управление NSS с помощью аппаратного или программного обеспечения, как для ведущего,
+ *   так и для ведомого: динамическая смена операция ведущего/ведомого
+ * - Программируемая полярность и фаза (Polarity and phase)
+ * - Программируемый порядок данных со свигом в сторону старших или младших разрядов
+ * - Специальные флаги передачи и приема с возможностью прерывания.
+ * - Флаг состояния занятости шины SPI
+ * - Аппаратный CRC:
+ *   - значение CRC может быть передано, как последний байт в режиме Tx
+ *   - автоматическая проверка ошибок CRC для последнего полученного байта
+ * - Флаги неисправности, переполнения и ошибок CRC в ведущем режиме, с возможностью прерывания.
+ * - 1 байтовый буфер передачи и приема с возможностью DMA: запросы Tx и Rx.
+*/
+
+/*SPI interrupts (см. п.п. 25.3.11 стр.722)*/
+/*---------------------SPI interrupt requests-------------------------*/
+/*______________________________________________________________________________
+  |______Interrupt event________|_______Event flag______|___Enable Control bit__|
+  |Transmit buffer empty flag   |          TXE          |          TXEIE        |
+  |Receive buffer not empty flag|          RXNE         |__________RXNEIE_______|
+  |Master Mode fault event      |          MODF         |                       |
+  |Overrun error                |          OVR          |          ERRIE        |
+  |CRC error flag_______________|__________CRCERR_______|_______________________|
+  
+  */
+
+/*----SPI and I2S registers(см п.п. 25.5  стр 742)-------*/
+
+void CMSIS_SPI1_init(void) {
+	/*Настройка GPIO*/
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Включение альтернативных функций
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_SPI1EN); //Включение тактирования SPI1
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включение тактирования порта А
+	/*Какие ножки:*/
+	//PA4 - NSS
+	//PA5 - SCK
+	//PA6 - MISO
+	//PA7 - MOSI
+	//Мы будем настраивать SPI в режим Master
+	/*
+	 * SPIx_SCK  Master - Alternate function push-pull
+	 * SPIx_MOSI:
+	 *             Full duplex / master - Alternate function push-pull
+	 *             Simplex bidirectional data wire / master - Alternate function push-pull
+	 * SPIx_MISO:  
+	 *             Full duplex / master - Input floating / Input pull-up
+	 * 
+	 * SPIx_NSS:  
+	 *             Hardware master /slave - Input floating/ Input pull-up / Input pull-down
+	 *             Hardware master/ NSS output enabled - Alternate function push-pull
+	 *             Software - Not used. Can be used as a GPIO
+	 */
+    //Настроим сами ножки уже после инициализации SPI, чтоб при старте не было лишних ногодерганий. 	
+   
+    /*SPI control register 1 (SPI_CR1) (not used in I2S mode)(см. п.п. 25.5.1 стр 742)*/
+	MODIFY_REG(SPI1->CR1, SPI_CR1_BR, 0b001 << SPI_CR1_BR_Pos); //fPCLK/4. 72000000/4 = 18 MBits/s
+	CLEAR_BIT(SPI1->CR1, SPI_CR1_CPOL); //0: CK to 0 when idle
+	CLEAR_BIT(SPI1->CR1, SPI_CR1_CPHA); //0: The first clock transition is the first data capture edge
+	CLEAR_BIT(SPI1->CR1, SPI_CR1_DFF); //0: 8-bit data frame format is selected for transmission/reception
+	CLEAR_BIT(SPI1->CR1, SPI_CR1_LSBFIRST); //0: MSB transmitted first
+	SET_BIT(SPI1->CR1, SPI_CR1_SSM); //1: Software slave management enabled
+	SET_BIT(SPI1->CR1, SPI_CR1_SSI); //1: Software slave management enabled
+	SET_BIT(SPI1->CR1, SPI_CR1_MSTR); //1: Master configuration
+	SET_BIT(SPI1->CR1, SPI_CR1_SPE); //Включим SPI
+    
+	CLEAR_BIT(SPI1->CR1, SPI_CR1_RXONLY); //0: Full duplex (Transmit and receive)
+    
+	CLEAR_BIT(SPI1->CR1, SPI_CR1_CRCEN); //0: CRC calculation disabled
+	CLEAR_BIT(SPI1->CR1, SPI_CR1_CRCNEXT); // 0: Data phase (no CRC phase) 
+	CLEAR_BIT(SPI1->CR1, SPI_CR1_BIDIMODE); //0: 2-line unidirectional data mode selected
+    
+    
+	/*SPI control register 2 (SPI_CR2) (см. п.п. 25.5.2 стр 744)*/
+	CLEAR_BIT(SPI1->CR2, SPI_CR2_RXDMAEN); //0: Rx buffer DMA disabled
+	CLEAR_BIT(SPI1->CR2, SPI_CR2_TXDMAEN); //0: Tx buffer DMA disabled
+	CLEAR_BIT(SPI1->CR2, SPI_CR2_SSOE); //0: SS output is disabled in master mode and the cell can work in multimaster configuration
+	CLEAR_BIT(SPI1->CR2, SPI_CR2_ERRIE); //0: Error interrupt is masked
+	CLEAR_BIT(SPI1->CR2, SPI_CR2_RXNEIE); //0: RXNE interrupt masked 
+	CLEAR_BIT(SPI1->CR2, SPI_CR2_TXEIE); //0: TXE interrupt masked 
+    
+	/*SPI_I2S configuration register (SPI_I2SCFGR) (см. п.п. 25.5.8 стр 748)*/
+	CLEAR_BIT(SPI1->I2SCFGR, SPI_I2SCFGR_I2SMOD); //т.к. на F103C6T6 нет I2S, его вырезали, а регистр оставили, нужно просто обнулить данный регистр. Тем самым включим режим SPI mode.
+    
+    
+	//SCK - PA5:
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE5, 0b11 << GPIO_CRL_MODE5_Pos); //Maximum output speed 50 MHz
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF5, 0b10 << GPIO_CRL_CNF5_Pos); //Alternate Function output Push-pull
+	//MISO - PA6:
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE6, 0b00 << GPIO_CRL_MODE6_Pos); //Reserved
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF6, 0b1 << GPIO_CRL_CNF6_Pos); //Input pull-up
+	SET_BIT(GPIOA->ODR, GPIO_ODR_ODR6); //Pull-Up
+	//MOSI - PA7:
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE7, 0b11 << GPIO_CRL_MODE7_Pos); //Maximum output speed 50 MHz
+	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF7, 0b10 << GPIO_CRL_CNF7_Pos); //Alternate Function output Push-pull 
+}
+
+/**
+ **************************************************************************************************
+ *  @breif Функция передачи данных по шине SPI
+ *  @param  *SPI - шина SPI
+ *  @param  *data - Данные, которые будем передавать.
+ *  @param  Size_data - Размер, сколько байт будем передавать.
+ *  @retval  Возвращает статус передачи. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_SPI_Data_Transmit(SPI_TypeDef *SPI, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
+	if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
+		//Если шина MOSI свободна, то отправляем данные
+		for (uint16_t i = 0; i < Size_data; i++) {
+			Timeout_counter_ms = Timeout_ms;
+			while (!READ_BIT(SPI->SR, SPI_SR_TXE)) {
+				//Ждем, пока буфер на передачу не освободится
+				if (!Timeout_counter_ms) {
+					return false;
+				}
+			}
+			SPI->DR = *(data + i);
+		}
+		Timeout_counter_ms = Timeout_ms;
+		while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
+			//Ждем, пока мы освободим шину
+			if (!Timeout_counter_ms) {
+				return false;
+			}
+		}
+		return true;
+	} else {
+		return false;
+	}
+}
+
+/**
+ **************************************************************************************************
+ *  @breif Функция приема данных по шине SPI
+ *  @param  *SPI - шина SPI
+ *  @param  *data - Данные, куда будем записывать принятые данные.
+ *  @param  Size_data - Размер, сколько байт хотим принять.
+ *  @retval  Возвращает статус приема. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_SPI_Data_Receive(SPI_TypeDef *SPI, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
+	if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
+		//Если шина MOSI свободна, то принимаем данные
+		for (uint16_t i = 0; i < Size_data; i++) {
+			SPI->DR = 0;//Запустим тактирование
+			Timeout_counter_ms = Timeout_ms;
+			while (!READ_BIT(SPI->SR, SPI_SR_RXNE)) {
+				//Ждем, пока буфер на прием не заполнится
+				if (!Timeout_counter_ms) {
+					return false;
+				}
+			}
+			*(data + i) = SPI->DR;
+		}
+		Timeout_counter_ms = Timeout_ms;
+		while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
+			//Ждем, пока мы освободим шину
+			if (!Timeout_counter_ms) {
+				return false;
+			}
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+/**
+ **************************************************************************************************
+ *  @breif Функция передачи данных по шине SPI. 
+ *  Немного быстрее стандартной функции. CS(NSS) уже включен в функцию
+ *  @param  *SPI - шина SPI
+ *  @param  *data - Данные, которые будем передавать.
+ *  @param  Size_data - Размер, сколько байт будем передавать.
+ *  @retval  Возвращает статус передачи. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_SPI_Data_Transmit_fast(SPI_TypeDef *SPI, GPIO_TypeDef *GPIO, uint8_t NSS_pin, bool NSS_logic, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
+	if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
+		//Если шина MOSI свободна, то отправляем данные
+		if (NSS_logic) {
+			//CS on
+			GPIO->BSRR = (0x1UL << (NSS_pin + 16U)); //NSS_ACTIVE_LOW
+		}
+		else {
+			GPIO->BSRR = (0x1UL << NSS_pin); //NSS_ACTIVE_HIGH
+		}      
+		for (uint16_t i = 0; i < Size_data; i++) {
+			Timeout_counter_ms = Timeout_ms;
+			while (!READ_BIT(SPI->SR, SPI_SR_TXE)) {
+				//Ждем, пока буфер на передачу не освободится
+				if (!Timeout_counter_ms) {
+					return false;
+				}
+			}
+			SPI->DR = *(data + i);
+		}
+		Timeout_counter_ms = Timeout_ms;
+		while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
+			//Ждем, пока мы освободим шину
+			if (!Timeout_counter_ms) {
+				return false;
+			}
+		}
+		if (NSS_logic) {
+			//CS off
+			GPIO->BSRR = (0x1UL << NSS_pin); //NSS_ACTIVE_LOW
+		}
+		else {
+			GPIO->BSRR = (0x1UL << (NSS_pin + 16U)); //NSS_ACTIVE_HIGH
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+/**
+ **************************************************************************************************
+ *  @breif Функция приема данных по шине SPI
+ *  Немного быстрее стандартной функции. CS(NSS) уже включен в функцию
+ *  @param  *SPI - шина SPI
+ *  @param  *data - Данные, куда будем записывать принятые данные.
+ *  @param  Size_data - Размер, сколько байт хотим принять.
+ *  @retval  Возвращает статус приема. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_SPI_Data_Receive_fast(SPI_TypeDef *SPI, GPIO_TypeDef *GPIO, uint8_t NSS_pin, bool NSS_logic, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
+	if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
+		//Если шина MOSI свободна, то отправляем данные
+		if (NSS_logic) {
+			//CS on
+			GPIO->BSRR = (0x1UL << (NSS_pin + 16U)); //NSS_ACTIVE_LOW
+		}
+		else {
+			GPIO->BSRR = (0x1UL << NSS_pin); //NSS_ACTIVE_HIGH
+		}      
+		for (uint16_t i = 0; i < Size_data; i++) {
+			SPI->DR = 0; //Запустим тактирование
+			Timeout_counter_ms = Timeout_ms;
+			while (!READ_BIT(SPI->SR, SPI_SR_RXNE)) {
+				//Ждем, пока буфер на прием не заполнится
+				if (!Timeout_counter_ms) {
+					return false;
+				}
+			}
+			*(data + i) = SPI->DR;
+		}
+		Timeout_counter_ms = Timeout_ms;
+		while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
+			//Ждем, пока мы освободим шину
+			if (!Timeout_counter_ms) {
+				return false;
+			}
+		}
+		if (NSS_logic) {
+			//CS off
+			GPIO->BSRR = (0x1UL << NSS_pin); //NSS_ACTIVE_LOW
+		}
+		else {
+			GPIO->BSRR = (0x1UL << (NSS_pin + 16U)); //NSS_ACTIVE_HIGH
+		}
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+
+
+
