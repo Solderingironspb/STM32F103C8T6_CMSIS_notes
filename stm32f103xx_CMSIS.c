@@ -129,24 +129,24 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	*  The default value is 16, which, when added to the HSICAL value, should trim the HSI to 8
 	*  MHz ± 1%. The trimming step (Fhsitrim) is around 40 kHz between two consecutive HSICAL steps.
 	*/
-		//Тут оставим по-умолчанию
+	//Тут оставим по-умолчанию
 
-		/**
-		*  Bits 15:8 HSICAL[7:0]: Internal high-speed clock calibration
-		*  These bits are initialized automatically at startup. 
-		*/
-			//Тут тоже пусть будет все по-умолчанию
+	/**
+	*  Bits 15:8 HSICAL[7:0]: Internal high-speed clock calibration
+	*  These bits are initialized automatically at startup. 
+	*/
+	//Тут тоже пусть будет все по-умолчанию
 
-			//Далее чуть-чуть поменяем порядок выполнения команд, т.к. 18 бит должен быть определен до включения HSE(16-17 бит).
+	//Далее чуть-чуть поменяем порядок выполнения команд, т.к. 18 бит должен быть определен до включения HSE(16-17 бит).
 
-			/**
-			*  Bit 18 HSEBYP: External high-speed clock bypass
-			*  Set and cleared by software to bypass the oscillator with an external clock. The external
-			*  clock must be enabled with the HSEON bit set, to be used by the device. The HSEBYP bit
-			*  can be written only if the HSE oscillator is disabled.
-			*  0: external 4-16 MHz oscillator not bypassed
-			*  1: external 4-16 MHz oscillator bypassed with external clock
-			*/
+	/**
+	*  Bit 18 HSEBYP: External high-speed clock bypass
+	*  Set and cleared by software to bypass the oscillator with an external clock. The external
+	*  clock must be enabled with the HSEON bit set, to be used by the device. The HSEBYP bit
+	*  can be written only if the HSE oscillator is disabled.
+	*  0: external 4-16 MHz oscillator not bypassed
+	*  1: external 4-16 MHz oscillator bypassed with external clock
+	*/
 	
 	CLEAR_BIT(RCC->CR, RCC_CR_HSEBYP); //Просто сбросим этот бит в 0(Хотя изначально он и так должен быть в 0).
 	
@@ -196,34 +196,34 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	*  1: PLL ON
 	*/
 	
-		//SET_BIT(RCC->CR, RCC_CR_PLLON); //Запустим PLL, но чуточку позже, т.к. перед его включением нужно настроить другие регистры, иначе придется вкл/выкл постоянно.
+	//SET_BIT(RCC->CR, RCC_CR_PLLON); //Запустим PLL, но чуточку позже, т.к. перед его включением нужно настроить другие регистры, иначе придется вкл/выкл постоянно.
 	
-		/**
-		*  Bit 25 PLLRDY: PLL clock ready flag
-		*  Set by hardware to indicate that the PLL is locked.
-		*  0: PLL unlocked
-		*  1: PLL locked
-		*/
+	/**
+	*  Bit 25 PLLRDY: PLL clock ready flag
+	*  Set by hardware to indicate that the PLL is locked.
+	*  0: PLL unlocked
+	*  1: PLL locked
+	*/
 	
-			//while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0) ; //Тут мы должны дожидаться поднятия флага включения PLL
+	//while (READ_BIT(RCC->CR, RCC_CR_PLLRDY) == 0) ; //Тут мы должны дожидаться поднятия флага включения PLL
 
-			/**
-			*  Bits 31:26 Reserved, must be kept at reset value.
-			*/
+	/**
+	*  Bits 31:26 Reserved, must be kept at reset value.
+	*/
 
-				// Переходим к следующему пункту 7.3.2 Clock configuration register (RCC_CFGR)
-				//Не забываем, что PPL мы пока не включали, чтоб сделать настройки далее.
+	// Переходим к следующему пункту 7.3.2 Clock configuration register (RCC_CFGR)
+	//Не забываем, что PPL мы пока не включали, чтоб сделать настройки далее.
 	
-				/**
-				*  Bits 1:0 SW: System clock switch
-				*  Set and cleared by software to select SYSCLK source.
-				*  Set by hardware to force HSI selection when leaving Stop and Standby mode or in case of
-				*  failure of the HSE oscillator used directly or indirectly as system clock (if the Clock Security System is enabled).
-				*  00: HSI selected as system clock
-				*  01: HSE selected as system clock
-				*  10: PLL selected as system clock
-				*  11: not allowed
-				*/	
+	/**
+	*  Bits 1:0 SW: System clock switch
+	*  Set and cleared by software to select SYSCLK source.
+	*  Set by hardware to force HSI selection when leaving Stop and Standby mode or in case of
+	*  failure of the HSE oscillator used directly or indirectly as system clock (if the Clock Security System is enabled).
+	*  00: HSI selected as system clock
+	*  01: HSE selected as system clock
+	*  10: PLL selected as system clock
+	*  11: not allowed
+	*/	
 	
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_SW, RCC_CFGR_SW_HSE); //Выберем HSE в качестве System Clock(PLL лучше пока не выбирать, он у нас отключен)
 	//p.s. Спасибо KARMA Electronics за подсказку.
@@ -237,23 +237,23 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	*  11: not applicable 
 	*/
 	
-		//Это статус
+	//Это статус
 	
-		/**
-		*  Bits 7:4 HPRE: AHB prescaler
-		*  Set and cleared by software to control the division factor of the AHB clock.
-		*  0xxx: SYSCLK not divided
-		*  1000: SYSCLK divided by 2
-		*  1001: SYSCLK divided by 4
-		*  1010: SYSCLK divided by 8
-		*  1011: SYSCLK divided by 16
-		*  1100: SYSCLK divided by 64
-		*  1101: SYSCLK divided by 128
-		*  1110: SYSCLK divided by 256
-		*  1111: SYSCLK divided by 512
-		*  Note: The prefetch buffer must be kept on when using a prescaler different from 1 on the
-		*  AHB clock. Refer to Reading the Flash memory section for more details.
-		*/	
+	/**
+	*  Bits 7:4 HPRE: AHB prescaler
+	*  Set and cleared by software to control the division factor of the AHB clock.
+	*  0xxx: SYSCLK not divided
+	*  1000: SYSCLK divided by 2
+	*  1001: SYSCLK divided by 4
+	*  1010: SYSCLK divided by 8
+	*  1011: SYSCLK divided by 16
+	*  1100: SYSCLK divided by 64
+	*  1101: SYSCLK divided by 128
+	*  1110: SYSCLK divided by 256
+	*  1111: SYSCLK divided by 512
+	*  Note: The prefetch buffer must be kept on when using a prescaler different from 1 on the
+	*  AHB clock. Refer to Reading the Flash memory section for more details.
+	*/	
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_HPRE, RCC_CFGR_HPRE_DIV1); //APB Prescaler /1
 	//Вот тут в Note пишется отсылка к Flash(см. стр. 58)
 
@@ -276,11 +276,11 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	*/
 		//Тут я пока не понял, поэтому не трогал
 	
-		/**
-		*  Bit 4 PRFTBE: Prefetch buffer enable
-		*  0: Prefetch is disabled
-		*  1: Prefetch is enabled
-		*/
+	/**
+	*  Bit 4 PRFTBE: Prefetch buffer enable
+	*  0: Prefetch is disabled
+	*  1: Prefetch is enabled
+	*/
 	
 	SET_BIT(FLASH->ACR, FLASH_ACR_PRFTBE); //Prefetch is enabled
 
@@ -296,18 +296,18 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	*  Bits 31:6 Reserved, must be kept at reset value
 	*/
 
-		// Вот теперь можно вернуться обратно к пункту 7.3.2 Clock configuration register (RCC_CFGR) стр.103
+	// Вот теперь можно вернуться обратно к пункту 7.3.2 Clock configuration register (RCC_CFGR) стр.103
 	
-		/**
-		*  Bits 10:8 PPRE1: APB low-speed prescaler (APB1)
-		*  Set and cleared by software to control the division factor of the APB low-speed clock (PCLK1).
-		*  Warning: the software has to set correctly these bits to not exceed 36 MHz on this domain.
-		*  0xx: HCLK not divided
-		*  100: HCLK divided by 2
-		*  101: HCLK divided by 4
-		*  110: HCLK divided by 8
-		*  111: HCLK divided by 16
-		*/
+	/**
+	*  Bits 10:8 PPRE1: APB low-speed prescaler (APB1)
+	*  Set and cleared by software to control the division factor of the APB low-speed clock (PCLK1).
+	*  Warning: the software has to set correctly these bits to not exceed 36 MHz on this domain.
+	*  0xx: HCLK not divided
+	*  100: HCLK divided by 2
+	*  101: HCLK divided by 4
+	*  110: HCLK divided by 8
+	*  111: HCLK divided by 16
+	*/
 	MODIFY_REG(RCC->CFGR, RCC_CFGR_PPRE1, RCC_CFGR_PPRE1_DIV2); //APB1 Prescaler /2, т.к. PCLK1 max 36MHz
 	
 	/**
@@ -405,16 +405,16 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	*  Bits 31:27 Reserved, must be kept at reset value.
 	*/
 
-		//И наконец, после всех настроек, мы можем запустить PLL
+	//И наконец, после всех настроек, мы можем запустить PLL
 		
-		/**
-		*  Bit 24 PLLON: PLL enable
-		*  Set and cleared by software to enable PLL.
-		*  Cleared by hardware when entering Stop or Standby mode. This bit can not be reset if the
-		*  PLL clock is used as system clock or is selected to become the system clock.
-		*  0: PLL OFF
-		*  1: PLL ON
-		*/
+	/**
+	*  Bit 24 PLLON: PLL enable
+	*  Set and cleared by software to enable PLL.
+	*  Cleared by hardware when entering Stop or Standby mode. This bit can not be reset if the
+	*  PLL clock is used as system clock or is selected to become the system clock.
+	*  0: PLL OFF
+	*  1: PLL ON
+	*/
 	
 	SET_BIT(RCC->CR, RCC_CR_PLLON); //Запустим PLL
 	
@@ -502,22 +502,22 @@ void CMSIS_SysTick_Timer_init(void) {
 	/*Следующий п. 4.5.2 SysTick reload value register (STK_LOAD) (Стр 152)*/
 		//Помним, что таймер у нас все еще выключен.
 	
-		/**
-		*  Bits 23 : 0 RELOAD[23 : 0] : RELOAD value
-		*  The LOAD register specifies the start value to load into the VAL register when the counter is
-		*  enabled and when it reaches 0.
-		*  Calculating the RELOAD value
-		*  The RELOAD value can be any value in the range 0x00000001 - 0x00FFFFFF. A start value of
-		*  0 is possible, but has no effect because the SysTick exception request and COUNTFLAG are
-		*  activated when counting from 1 to 0.
-		*  The RELOAD value is calculated according to its use :
-		*  l To generate a multi - shot timer with a period of N processor clock cycles, use a RELOAD
-		*  value of N - 1. For example, if the SysTick interrupt is required every 100 clock pulses, set
-		*  RELOAD to 99.
-		*  l To deliver a single SysTick interrupt after a delay of N processor clock cycles, use a
-		*  RELOAD of value N.For example, if a SysTick interrupt is required after 400 clock
-		*  pulses, set RELOAD to 400.
-		*/
+	/**
+	*  Bits 23 : 0 RELOAD[23 : 0] : RELOAD value
+	*  The LOAD register specifies the start value to load into the VAL register when the counter is
+	*  enabled and when it reaches 0.
+	*  Calculating the RELOAD value
+	*  The RELOAD value can be any value in the range 0x00000001 - 0x00FFFFFF. A start value of
+	*  0 is possible, but has no effect because the SysTick exception request and COUNTFLAG are
+	*  activated when counting from 1 to 0.
+	*  The RELOAD value is calculated according to its use :
+	*  l To generate a multi - shot timer with a period of N processor clock cycles, use a RELOAD
+	*  value of N - 1. For example, if the SysTick interrupt is required every 100 clock pulses, set
+	*  RELOAD to 99.
+	*  l To deliver a single SysTick interrupt after a delay of N processor clock cycles, use a
+	*  RELOAD of value N.For example, if a SysTick interrupt is required after 400 clock
+	*  pulses, set RELOAD to 400.
+	*/
 	
 	MODIFY_REG(SysTick->LOAD, SysTick_LOAD_RELOAD_Msk, 71999 << SysTick_LOAD_RELOAD_Pos); //Настроим прерывание на частоту в 1 кГц(т.е. сработка будет каждую мс)
 	
@@ -797,23 +797,23 @@ void CMSIS_EXTI_0_init(void) {
 	*  Bits 31:20 Reserved, must be kept at reset value (0).
 	*/
 
-		/*То же самое и для EMR, только оно нам не нужно пока*/
-		//CLEAR_BIT(EXTI->EMR, EXTI_EMR_EM0);//Событие нам не нужно, поэтому поставим сюда 0.
+	/*То же самое и для EMR, только оно нам не нужно пока*/
+	//CLEAR_BIT(EXTI->EMR, EXTI_EMR_EM0);//Событие нам не нужно, поэтому поставим сюда 0.
 
-		/*Реагирование по фронту и спаду сигнала см. п. 10.3.3 Rising trigger selection register (EXTI_RTSR) (Стр. 212)*/
+	/*Реагирование по фронту и спаду сигнала см. п. 10.3.3 Rising trigger selection register (EXTI_RTSR) (Стр. 212)*/
 	
-		/**
-		*  Bits 19:0 TRx: Rising trigger event configuration bit of line x
-		*  0: Rising trigger disabled (for Event and Interrupt) for input line
-		*  1: Rising trigger enabled (for Event and Interrupt) for input line.
-		*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise
-		*  
-		*  Note: The external wakeup lines are edge triggered, no glitches must be generated on these lines.
-		*  If a rising edge on external interrupt line occurs during writing of EXTI_RTSR register, the
-		*  pending bit will not be set.
-		*  Rising and Falling edge triggers can be set for the same interrupt line. In this configuration,
-		*  both generate a trigger condition.
-		*/
+	/**
+	*  Bits 19:0 TRx: Rising trigger event configuration bit of line x
+	*  0: Rising trigger disabled (for Event and Interrupt) for input line
+	*  1: Rising trigger enabled (for Event and Interrupt) for input line.
+	*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise
+	*  
+	*  Note: The external wakeup lines are edge triggered, no glitches must be generated on these lines.
+	*  If a rising edge on external interrupt line occurs during writing of EXTI_RTSR register, the
+	*  pending bit will not be set.
+	*  Rising and Falling edge triggers can be set for the same interrupt line. In this configuration,
+	*  both generate a trigger condition.
+	*/
 	SET_BIT(EXTI->RTSR, EXTI_RTSR_TR0); //Реагирование по фронту вкл.
 	//SET_BIT(EXTI->FTSR, EXTI_FTSR_TR0);//Реагирование по спаду вкл.
 	
@@ -833,32 +833,32 @@ void CMSIS_EXTI_0_init(void) {
 	*  This bit is cleared by clearing the corresponding bit of EXTI_PR (by writing a 1 into the bit).
 	*  Note: Bit 19 used in connectivity line devices and is reserved otherwise
 	*/
-		//SET_BIT(EXTI->SWIER, EXTI_SWIER_SWIER0);//Это софтварное включение прерывания
+	//SET_BIT(EXTI->SWIER, EXTI_SWIER_SWIER0);//Это софтварное включение прерывания
 	
-		/*
-		*  Bits 31:20 Reserved, must be kept at reset value (0)
-		*/
+	/*
+	*  Bits 31:20 Reserved, must be kept at reset value (0)
+	*/
 
-		/** 
-		*  п. 10.3.6 Pending register (EXTI_PR)
-		*  Нужен для выхода из прерывания. Вставляется в Handler. 
-		*  Если не сбросить, то так в прерывании и зависнем.
-		*/	
+	/** 
+	*  п. 10.3.6 Pending register (EXTI_PR)
+	*  Нужен для выхода из прерывания. Вставляется в Handler. 
+	*  Если не сбросить, то так в прерывании и зависнем.
+	*/	
 	
-		/**
-		*  Bits 19:0 PRx: Pending bit
-		*  0: No trigger request occurred
-		*  1: selected trigger request occurred
-		*  This bit is set when the selected edge event arrives on the external interrupt line. This bit is
-		*  cleared by writing a ‘1’ into the bit.
-		*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise.
-		*/
+	/**
+	*  Bits 19:0 PRx: Pending bit
+	*  0: No trigger request occurred
+	*  1: selected trigger request occurred
+	*  This bit is set when the selected edge event arrives on the external interrupt line. This bit is
+	*  cleared by writing a ‘1’ into the bit.
+	*  Note: Bit 19 is used in connectivity line devices only and is reserved otherwise.
+	*/
 	
-			// SET_BIT(EXTI->PR, EXTI_PR_PR0); //Команда выхода из прерывания
+	// SET_BIT(EXTI->PR, EXTI_PR_PR0); //Команда выхода из прерывания
 
-			/**
-			*  Bits 31:20 Reserved, must be kept at reset value (0)
-			*/
+	/**
+	*  Bits 31:20 Reserved, must be kept at reset value (0)
+	*/
 	
 	NVIC_EnableIRQ(EXTI0_IRQn); //Включим прерывание по вектору EXTI0
 }
@@ -1247,7 +1247,8 @@ __WEAK void DMA1_Channel1_IRQHandler(void) {
 		SET_BIT(DMA1->IFCR, DMA_IFCR_CGIF1); //Сбросим глобальный флаг.
 		/*Здесь можно писать код*/
 		
-	} else if (READ_BIT(DMA1->ISR, DMA_ISR_TEIF1)) {
+	}
+	else if (READ_BIT(DMA1->ISR, DMA_ISR_TEIF1)) {
 		/*Здесь можно сделать какой-то обработчик ошибок*/
 		SET_BIT(DMA1->IFCR, DMA_IFCR_CGIF1); //Сбросим глобальный флаг.
 	}
@@ -2450,7 +2451,7 @@ bool CMSIS_SPI_Data_Receive(SPI_TypeDef *SPI, uint8_t* data, uint16_t Size_data,
 	if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
 		//Если шина MOSI свободна, то принимаем данные
 		for (uint16_t i = 0; i < Size_data; i++) {
-			SPI->DR = 0;//Запустим тактирование
+			SPI->DR = 0; //Запустим тактирование
 			Timeout_counter_ms = Timeout_ms;
 			while (!READ_BIT(SPI->SR, SPI_SR_RXNE)) {
 				//Ждем, пока буфер на прием не заполнится
@@ -2468,8 +2469,7 @@ bool CMSIS_SPI_Data_Receive(SPI_TypeDef *SPI, uint8_t* data, uint16_t Size_data,
 			}
 		}
 		return true;
-	}
-	else {
+	} else {
 		return false;
 	}
 }
@@ -2519,8 +2519,7 @@ bool CMSIS_SPI_Data_Transmit_fast(SPI_TypeDef *SPI, GPIO_TypeDef *GPIO, uint8_t 
 			GPIO->BSRR = (0x1UL << (NSS_pin + 16U)); //NSS_ACTIVE_HIGH
 		}
 		return true;
-	}
-	else {
+	} else {
 		return false;
 	}
 }
@@ -2541,8 +2540,7 @@ bool CMSIS_SPI_Data_Receive_fast(SPI_TypeDef *SPI, GPIO_TypeDef *GPIO, uint8_t N
 		if (NSS_logic) {
 			//CS on
 			GPIO->BSRR = (0x1UL << (NSS_pin + 16U)); //NSS_ACTIVE_LOW
-		}
-		else {
+		} else {
 			GPIO->BSRR = (0x1UL << NSS_pin); //NSS_ACTIVE_HIGH
 		}      
 		for (uint16_t i = 0; i < Size_data; i++) {
@@ -2566,13 +2564,11 @@ bool CMSIS_SPI_Data_Receive_fast(SPI_TypeDef *SPI, GPIO_TypeDef *GPIO, uint8_t N
 		if (NSS_logic) {
 			//CS off
 			GPIO->BSRR = (0x1UL << NSS_pin); //NSS_ACTIVE_LOW
-		}
-		else {
+		} else {
 			GPIO->BSRR = (0x1UL << (NSS_pin + 16U)); //NSS_ACTIVE_HIGH
 		}
 		return true;
-	}
-	else {
+	} else {
 		return false;
 	}
 }
