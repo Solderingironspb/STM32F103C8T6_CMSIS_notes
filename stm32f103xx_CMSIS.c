@@ -2381,9 +2381,9 @@ void CMSIS_SPI1_init(void) {
      * 110: fPCLK/128
      * 111: fPCLK/256
      * */
-    MODIFY_REG(SPI1->CR1, SPI_CR1_BR, 0b001 << SPI_CR1_BR_Pos); //fPCLK/4. 72000000/32 = 2.22 MBits/s
-    CLEAR_BIT(SPI1->CR1, SPI_CR1_CPOL); //Полярность
-    CLEAR_BIT(SPI1->CR1, SPI_CR1_CPHA); //Фаза
+    MODIFY_REG(SPI1->CR1, SPI_CR1_BR, 0b011 << SPI_CR1_BR_Pos); //fPCLK/4. 72000000/32 = 2.22 MBits/s
+    SET_BIT(SPI1->CR1, SPI_CR1_CPOL); //Полярность
+    SET_BIT(SPI1->CR1, SPI_CR1_CPHA); //Фаза
     CLEAR_BIT(SPI1->CR1, SPI_CR1_DFF); //0: 8-bit data frame format is selected for transmission/reception
     CLEAR_BIT(SPI1->CR1, SPI_CR1_LSBFIRST); //0: MSB transmitted first
     SET_BIT(SPI1->CR1, SPI_CR1_SSM); //1: Software slave management enabled
@@ -2436,7 +2436,7 @@ bool CMSIS_SPI_Data_Transmit_8BIT(SPI_TypeDef* SPI, uint8_t* data, uint16_t Size
 	//(см. Reference Manual стр. 712 Transmit-only procedure (BIDIMODE=0 RXONLY=0))
     if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
        //Проверим занятость шины
-        SPI->DR = *(data); //Запишите первый элемент данных для отправки в регистр SPI_DR
+        SPI->DR = *(data); //Запишем первый элемент данных для отправки в регистр SPI_DR
         //(При этом очищается бит TXE)
         
         for (uint16_t i = 1; i < Size_data; i++) {
@@ -2452,14 +2452,14 @@ bool CMSIS_SPI_Data_Transmit_8BIT(SPI_TypeDef* SPI, uint8_t* data, uint16_t Size
         Timeout_counter_ms = Timeout_ms;
         while (!READ_BIT(SPI->SR, SPI_SR_TXE)) {
             //После записи последнего элемента данных в регистр SPI_DR,
-            //подождите, пока TXE станет равным 1.
+            //подождем, пока TXE станет равным 1.
             if (!Timeout_counter_ms) {
                 return false;
             }
         }
         Timeout_counter_ms = Timeout_ms;
         while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
-            //Затем подождите, пока BSY станет равным 0.
+            //Затем подождем, пока BSY станет равным 0.
             //Это указывает на то, что передача последних данных завершена.
             if (!Timeout_counter_ms) {
                 return false;
@@ -2487,7 +2487,7 @@ bool CMSIS_SPI_Data_Transmit_16BIT(SPI_TypeDef* SPI, uint16_t* data, uint16_t Si
 	//(см. Reference Manual стр. 712 Transmit-only procedure (BIDIMODE=0 RXONLY=0))
 	if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
 		//Проверим занятость шины
-		SPI->DR = *(data); //Запишите первый элемент данных для отправки в регистр SPI_DR
+		SPI->DR = *(data); //Запишем первый элемент данных для отправки в регистр SPI_DR
 		//(При этом очищается бит TXE)
         
 		for (uint16_t i = 1; i < Size_data; i++) {
@@ -2503,14 +2503,14 @@ bool CMSIS_SPI_Data_Transmit_16BIT(SPI_TypeDef* SPI, uint16_t* data, uint16_t Si
 		Timeout_counter_ms = Timeout_ms;
 		while (!READ_BIT(SPI->SR, SPI_SR_TXE)) {
 			//После записи последнего элемента данных в регистр SPI_DR,
-			//подождите, пока TXE станет равным 1.
+			//подождем, пока TXE станет равным 1.
 			if (!Timeout_counter_ms) {
 				return false;
 			}
 		}
 		Timeout_counter_ms = Timeout_ms;
 		while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
-			//Затем подождите, пока BSY станет равным 0.
+			//Затем подождем, пока BSY станет равным 0.
 			//Это указывает на то, что передача последних данных завершена.
 			if (!Timeout_counter_ms) {
 				return false;
@@ -2536,9 +2536,18 @@ bool CMSIS_SPI_Data_Transmit_16BIT(SPI_TypeDef* SPI, uint16_t* data, uint16_t Si
  */
 bool CMSIS_SPI_Data_Receive_8BIT(SPI_TypeDef* SPI, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
     if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
-        //Если шина MOSI свободна, то принимаем данные
+        //Проверим занятость шины
+        
+        if (READ_BIT(SPI->SR, SPI_SR_OVR) || READ_BIT(SPI->SR, SPI_SR_RXNE)) {
+            //Т.к. мы можем принимать данные в любой момент, например после режима "transmit-only mode"
+            //то следует проверить статусы OVR и RXNE. Если хотя бы один из них установлен, 
+            //то сбросим их при помощи чтения регистра DR.
+            SPI->DR;
+        }
+        
+        //Начнем прием данных
         for (uint16_t i = 0; i < Size_data; i++) {
-            SPI->DR = 0; //Запустим тактирование
+            SPI->DR = 0; //Запустим тактирование, чтоб считать 8 бит
             Timeout_counter_ms = Timeout_ms;
             while (!READ_BIT(SPI->SR, SPI_SR_RXNE)) {
                 //Ждем, пока буфер на прием не заполнится
@@ -2546,11 +2555,13 @@ bool CMSIS_SPI_Data_Receive_8BIT(SPI_TypeDef* SPI, uint8_t* data, uint16_t Size_
                     return false;
                 }
             }
-            *(data + i) = SPI->DR;
+            *(data + i) = SPI->DR; //Считываем данные
         }
+        
         Timeout_counter_ms = Timeout_ms;
         while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
-            //Ждем, пока мы освободим шину
+            //Затем подождем, пока BSY станет равным 0.
+			//Это указывает на то, что прием последних данных завершен.
             if (!Timeout_counter_ms) {
                 return false;
             }
@@ -2573,9 +2584,18 @@ bool CMSIS_SPI_Data_Receive_8BIT(SPI_TypeDef* SPI, uint8_t* data, uint16_t Size_
  */
 bool CMSIS_SPI_Data_Receive_16BIT(SPI_TypeDef* SPI, uint16_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
     if (!READ_BIT(SPI->SR, SPI_SR_BSY)) {
-        //Если шина MOSI свободна, то принимаем данные
+        //Проверим занятость шины
+        
+        if (READ_BIT(SPI->SR, SPI_SR_OVR) || READ_BIT(SPI->SR, SPI_SR_RXNE)) {
+            //Т.к. мы можем принимать данные в любой момент, например после режима "transmit-only mode"
+            //то следует проверить статусы OVR и RXNE. Если хотя бы один из них установлен, 
+            //то сбросим их при помощи чтения регистра DR.
+            SPI->DR;
+        }
+        
+        //Начнем прием данных
         for (uint16_t i = 0; i < Size_data; i++) {
-            SPI->DR = 0; //Запустим тактирование
+            SPI->DR = 0; //Запустим тактирование, чтоб считать 16 бит
             Timeout_counter_ms = Timeout_ms;
             while (!READ_BIT(SPI->SR, SPI_SR_RXNE)) {
                 //Ждем, пока буфер на прием не заполнится
@@ -2583,11 +2603,13 @@ bool CMSIS_SPI_Data_Receive_16BIT(SPI_TypeDef* SPI, uint16_t* data, uint16_t Siz
                     return false;
                 }
             }
-            *(data + i) = SPI->DR;
+            *(data + i) = SPI->DR; //Считываем данные
         }
+        
         Timeout_counter_ms = Timeout_ms;
         while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
-            //Ждем, пока мы освободим шину
+            //Затем подождем, пока BSY станет равным 0.
+			//Это указывает на то, что прием последних данных завершен.
             if (!Timeout_counter_ms) {
                 return false;
             }
