@@ -39,11 +39,6 @@ extern "C" {
         uint16_t rx_len; //Количество принятых байт после сработки флага IDLE
     };
 
-    /*----------Макросы для CS(NSS)----------------*/
-#define NSS_ACTIVE_LOW 1
-#define NSS_ACTIVE_HIGH 0
-/*----------Макросы для CS(NSS)----------------*/
-
     void CMSIS_Debug_init(void); //Настройка Debug (Serial Wire)
     void CMSIS_RCC_SystemClock_72MHz(void); //Настрока тактирования микроконтроллера на частоту 72MHz
     void CMSIS_SysTick_Timer_init(void); //Инициализация системного таймера
