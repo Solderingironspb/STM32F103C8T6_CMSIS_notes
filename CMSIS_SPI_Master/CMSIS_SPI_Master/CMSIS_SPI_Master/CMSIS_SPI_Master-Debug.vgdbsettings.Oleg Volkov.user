@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<VisualGDBUserPreferences xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <UserDefinedVariableValues />
+  <DebugPreferences xsi:type="com.visualgdb.debug.embedded.preferences">
+    <CatchpointConfiguration>
+      <Exec>false</Exec>
+      <Fork>false</Fork>
+      <Vfork>false</Vfork>
+      <Syscalls />
+      <CXXCatchpoints />
+    </CatchpointConfiguration>
+    <MaskInterruptsWhileStepping>false</MaskInterruptsWhileStepping>
+    <MemoryWindowPreferences />
+    <LiveVariables />
+    <NestedLiveVariables>
+      <NestedVariableSettingsCollection>
+        <ID>com.sysprogs.AllGlobals</ID>
+        <Variables>
+          <LiveVariable>
+            <Expression>spi_tx_buffer</Expression>
+            <Type>com.sysprogs.fixed</Type>
+            <Enabled>true</Enabled>
+            <Breakpoint>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </Breakpoint>
+            <Plot>false</Plot>
+            <IsCollapsed>false</IsCollapsed>
+            <IsFavorite>false</IsFavorite>
+          </LiveVariable>
+        </Variables>
+      </NestedVariableSettingsCollection>
+      <NestedVariableSettingsCollection>
+        <ID>com.sysprogs.SpecificVariables</ID>
+        <Variables />
+      </NestedVariableSettingsCollection>
+    </NestedLiveVariables>
+    <Suggestions>
+      <HardwareRegisterFilters />
+    </Suggestions>
+    <LiveVariablePreferences>
+      <ViewMode>AllGlobals</ViewMode>
+      <FavoritesOnly>false</FavoritesOnly>
+    </LiveVariablePreferences>
+    <HardwareRegisters>
+      <HardwareRegisterRecord>
+        <Name>SPI1.CR1</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133197538016592546</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>EXTI.PR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133197598043594604</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+    </HardwareRegisters>
+  </DebugPreferences>
+</VisualGDBUserPreferences>

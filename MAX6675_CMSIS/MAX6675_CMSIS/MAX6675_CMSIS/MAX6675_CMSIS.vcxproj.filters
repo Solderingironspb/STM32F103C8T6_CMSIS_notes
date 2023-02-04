@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source files">
+      <UniqueIdentifier>{6dee836d-ea4b-4ccb-8b87-d37f3ed4799a}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header files">
+      <UniqueIdentifier>{7154afd8-708d-4bed-9d47-26f7a84e9255}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource files">
+      <UniqueIdentifier>{9e7729d1-fccf-40dc-9cf6-8da8125b498f}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="Source files\Core">
+      <UniqueIdentifier>{9fe97834-2d9b-4b83-985e-425e3d7eb620}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Core\Inc">
+      <UniqueIdentifier>{dd3a69f9-79ab-4e83-b41a-ccdf0fd64649}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Core\Src">
+      <UniqueIdentifier>{f9035692-e061-4185-8116-f5b7407753bc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Core\Startup">
+      <UniqueIdentifier>{e5891c49-0fa2-4159-91bc-64b239bcdc81}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Drivers">
+      <UniqueIdentifier>{fc687af5-7d3a-43cb-9bd0-74b44fd64a80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Drivers\CMSIS">
+      <UniqueIdentifier>{6fbc0573-84e2-4038-b974-9ab9d0fde7f4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source files\Device-specific files">
+      <UniqueIdentifier>{3e3679ea-e8fc-4ee0-99de-7680f246975f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Core">
+      <UniqueIdentifier>{62257c96-25ba-48ba-a07b-2db5c3daf84e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Core\Inc">
+      <UniqueIdentifier>{0cc55aae-3c3a-4b84-9cf2-b665ee961603}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Core\Src">
+      <UniqueIdentifier>{49a9ebd5-0e44-4524-bfb4-dd01e94352db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Core\Startup">
+      <UniqueIdentifier>{fd05c29e-aac1-4acb-abb2-a4fe9e62dfa8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Drivers">
+      <UniqueIdentifier>{bdc42ef2-c658-4784-895a-1279ea04a16d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Drivers\CMSIS">
+      <UniqueIdentifier>{9dc7f031-ca00-4658-bfae-3d13a7727b67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header files\Device-specific files">
+      <UniqueIdentifier>{100197e2-e18c-4927-894e-f963a2629f68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="VisualGDB settings">
+      <UniqueIdentifier>{3e853953-2ce9-4059-96ee-3597604c7f39}</UniqueIdentifier>
+      <Extensions>vgdbsettings</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Core\Inc\main.h">
+      <Filter>Source files\Core\Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Inc\MAX6675.h">
+      <Filter>Source files\Core\Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Core\Inc\stm32f103xx_CMSIS.h">
+      <Filter>Source files\Core\Inc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_armcc.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_armclang.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_compiler.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_gcc.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_iccarm.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_version.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_armv8mbl.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_armv8mml.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm0.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm0plus.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm1.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm23.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm3.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm33.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm4.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm7.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_sc000.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\core_sc300.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\mpu_armv7.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\mpu_armv8.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\stm32f103xb.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\stm32f1xx.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\system_stm32f1xx.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\Drivers\CMSIS\tz_context.h">
+      <Filter>Source files\Drivers\CMSIS</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Core\Src\main.c">
+      <Filter>Source files\Core\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Src\MAX6675.c">
+      <Filter>Source files\Core\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Src\stm32f103xx_CMSIS.c">
+      <Filter>Source files\Core\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Src\syscalls.c">
+      <Filter>Source files\Core\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Src\sysmem.c">
+      <Filter>Source files\Core\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Src\system_stm32f1xx.c">
+      <Filter>Source files\Core\Src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\Core\Startup\startup_stm32f103c8tx.S">
+      <Filter>Source files\Core\Startup</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="stm32.props">
+      <Filter>Source files\Device-specific files</Filter>
+    </None>
+    <None Include="MAX6675_CMSIS-Debug.vgdbsettings">
+      <Filter>VisualGDB settings</Filter>
+    </None>
+    <None Include="MAX6675_CMSIS-Release.vgdbsettings">
+      <Filter>VisualGDB settings</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="stm32.xml">
+      <Filter>VisualGDB settings</Filter>
+    </Xml>
+  </ItemGroup>
+</Project>

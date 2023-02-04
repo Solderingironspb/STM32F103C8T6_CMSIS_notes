@@ -1,0 +1,124 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|VisualGDB">
+      <Configuration>Debug</Configuration>
+      <Platform>VisualGDB</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|VisualGDB">
+      <Configuration>Release</Configuration>
+      <Platform>VisualGDB</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <ProjectGuid>{4EACFB5A-4433-42AC-BEF6-95E4D9F66F48}</ProjectGuid>
+    <BSP_ID>com.sysprogs.arm.stm32</BSP_ID>
+    <BSP_VERSION>2022.01</BSP_VERSION>
+    <InPlaceBSPSubdir />
+    <RelativeBSPPath />
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration" Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
+    <GNUConfigurationType>Debug</GNUConfigurationType>
+    <ToolchainID>com.visualgdb.arm-eabi</ToolchainID>
+    <ToolchainVersion>10.3.1/10.2.90/r1</ToolchainVersion>
+    <MCUPropertyListFile>$(ProjectDir)stm32.props</MCUPropertyListFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
+    <ToolchainID>com.visualgdb.arm-eabi</ToolchainID>
+    <ToolchainVersion>10.3.1/10.2.90/r1</ToolchainVersion>
+    <MCUPropertyListFile>$(ProjectDir)stm32.props</MCUPropertyListFile>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|VisualGDB'">
+    <ClCompile>
+      <CLanguageStandard>
+      </CLanguageStandard>
+      <AdditionalIncludeDirectories>..\..\Core\Inc;..\..\Drivers\CMSIS;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STM32F103xB;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions />
+      <CPPLanguageStandard />
+    </ClCompile>
+    <Link>
+      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LinkerScript>C:\dev\2023\CMSIS_SPI_LESSON\STM32F103C8TX_FLASH.ld</LinkerScript>
+      <AdditionalOptions />
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|VisualGDB'">
+    <ClCompile>
+      <CLanguageStandard>
+      </CLanguageStandard>
+      <AdditionalIncludeDirectories>..\..\Core\Inc;..\..\Drivers\CMSIS;%(ClCompile.AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>STM32F103xB;%(ClCompile.PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions />
+      <CPPLanguageStandard />
+    </ClCompile>
+    <Link>
+      <LibrarySearchDirectories>%(Link.LibrarySearchDirectories)</LibrarySearchDirectories>
+      <AdditionalLibraryNames>%(Link.AdditionalLibraryNames)</AdditionalLibraryNames>
+      <AdditionalLinkerInputs>%(Link.AdditionalLinkerInputs)</AdditionalLinkerInputs>
+      <LinkerScript>C:\dev\2023\CMSIS_SPI_LESSON\STM32F103C8TX_FLASH.ld</LinkerScript>
+      <AdditionalOptions />
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\Core\Inc\main.h" />
+    <ClInclude Include="..\..\Core\Inc\stm32f103xx_CMSIS.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_armcc.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_armclang.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_compiler.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_gcc.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_iccarm.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\cmsis_version.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_armv8mbl.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_armv8mml.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm0.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm0plus.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm1.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm23.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm3.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm33.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm4.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_cm7.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_sc000.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\core_sc300.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\mpu_armv7.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\mpu_armv8.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\stm32f103xb.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\stm32f1xx.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\system_stm32f1xx.h" />
+    <ClInclude Include="..\..\Drivers\CMSIS\tz_context.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\Core\Src\main.c" />
+    <ClCompile Include="..\..\Core\Src\stm32f103xx_CMSIS.c" />
+    <ClCompile Include="..\..\Core\Src\syscalls.c" />
+    <ClCompile Include="..\..\Core\Src\sysmem.c" />
+    <ClCompile Include="..\..\Core\Src\system_stm32f1xx.c" />
+    <ClCompile Include="..\..\Core\Startup\startup_stm32f103c8tx.S" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="CMSIS_SPI_LESSON-Debug.vgdbsettings" />
+    <None Include="CMSIS_SPI_LESSON-Release.vgdbsettings" />
+    <None Include="stm32.props" />
+  </ItemGroup>
+  <ItemGroup>
+    <Xml Include="stm32.xml" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

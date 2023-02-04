@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<VisualGDBUserPreferences xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <UserDefinedVariableValues />
+  <DebugPreferences xsi:type="com.visualgdb.debug.embedded.preferences">
+    <CatchpointConfiguration>
+      <Exec>false</Exec>
+      <Fork>false</Fork>
+      <Vfork>false</Vfork>
+      <Syscalls />
+      <CXXCatchpoints />
+    </CatchpointConfiguration>
+    <MaskInterruptsWhileStepping>false</MaskInterruptsWhileStepping>
+    <MemoryWindowPreferences />
+    <LiveVariables />
+    <NestedLiveVariables>
+      <NestedVariableSettingsCollection>
+        <ID>com.sysprogs.AllGlobals</ID>
+        <Variables>
+          <LiveVariable>
+            <Expression>MAX31865_PT100_T</Expression>
+            <Type>com.sysprogs.types.builtin.Float32</Type>
+            <Enabled>true</Enabled>
+            <Breakpoint>
+              <ComparisonMode>Equals</ComparisonMode>
+              <Enabled>false</Enabled>
+            </Breakpoint>
+            <Plot>true</Plot>
+            <IsCollapsed>false</IsCollapsed>
+            <IsFavorite>false</IsFavorite>
+          </LiveVariable>
+        </Variables>
+      </NestedVariableSettingsCollection>
+      <NestedVariableSettingsCollection>
+        <ID>com.sysprogs.SpecificVariables</ID>
+        <Variables />
+      </NestedVariableSettingsCollection>
+    </NestedLiveVariables>
+    <Suggestions>
+      <HardwareRegisterFilters />
+    </Suggestions>
+    <LiveVariablePreferences>
+      <ViewMode>AllGlobals</ViewMode>
+      <FavoritesOnly>false</FavoritesOnly>
+    </LiveVariablePreferences>
+    <HardwareRegisters />
+  </DebugPreferences>
+</VisualGDBUserPreferences>

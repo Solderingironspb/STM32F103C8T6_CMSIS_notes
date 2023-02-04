@@ -1,0 +1,101 @@
+<?xml version="1.0"?>
+<VisualGDBUserPreferences xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <UserDefinedVariableValues />
+  <DebugPreferences xsi:type="com.visualgdb.debug.embedded.preferences">
+    <CatchpointConfiguration>
+      <Exec>false</Exec>
+      <Fork>false</Fork>
+      <Vfork>false</Vfork>
+      <Syscalls />
+      <CXXCatchpoints />
+    </CatchpointConfiguration>
+    <MaskInterruptsWhileStepping>false</MaskInterruptsWhileStepping>
+    <MemoryWindowPreferences />
+    <LiveVariables />
+    <NestedLiveVariables>
+      <NestedVariableSettingsCollection>
+        <ID>com.sysprogs.AllGlobals</ID>
+        <Variables />
+      </NestedVariableSettingsCollection>
+      <NestedVariableSettingsCollection>
+        <ID>com.sysprogs.SpecificVariables</ID>
+        <Variables />
+      </NestedVariableSettingsCollection>
+    </NestedLiveVariables>
+    <Suggestions>
+      <HardwareRegisterFilters>
+        <string>SPI1</string>
+      </HardwareRegisterFilters>
+    </Suggestions>
+    <LiveVariablePreferences>
+      <ViewMode>SpecificVariables</ViewMode>
+      <FavoritesOnly>false</FavoritesOnly>
+    </LiveVariablePreferences>
+    <HardwareRegisters>
+      <HardwareRegisterRecord>
+        <Name>SPI1.CR1</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133195536412628550</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>SPI1.CR2</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133195536422375319</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>SPI1.SR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133195562171486749</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>SPI1.DR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133195536430861197</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>SPI1.CRCPR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133195550028681131</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>SPI1.RXCRCR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133195536437495508</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>SPI1.TXCRCR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133195536442375468</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+      <HardwareRegisterRecord>
+        <Name>SPI1.I2SCFGR</Name>
+        <State>
+          <IsFavorite>false</IsFavorite>
+          <IsLive>false</IsLive>
+          <LastUsed>133195536402757583</LastUsed>
+        </State>
+      </HardwareRegisterRecord>
+    </HardwareRegisters>
+  </DebugPreferences>
+</VisualGDBUserPreferences>
