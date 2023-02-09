@@ -28,3 +28,7 @@
 **Урок#06** [STM32. CMSIS. Урок#06: I2C. Теория. Сканер I2C адресов. Отправка и прием данных. MemWrite, MemRead](https://youtu.be/759DReAmhN4)
 
 Материалы из урока: **[[Смотреть архив]](https://github.com/Solderingironspb/STM32F103C8T6_CMSIS_notes/tree/Lesson_6)**  **[[Скачать]](https://github.com/Solderingironspb/STM32F103C8T6_CMSIS_notes/archive/refs/heads/Lesson_6.zip)**
+
+**Урок#07** [STM32. CMSIS. Урок#07: SPI. Теория. Мастер режим. Отправка и прием данных.](https://youtu.be/08Qb_oDj0lg)
+
+Материалы из урока: **[[Смотреть архив]](https://github.com/Solderingironspb/STM32F103C8T6_CMSIS_notes/tree/Lesson_7)**  **[[Скачать]](https://github.com/Solderingironspb/STM32F103C8T6_CMSIS_notes/archive/refs/heads/Lesson_7.zip)**
