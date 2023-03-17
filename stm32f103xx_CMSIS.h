@@ -77,6 +77,12 @@ extern "C" {
     bool CMSIS_SPI_Data_Receive_16BIT(SPI_TypeDef* SPI, uint16_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция приема данных по SPI
     bool CMSIS_SPI_Data_Transmit_fast(SPI_TypeDef* SPI, GPIO_TypeDef* GPIO, uint8_t NSS_pin, bool NSS_logic, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция передачи данных по SPI(быстрая. CS уже включен в нее)
     bool CMSIS_SPI_Data_Receive_fast(SPI_TypeDef* SPI, GPIO_TypeDef* GPIO, uint8_t NSS_pin, bool NSS_logic, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция приема данных по SPI(быстрая. CS уже включен в нее)
+    void FLASH_Unlock(void); //Разблокировка FLASH
+    void FLASH_Lock(void); //Блокировка FLASH
+    void FLASH_Page_erase(uint16_t Adress); //Стирание страницы во FLASH
+    void FLASH_Page_write(uint32_t Adress, uint8_t *Data, uint16_t Size); //Запись страницы во FLASH
+    void FLASH_Read_data(uint32_t Adress, uint8_t *Data, uint16_t Size); //Считывание данных с FLASH
+    
 #ifdef __cplusplus
 }
 #endif
