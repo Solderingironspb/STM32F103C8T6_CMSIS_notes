@@ -20,33 +20,33 @@ void EXTI1_IRQHandler(void) {
 
 int main(void) {
 	CMSIS_Debug_init(); //Serial wire
-	CMSIS_RCC_SystemClock_72MHz(); //Ñèñòåìíàÿ ÷àñòîòà íà 72MHz
-	CMSIS_SysTick_Timer_init();  //Íàñòðîéêà ñèñòåìíîãî òàéìåðà
+	CMSIS_RCC_SystemClock_72MHz(); //Ð¡Ð¸ÑÑ‚ÐµÐ¼Ð½Ð°Ñ Ñ‡Ð°ÑÑ‚Ð¾Ñ‚Ð° Ð½Ð° 72MHz
+	CMSIS_SysTick_Timer_init();  //ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° ÑÐ¸ÑÑ‚ÐµÐ¼Ð½Ð¾Ð³Ð¾ Ñ‚Ð°Ð¹Ð¼ÐµÑ€Ð°
 
-	/*Íàñòðîèì íîæêè A1 è B0 íà âõîä*/
+	/*ÐÐ°ÑÑ‚Ñ€Ð¾Ð¸Ð¼ Ð½Ð¾Ð¶ÐºÐ¸ A1 Ð¸ B0 Ð½Ð° Ð²Ñ…Ð¾Ð´*/
 	
-	/*Íàñòðîéêà PA1 íà âõîä - floating*/
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Âêëþ÷åíèå òàêòèðîâàíèÿ ïîðòà A
+	/*ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° PA1 Ð½Ð° Ð²Ñ…Ð¾Ð´ - floating*/
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Ð’ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ‚Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ Ð¿Ð¾Ñ€Ñ‚Ð° A
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_CNF1_Msk, 0b01 << GPIO_CRL_CNF1_Pos); //01: Floating input (reset state)
 	MODIFY_REG(GPIOA->CRL, GPIO_CRL_MODE1_Msk, 0b00 << GPIO_CRL_MODE1_Pos); //00: Input mode (reset state)
 	
-	/*Íàñòðîéêà PB0 íà âõîä - Input with pull-up*/
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN); //Âêëþ÷åíèå òàêòèðîâàíèÿ ïîðòà B
+	/*ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° PB0 Ð½Ð° Ð²Ñ…Ð¾Ð´ - Input with pull-up*/
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN); //Ð’ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ñ‚Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ Ð¿Ð¾Ñ€Ñ‚Ð° B
 	MODIFY_REG(GPIOB->CRL, GPIO_CRL_CNF0_Msk, 0b10 << GPIO_CRL_CNF0_Pos);  //10: Input with pull-up / pull-down
 	MODIFY_REG(GPIOB->CRL, GPIO_CRL_MODE0_Msk, 0b00 << GPIO_CRL_MODE0_Pos); //00: Input mode (reset state)
 	GPIOB->BSRR = GPIO_BSRR_BS0; //Input with pull-up
 	
-	//Íàñòðîéêà EXTI äëÿ íîæåê PA1 è PB0
-	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Âêëþ÷èòü òàêòèðîâàíèå àëüòåðíàòèâíûõ ôóíêöèé
-	//Íà÷íåì ñ PB0:
-	MODIFY_REG(AFIO->EXTICR[0], AFIO_EXTICR1_EXTI0_Msk, 0b0001 << AFIO_EXTICR1_EXTI0_Pos); //EXTI0, ïîðò B
+	//ÐÐ°ÑÑ‚Ñ€Ð¾Ð¹ÐºÐ° EXTI Ð´Ð»Ñ Ð½Ð¾Ð¶ÐµÐº PA1 Ð¸ PB0
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Ð’ÐºÐ»ÑŽÑ‡Ð¸Ñ‚ÑŒ Ñ‚Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ð°Ð»ÑŒÑ‚ÐµÑ€Ð½Ð°Ñ‚Ð¸Ð²Ð½Ñ‹Ñ… Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¹
+	//ÐÐ°Ñ‡Ð½ÐµÐ¼ Ñ PB0:
+	MODIFY_REG(AFIO->EXTICR[0], AFIO_EXTICR1_EXTI0_Msk, 0b0001 << AFIO_EXTICR1_EXTI0_Pos); //EXTI0, Ð¿Ð¾Ñ€Ñ‚ B
 	//PA1:
-	MODIFY_REG(AFIO->EXTICR[0], AFIO_EXTICR1_EXTI1_Msk, 0b0000 << AFIO_EXTICR1_EXTI1_Pos); //EXTI1, ïîðò A
+	MODIFY_REG(AFIO->EXTICR[0], AFIO_EXTICR1_EXTI1_Msk, 0b0000 << AFIO_EXTICR1_EXTI1_Pos); //EXTI1, Ð¿Ð¾Ñ€Ñ‚ A
 	
-	SET_BIT(EXTI->IMR, EXTI_IMR_MR0); //Ðàçðåøèòü ïðåðûâàíèå ñ EXTI0
-	SET_BIT(EXTI->IMR, EXTI_IMR_MR1); //Ðàçðåøèòü ïðåðûâàíèå ñ EXTI1
+	SET_BIT(EXTI->IMR, EXTI_IMR_MR0); //Ð Ð°Ð·Ñ€ÐµÑˆÐ¸Ñ‚ÑŒ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ðµ Ñ EXTI0
+	SET_BIT(EXTI->IMR, EXTI_IMR_MR1); //Ð Ð°Ð·Ñ€ÐµÑˆÐ¸Ñ‚ÑŒ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ðµ Ñ EXTI1
 	
-	/*Äëÿ ïðèìåðà íàñòðîèì ïðåðûâàíèå äëÿ PB0 ïî ôðîíòó, à PA1 ïî ôðîíòó è ñïàäó ñèãíàëà*/
+	/*Ð”Ð»Ñ Ð¿Ñ€Ð¸Ð¼ÐµÑ€Ð° Ð½Ð°ÑÑ‚Ñ€Ð¾Ð¸Ð¼ Ð¿Ñ€ÐµÑ€Ñ‹Ð²Ð°Ð½Ð¸Ðµ Ð´Ð»Ñ PB0 Ð¿Ð¾ Ñ„Ñ€Ð¾Ð½Ñ‚Ñƒ, Ð° PA1 Ð¿Ð¾ Ñ„Ñ€Ð¾Ð½Ñ‚Ñƒ Ð¸ ÑÐ¿Ð°Ð´Ñƒ ÑÐ¸Ð³Ð½Ð°Ð»Ð°*/
 	SET_BIT(EXTI->RTSR, EXTI_RTSR_TR0); //EXTI0 PB0 Rising on
 	SET_BIT(EXTI->RTSR, EXTI_RTSR_TR1); //EXTI1 PA1 Rising on
 	CLEAR_BIT(EXTI->FTSR, EXTI_FTSR_TR0); //EXTI0 PB0 Falling off
