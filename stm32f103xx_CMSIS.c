@@ -20,6 +20,7 @@
  */
 
 #include "stm32f103xx_CMSIS.h"
+#include "FreeRTOS.h"
 
  /*================================= НАСТРОЙКА DEBUG ============================================*/
 
@@ -580,6 +581,8 @@ void SysTick_Handler(void) {
     if (Timeout_counter_ms) {
         Timeout_counter_ms--;
     }
+
+    xPortSysTickHandler();
 }
 
 
@@ -673,6 +676,146 @@ void CMSIS_PC13_OUTPUT_Push_Pull_init(void) {
     MODIFY_REG(GPIOC->CRH, GPIO_CRH_MODE13, 0b10 << GPIO_CRH_MODE13_Pos); //Настройка GPIOC порта 13 на выход со максимальной скоростью в 50 MHz
     MODIFY_REG(GPIOC->CRH, GPIO_CRH_CNF13, 0b00 << GPIO_CRH_CNF13_Pos); //Настройка GPIOC порта 13 на выход в режиме Push-Pull
 }
+
+//Служебная функция
+static void CMSIS_GPIO_MODE_Set(GPIO_TypeDef *GPIO, uint8_t GPIO_Pin, uint8_t Reg, uint8_t Data) {
+	uint8_t Mode = 0;
+	switch (Reg) {
+	case(0):
+		Mode = GPIO_Pin * 4;
+		MODIFY_REG(GPIO->CRL, (0x3UL << Mode), Data << Mode); 	
+		break;
+	case(1):
+		GPIO_Pin = GPIO_Pin - 8;
+		Mode = GPIO_Pin * 4;
+		MODIFY_REG(GPIO->CRH, (0x3UL << Mode), Data << Mode); 	
+		break;
+	}
+}
+
+//Служебная функция
+static void CMSIS_GPIO_SPEED_Set(GPIO_TypeDef *GPIO, uint8_t GPIO_Pin, uint8_t Speed) {
+	uint8_t Reg = 0;
+	if (GPIO_Pin < 8) {
+		Reg = 0;
+	} else {
+		Reg = 1;
+	}
+	//MODE
+	if (Speed == GPIO_SPEED_RESERVED) {
+		CMSIS_GPIO_MODE_Set(GPIO, GPIO_Pin, Reg, 0b00);
+	} else if (Speed == GPIO_SPEED_10_MHZ) {
+		CMSIS_GPIO_MODE_Set(GPIO, GPIO_Pin, Reg, 0b01);
+	} else if (Speed == GPIO_SPEED_2_MHZ) {
+		CMSIS_GPIO_MODE_Set(GPIO, GPIO_Pin, Reg, 0b10);
+	} else if (Speed == GPIO_SPEED_50_MHZ) {
+		CMSIS_GPIO_MODE_Set(GPIO, GPIO_Pin, Reg, 0b11);
+	}
+}
+
+//Служебная функция
+static void CMSIS_GPIO_CNF_Set(GPIO_TypeDef *GPIO, uint8_t Reg, uint8_t Mode, uint8_t* CNF_Pos) {
+	switch (Reg) {
+	case (0):
+		MODIFY_REG(GPIO->CRL, (0x3UL << *CNF_Pos), Mode << *CNF_Pos); 
+		break;
+	case(1):
+		MODIFY_REG(GPIO->CRH, (0x3UL << *CNF_Pos), Mode << *CNF_Pos); 
+	}
+}
+
+//Служебная функция
+static void CMSIS_GPIO_Reg_Set(GPIO_TypeDef *GPIO, uint8_t* GPIO_Pin, uint8_t Configuration_mode, uint8_t Type, uint8_t Reg, uint8_t* CNF_Pos) {
+	switch (Configuration_mode) {
+	case(GPIO_GENERAL_PURPOSE_OUTPUT):
+		switch (Type) {
+		case (GPIO_OUTPUT_PUSH_PULL):
+			CMSIS_GPIO_CNF_Set(GPIO, Reg, 0b00, *(&CNF_Pos));
+			break;
+		case(GPIO_OUTPUT_OPEN_DRAIN):
+			CMSIS_GPIO_CNF_Set(GPIO, Reg, 0b01, *(&CNF_Pos));
+			break;
+		}
+		break;
+	case(GPIO_ALTERNATIVE_FUNCTION_OUTPUT):
+		switch (Type) {
+		case (GPIO_OUTPUT_PUSH_PULL):
+			CMSIS_GPIO_CNF_Set(GPIO, Reg, 0b10, *(&CNF_Pos));
+			break;
+		case(GPIO_OUTPUT_OPEN_DRAIN):
+			CMSIS_GPIO_CNF_Set(GPIO, Reg, 0b11, *(&CNF_Pos));
+			break;
+		}
+		break;
+	case(GPIO_INPUT):
+		switch (Type) {
+		case(GPIO_INPUT_ANALOG):
+			CMSIS_GPIO_CNF_Set(GPIO, Reg, 0b00, *(&CNF_Pos));
+			break;
+		case(GPIO_INPUT_FLOATING):
+			CMSIS_GPIO_CNF_Set(GPIO, Reg, 0b01, *(&CNF_Pos));
+			break;
+		case(GPIO_INPUT_PULL_DOWN):
+			CMSIS_GPIO_CNF_Set(GPIO, Reg, 0b10, *(&CNF_Pos));
+			CLEAR_BIT(GPIO->ODR, (0x1UL << *GPIO_Pin));
+			break;
+		case (GPIO_INPUT_PULL_UP):
+			CMSIS_GPIO_CNF_Set(GPIO, Reg, 0b10, *(&CNF_Pos));
+			SET_BIT(GPIO->ODR, (0x1UL << *GPIO_Pin));
+			break;
+		}
+		break;
+	}
+}
+
+
+/**
+ ***************************************************************************************
+ *  @breif Быстрая конфигурация GPIO
+ *  Reference Manual/см. п.9.2 GPIO registers (стр. 171)
+ *  Перед настройкой (GPIOs and AFIOs) нужно включить тактирование порта.
+ *  @param  *GPIO - Порт GPIO(A, B, C, D, E)
+ *  @param  GPIO_Pin - номер пина 0-15
+ *  @param  Congiguration_mode: GPIO_GENERAL_PURPOSE_OUTPUT, GPIO_ALTERNATIVE_FUNCTION_OUTPUT, GPIO_INPUT
+ *  @param  Type: GPIO_OUTPUT_PUSH_PULL,
+ *		          GPIO_OUTPUT_OPEN_DRAIN,
+ *		          GPIO_INPUT_ANALOG,
+ *		          GPIO_INPUT_FLOATING,
+ *		          GPIO_INPUT_PULL_DOWN,
+ *		          GPIO_INPUT_PULL_UP
+ *  @param  Speed: GPIO_SPEED_RESERVED,
+ *		           GPIO_SPEED_10_MHZ,
+ *		           GPIO_SPEED_2_MHZ,
+ *		           GPIO_SPEED_50_MHZ 
+ ***************************************************************************************
+ */
+
+void CMSIS_GPIO_init(GPIO_TypeDef *GPIO, uint8_t GPIO_Pin, uint8_t Configuration_mode, uint8_t Type, uint8_t Speed) {
+	uint8_t CNF_Pos = 0;
+	if (GPIO == GPIOA) {
+		SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Запуск тактирования порта А
+	} else if (GPIO == GPIOB) {
+		SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPBEN); //Запуск тактирования порта B
+	} else if (GPIO == GPIOC) {
+		SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPCEN); //Запуск тактирования порта C
+	} else if (GPIO == GPIOD) {
+		SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPDEN); //Запуск тактирования порта D
+	} else if (GPIO == GPIOE) {
+		SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPEEN); //Запуск тактирования порта E
+	}
+	
+	CMSIS_GPIO_SPEED_Set(GPIO, GPIO_Pin, Speed);
+	
+	if (GPIO_Pin < 8) {
+		CNF_Pos = (GPIO_Pin * 4) + 2;
+		CMSIS_GPIO_Reg_Set(GPIO, (uint8_t*)&GPIO_Pin, Configuration_mode, Type, 0, &CNF_Pos);
+	} else {
+		GPIO_Pin = GPIO_Pin - 8;
+		CNF_Pos = (GPIO_Pin * 4) + 2;
+		CMSIS_GPIO_Reg_Set(GPIO, (uint8_t*)&GPIO_Pin, Configuration_mode, Type, 1, &CNF_Pos);
+	}
+}
+
 
 /**
  ***************************************************************************************
