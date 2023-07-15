@@ -582,7 +582,8 @@ void SysTick_Handler(void) {
         Timeout_counter_ms--;
     }
 
-    xPortSysTickHandler();
+//Если включен FreeRTOS	
+    //xPortSysTickHandler();
 }
 
 
