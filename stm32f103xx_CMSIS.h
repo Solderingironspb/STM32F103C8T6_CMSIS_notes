@@ -31,7 +31,7 @@ extern "C" {
 #include <stdbool.h>
 #include <stm32f103xb.h>
 	
-#define FreeRTOS_USE //Использовать FreeRTOS
+//#define FreeRTOS_USE //Использовать FreeRTOS
 
 	//Структура по USART
 	struct USART_name {
