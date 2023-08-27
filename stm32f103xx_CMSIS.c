@@ -402,7 +402,7 @@ void CMSIS_RCC_SystemClock_72MHz(void) {
 	*  When the System Clock is selected to output to the MCO pin, make sure that this clock does not exceed 50 MHz (the maximum IO speed).
 	*/
 
-	MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, RCC_CFGR_MCO_PLLCLK_DIV2); //В качестве тактирования для MCO выбрал PLL. Будет 36 MHz.
+	MODIFY_REG(RCC->CFGR, RCC_CFGR_MCO, 0 << RCC_CFGR_MCO_Pos); //Отключим MCO
 	//Чтоб воспользоваться выводом MCO, нужно настроить ножку PA8 в альтернативную функцию на выход.
 
 	/**
@@ -1158,6 +1158,90 @@ void CMSIS_TIM3_PWM_CHANNEL2_init(void) {
 __WEAK void TIM3_IRQHandler(void) {
 	if (READ_BIT(TIM3->SR, TIM_SR_UIF)) {
 		CLEAR_BIT(TIM3->SR, TIM_SR_UIF); //Сбросим флаг прерывания
+	}
+}
+
+
+void CMSIS_TIM1_init(void) {
+	/*Включим тактирование таймера (страница 48)*/
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_TIM1EN); //Запуск тактирования таймера 1
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_AFIOEN); //Запуск тактирования альтернативных функций
+
+	//15.4.1 TIMx control register 1 (TIMx_CR1)
+
+	//SET_BIT(TIM1->CR1, TIM_CR1_CEN);  //Запуск таймера
+	CLEAR_BIT(TIM1->CR1, TIM_CR1_UDIS); //Генерировать событие Update
+	CLEAR_BIT(TIM1->CR1, TIM_CR1_URS); //Генерировать прерывание
+	CLEAR_BIT(TIM1->CR1, TIM_CR1_OPM); //One pulse mode off(Счетчик не останавливается при обновлении)
+	CLEAR_BIT(TIM1->CR1, TIM_CR1_DIR); //Считаем вверх
+	MODIFY_REG(TIM1->CR1, TIM_CR1_CMS_Msk, 0b00 << TIM_CR1_CMS_Pos); //Выравнивание по краю
+	SET_BIT(TIM1->CR1, TIM_CR1_ARPE); //Auto-reload preload enable
+	MODIFY_REG(TIM1->CR1, TIM_CR1_CKD_Msk, 0b00 << TIM_CR1_CKD_Pos); //Предделение выключено
+
+	/*Настройка прерываний (Страница 409)*/
+	//15.4.4 TIMx DMA/Interrupt enable register (TIMx_DIER)
+	SET_BIT(TIM1->DIER, TIM_DIER_UIE); //Update interrupt enable
+
+	//15.4.5 TIMx status register (TIMx_SR) - Статусные регистры
+
+	TIM1->PSC = 72 - 1;
+	TIM1->ARR = 1000 - 1;
+
+	/*Для работы ШИМ*/
+	MODIFY_REG(TIM1->BDTR, TIM_BDTR_LOCK_Msk, 0b00 << TIM_BDTR_LOCK_Pos);
+	SET_BIT(TIM1->BDTR, TIM_BDTR_AOE);
+
+	//NVIC_EnableIRQ(TIM1_UP_IRQn); //Разрешить прерывания по таймеру 3
+	SET_BIT(TIM1->CR1, TIM_CR1_CEN); //Запуск таймера
+
+
+}
+
+void CMSIS_TIM1_PWM_CHANNEL1_init(void) {
+	/*Настройка ножки PA8 под ШИМ*/
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включим тактирование порта А
+	MODIFY_REG(GPIOA->CRH, GPIO_CRH_CNF8_Msk, 0b10 << GPIO_CRH_CNF8_Pos);
+	MODIFY_REG(GPIOA->CRH, GPIO_CRH_MODE8_Msk, 0b11 << GPIO_CRH_MODE8_Pos);
+
+	/*Настройка шим(Канал 1)*/
+	MODIFY_REG(TIM1->CCMR1, TIM_CCMR1_CC1S_Msk, 0b00 << TIM_CCMR1_CC1S_Pos); //CC1 channel is configured as output
+	CLEAR_BIT(TIM1->CCMR1, TIM_CCMR1_OC1FE); //Fast mode disable
+	SET_BIT(TIM1->CCMR1, TIM_CCMR1_OC1PE); //Preload enable
+	MODIFY_REG(TIM1->CCMR1, TIM_CCMR1_OC1M_Msk, 0b110 << TIM_CCMR1_OC1M_Pos); //PWM MODE 1
+	CLEAR_BIT(TIM1->CCMR1, TIM_CCMR1_OC1CE); //OC1Ref is not affected by the ETRF input
+
+	/*Запуск ШИМ*/
+	//15.4.9 TIMx capture/compare enable register (TIMx_CCER)
+	SET_BIT(TIM1->CCER, TIM_CCER_CC1E); //On - OC1 signal is output on the corresponding output pin.
+	CLEAR_BIT(TIM1->CCER, TIM_CCER_CC1P); //OC1 active high.
+
+	TIM1->CCR1 = 150;
+}
+
+void CMSIS_TIM1_PWM_CHANNEL2_init(void) {
+	/*Настройка ножки PA9 под ШИМ*/
+	SET_BIT(RCC->APB2ENR, RCC_APB2ENR_IOPAEN); //Включим тактирование порта А
+	MODIFY_REG(GPIOA->CRH, GPIO_CRH_CNF9_Msk, 0b10 << GPIO_CRH_CNF9_Pos);
+	MODIFY_REG(GPIOA->CRH, GPIO_CRH_MODE9_Msk, 0b11 << GPIO_CRH_MODE9_Pos);
+
+	/*Настройка шим(Канал 2)*/
+	MODIFY_REG(TIM1->CCMR1, TIM_CCMR1_CC2S_Msk, 0b00 << TIM_CCMR1_CC2S_Pos); //CC1 channel is configured as output
+	CLEAR_BIT(TIM1->CCMR1, TIM_CCMR1_OC2FE); //Fast mode disable
+	SET_BIT(TIM1->CCMR1, TIM_CCMR1_OC2PE); //Preload enable
+	MODIFY_REG(TIM1->CCMR1, TIM_CCMR1_OC2M_Msk, 0b110 << TIM_CCMR1_OC2M_Pos); //PWM MODE 1
+	CLEAR_BIT(TIM1->CCMR1, TIM_CCMR1_OC2CE); //OC1Ref is not affected by the ETRF input
+
+	/*Запуск ШИМ*/
+	//15.4.9 TIMx capture/compare enable register (TIMx_CCER)
+	SET_BIT(TIM1->CCER, TIM_CCER_CC2E); //On - OC1 signal is output on the corresponding output pin.
+	CLEAR_BIT(TIM1->CCER, TIM_CCER_CC2P); //OC1 active high.
+
+	TIM1->CCR2 = 250;
+}
+
+__WEAK void TIM1_UP_IRQHandler(void) {
+	if (READ_BIT(TIM1->SR, TIM_SR_UIF)) {
+		CLEAR_BIT(TIM1->SR, TIM_SR_UIF); //Сбросим флаг прерывания
 	}
 }
 
