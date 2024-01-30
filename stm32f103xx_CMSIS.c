@@ -1810,7 +1810,7 @@ __WEAK void USART2_IRQHandler(void) {
  ******************************************************************************
  */
 
-bool CMSIS_USART_Transmit(USART_TypeDef* USART, uint8_t* data, uint16_t Size, uint32_t Timeout_ms) {
+bool CMSIS_USART_Transmit(USART_TypeDef *USART, uint8_t *data, uint16_t Size, uint32_t Timeout_ms) {
 	for (uint16_t i = 0; i < Size; i++) {
 		Timeout_counter_ms = Timeout_ms;
 		//Ждем, пока линия не освободится
@@ -1821,6 +1821,12 @@ bool CMSIS_USART_Transmit(USART_TypeDef* USART, uint8_t* data, uint16_t Size, ui
 		}
 		USART->DR = *data++; //Кидаем данные  
 	}
+	Timeout_counter_ms = Timeout_ms;
+	while (READ_BIT(USART->SR, USART_SR_TC) == 0) { //Ожидаем отправки данных
+		if (!Timeout_counter_ms) {
+			return false;
+		}
+	};
 	return true;
 }
 
