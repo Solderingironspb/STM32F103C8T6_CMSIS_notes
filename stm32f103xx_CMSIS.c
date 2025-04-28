@@ -2053,30 +2053,34 @@ bool CMSIS_I2C_Adress_Device_Scan(I2C_TypeDef* I2C, uint8_t Adress_Device, uint3
  *  @retval  Возвращает статус отправки данных. True - Успешно. False - Ошибка.
  **************************************************************************************************
  */
-bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
+ bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
 
 	/*-------------------Проверка занятости шины-------------------*/
-	if (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
+	Timeout_counter_ms = Timeout_ms;
+    while (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
 		//Если шина занята
-
-		if ((READ_BIT(GPIOB->IDR, GPIO_IDR_IDR6)) && (READ_BIT(GPIOB->IDR, GPIO_IDR_IDR7))) {
-			//Если линия на самом деле свободна, а BUSY висит
-			CMSIS_I2C_Reset(); //ресет
-			CMSIS_I2C1_Init(); //повторная инициализация
+        if (!Timeout_counter_ms) {
+            if ((READ_BIT(GPIOB->IDR, GPIO_IDR_IDR6)) && (READ_BIT(GPIOB->IDR, GPIO_IDR_IDR7))) {
+                //Если линия на самом деле свободна, а BUSY висит
+                CMSIS_I2C_Reset(); //ресет
+                CMSIS_I2C1_Init(); //повторная инициализация
+            }
+    
+            if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
+                //Если стоит статус, что мы в мастере
+                SET_BIT(I2C->CR1, I2C_CR1_STOP); //Отправим сигнал STOP
+            }
+    
+            if (I2C->CR1 != 1) {
+                //Если в CR1 что-то лишнее, то перезагрузим I2C
+                CLEAR_BIT(I2C->CR1, I2C_CR1_PE);
+                SET_BIT(I2C->CR1, I2C_CR1_PE);
+            }
+    
+            return false;
+        
 		}
-
-		if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
-			//Если стоит статус, что мы в мастере
-			SET_BIT(I2C->CR1, I2C_CR1_STOP); //Отправим сигнал STOP
-		}
-
-		if (I2C->CR1 != 1) {
-			//Если в CR1 что-то лишнее, то перезагрузим I2C
-			CLEAR_BIT(I2C->CR1, I2C_CR1_PE);
-			SET_BIT(I2C->CR1, I2C_CR1_PE);
-		}
-
-		return false;
+		
 	}
 	/*-------------------Проверка занятости шины-------------------*/
 
@@ -2155,27 +2159,31 @@ bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* d
 bool CMSIS_I2C_Data_Receive(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
 
 	/*-------------------Проверка занятости шины-------------------*/
-	if (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
+	Timeout_counter_ms = Timeout_ms;
+    while (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
 		//Если шина занята
-
-		if ((READ_BIT(GPIOB->IDR, GPIO_IDR_IDR6)) && (READ_BIT(GPIOB->IDR, GPIO_IDR_IDR7))) {
-			//Если линия на самом деле свободна, а BUSY висит
-			CMSIS_I2C_Reset(); //ресет
-			CMSIS_I2C1_Init(); //повторная инициализация
+        if (!Timeout_counter_ms) {
+            if ((READ_BIT(GPIOB->IDR, GPIO_IDR_IDR6)) && (READ_BIT(GPIOB->IDR, GPIO_IDR_IDR7))) {
+                //Если линия на самом деле свободна, а BUSY висит
+                CMSIS_I2C_Reset(); //ресет
+                CMSIS_I2C1_Init(); //повторная инициализация
+            }
+    
+            if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
+                //Если стоит статус, что мы в мастере
+                SET_BIT(I2C->CR1, I2C_CR1_STOP); //Отправим сигнал STOP
+            }
+    
+            if (I2C->CR1 != 1) {
+                //Если в CR1 что-то лишнее, то перезагрузим I2C
+                CLEAR_BIT(I2C->CR1, I2C_CR1_PE);
+                SET_BIT(I2C->CR1, I2C_CR1_PE);
+            }
+    
+            return false;
+        
 		}
-
-		if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
-			//Если стоит статус, что мы в мастере
-			SET_BIT(I2C->CR1, I2C_CR1_STOP); //Отправим сигнал STOP
-		}
-
-		if (I2C->CR1 != 1) {
-			//Если в CR1 что-то лишнее, то перезагрузим I2C
-			CLEAR_BIT(I2C->CR1, I2C_CR1_PE);
-			SET_BIT(I2C->CR1, I2C_CR1_PE);
-		}
-
-		return false;
+		
 	}
 	/*-------------------Проверка занятости шины-------------------*/
 
@@ -2266,27 +2274,31 @@ bool CMSIS_I2C_Data_Receive(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* da
 bool CMSIS_I2C_MemWrite(I2C_TypeDef* I2C, uint8_t Adress_Device, uint16_t Adress_data, uint8_t Size_adress, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
 
 	/*-------------------Проверка занятости шины-------------------*/
-	if (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
+	Timeout_counter_ms = Timeout_ms;
+    while (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
 		//Если шина занята
-
-		if ((READ_BIT(GPIOB->IDR, GPIO_IDR_IDR6)) && (READ_BIT(GPIOB->IDR, GPIO_IDR_IDR7))) {
-			//Если линия на самом деле свободна, а BUSY висит
-			CMSIS_I2C_Reset(); //ресет
-			CMSIS_I2C1_Init(); //повторная инициализация
+        if (!Timeout_counter_ms) {
+            if ((READ_BIT(GPIOB->IDR, GPIO_IDR_IDR6)) && (READ_BIT(GPIOB->IDR, GPIO_IDR_IDR7))) {
+                //Если линия на самом деле свободна, а BUSY висит
+                CMSIS_I2C_Reset(); //ресет
+                CMSIS_I2C1_Init(); //повторная инициализация
+            }
+    
+            if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
+                //Если стоит статус, что мы в мастере
+                SET_BIT(I2C->CR1, I2C_CR1_STOP); //Отправим сигнал STOP
+            }
+    
+            if (I2C->CR1 != 1) {
+                //Если в CR1 что-то лишнее, то перезагрузим I2C
+                CLEAR_BIT(I2C->CR1, I2C_CR1_PE);
+                SET_BIT(I2C->CR1, I2C_CR1_PE);
+            }
+    
+            return false;
+        
 		}
-
-		if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
-			//Если стоит статус, что мы в мастере
-			SET_BIT(I2C->CR1, I2C_CR1_STOP); //Отправим сигнал STOP
-		}
-
-		if (I2C->CR1 != 1) {
-			//Если в CR1 что-то лишнее, то перезагрузим I2C
-			CLEAR_BIT(I2C->CR1, I2C_CR1_PE);
-			SET_BIT(I2C->CR1, I2C_CR1_PE);
-		}
-
-		return false;
+		
 	}
 	/*-------------------Проверка занятости шины-------------------*/
 
@@ -2381,27 +2393,31 @@ bool CMSIS_I2C_MemWrite(I2C_TypeDef* I2C, uint8_t Adress_Device, uint16_t Adress
 bool CMSIS_I2C_MemRead(I2C_TypeDef* I2C, uint8_t Adress_Device, uint16_t Adress_data, uint8_t Size_adress, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
 
 	/*-------------------Проверка занятости шины-------------------*/
-	if (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
+	Timeout_counter_ms = Timeout_ms;
+    while (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
 		//Если шина занята
-
-		if ((READ_BIT(GPIOB->IDR, GPIO_IDR_IDR6)) && (READ_BIT(GPIOB->IDR, GPIO_IDR_IDR7))) {
-			//Если линия на самом деле свободна, а BUSY висит
-			CMSIS_I2C_Reset(); //ресет
-			CMSIS_I2C1_Init(); //повторная инициализация
+        if (!Timeout_counter_ms) {
+            if ((READ_BIT(GPIOB->IDR, GPIO_IDR_IDR6)) && (READ_BIT(GPIOB->IDR, GPIO_IDR_IDR7))) {
+                //Если линия на самом деле свободна, а BUSY висит
+                CMSIS_I2C_Reset(); //ресет
+                CMSIS_I2C1_Init(); //повторная инициализация
+            }
+    
+            if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
+                //Если стоит статус, что мы в мастере
+                SET_BIT(I2C->CR1, I2C_CR1_STOP); //Отправим сигнал STOP
+            }
+    
+            if (I2C->CR1 != 1) {
+                //Если в CR1 что-то лишнее, то перезагрузим I2C
+                CLEAR_BIT(I2C->CR1, I2C_CR1_PE);
+                SET_BIT(I2C->CR1, I2C_CR1_PE);
+            }
+    
+            return false;
+        
 		}
-
-		if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
-			//Если стоит статус, что мы в мастере
-			SET_BIT(I2C->CR1, I2C_CR1_STOP); //Отправим сигнал STOP
-		}
-
-		if (I2C->CR1 != 1) {
-			//Если в CR1 что-то лишнее, то перезагрузим I2C
-			CLEAR_BIT(I2C->CR1, I2C_CR1_PE);
-			SET_BIT(I2C->CR1, I2C_CR1_PE);
-		}
-
-		return false;
+		
 	}
 	/*-------------------Проверка занятости шины-------------------*/
 
