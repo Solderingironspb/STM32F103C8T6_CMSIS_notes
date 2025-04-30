@@ -93,8 +93,8 @@ extern "C" {
 	void CMSIS_USART2_Init(void); //Инициализация USART2
 	bool CMSIS_USART_Transmit(USART_TypeDef* USART, uint8_t* data, uint16_t Size, uint32_t Timeout_ms); //Отправка данных по USART
 	void USART1_IRQHandler(void); //Прерывание по USART1
-	void CMSIS_I2C_Reset(void); //Сброс настроек I2C
-	void CMSIS_I2C1_Init(void); //Функция инициализации шины I2C1. Sm.
+	void CMSIS_I2C_Reset(I2C_TypeDef* I2C); //Сброс настроек I2C
+	void CMSIS_I2C_Init(I2C_TypeDef* I2C); //Функция инициализации шины I2C.
 	bool CMSIS_I2C_Adress_Device_Scan(I2C_TypeDef* I2C, uint8_t Adress_Device, uint32_t Timeout_ms); //Функция сканирования устройства по заданному 7-битному адресу
 	bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция передачи данных по I2C
 	bool CMSIS_I2C_Data_Receive(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция приема данных по I2C
