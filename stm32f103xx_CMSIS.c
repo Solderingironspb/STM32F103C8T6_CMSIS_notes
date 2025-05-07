@@ -2035,7 +2035,7 @@ bool CMSIS_I2C_Adress_Device_Scan(I2C_TypeDef* I2C, uint8_t Adress_Device, uint3
  *  @retval  Возвращает статус отправки данных. True - Успешно. False - Ошибка.
  **************************************************************************************************
  */
-bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
+ bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
     /*-------------------Проверка занятости шины-------------------*/
     Timeout_counter_ms = Timeout_ms;
     while (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
@@ -2045,6 +2045,7 @@ bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* d
                 // Если линия на самом деле свободна, а BUSY висит
                 CMSIS_I2C_Reset(I2C);  // ресет
                 CMSIS_I2C_Init(I2C);   // повторная инициализация
+                Delay_ms(100);
             }
 
             if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
@@ -2067,59 +2068,63 @@ bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* d
     SET_BIT(I2C->CR1, I2C_CR1_START);  // Стартуем.
 
     Timeout_counter_ms = Timeout_ms;
+    // ВНИМАНИЕ!
+    /* Бит I2C_SR1_SB очищается программно путем чтения регистра SR1 с последующей записью в регистр DR или когда PE=0*/
     while (READ_BIT(I2C->SR1, I2C_SR1_SB) == 0) {
         // Ожидаем до момента, пока не сработает Start condition generated
 
         if (!Timeout_counter_ms) {
+            CMSIS_I2C_Reset(I2C);  // ресет
+            CMSIS_I2C_Init(I2C);   // повторная инициализация
+            Delay_ms(100);
             return false;
         }
     }
-    // ВНИМАНИЕ!
-    /* Бит I2C_SR1_SB очищается программно путем чтения регистра SR1 с последующей записью в регистр DR или когда PE=0*/
-    I2C->SR1;
+
     I2C->DR = (Adress_Device << 1);  // Адрес + Write
 
     Timeout_counter_ms = Timeout_ms;
-    while ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 0) && (READ_BIT(I2C->SR1, I2C_SR1_ADDR) == 0)) {
+    while ((READ_BIT(I2C->SR1, I2C_SR1_ADDR) == 0)) {
         // Ждем, пока адрес отзовется
-
         if (!Timeout_counter_ms) {
             return false;
         }
     }
 
-    if (READ_BIT(I2C->SR1, I2C_SR1_ADDR)) {
-        // Если устройство отозвалось, сбросим бит ADDR
-        /*Сброс бита ADDR производится чтением SR1, а потом SR2*/
-        I2C->SR1;
-        I2C->SR2;
+    I2C->SR1;
+    I2C->SR2;
 
-        /*Отправим данные*/
-        for (uint16_t i = 0; i < Size_data; i++) {
-            I2C->DR = *(data + i);  // Запись байта
-            while (READ_BIT(I2C->SR1, I2C_SR1_TXE) == 0) {
-                // Ждем, пока данные загрузятся в регистр сдвига.
-
-                if ((READ_BIT(I2C->SR1, I2C_SR1_AF) == 1)) {
-                    // Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF
-                    SET_BIT(I2C->CR1, I2C_CR1_STOP);  // Останавливаем
-                    CLEAR_BIT(I2C->SR1, I2C_SR1_AF);  // Сбрасываем бит AF
-                    return false;
-                }
+    // Отправим данные
+    while (Size_data > 0) {
+        // Подождем флаг TXE (Регистр данных пуст)
+        Timeout_counter_ms = Timeout_ms;
+        while (!(I2C->SR1 & I2C_SR1_TXE)) {
+            if (!Timeout_counter_ms) {
+                return false;
             }
         }
+        // Загрузим в DR байт данных
+        I2C->DR = *data++;
+        Size_data--;
 
-        SET_BIT(I2C->CR1, I2C_CR1_STOP);  // Останавливаем
+        // Если флаг BTF находится в 1 и имеются еще байты для отправки - отправим следующий байт данных
+        if ((I2C->SR1 & I2C_SR1_BTF) && (Size_data > 0)) {
+            I2C->DR = *data++;
+            Size_data--;
+        }
 
-        return true;
-
-    } else {
-        // Если устройство не отозвалось, прилетит 1 в I2C_SR1_AF
-        SET_BIT(I2C->CR1, I2C_CR1_STOP);  // Останавливаем
-        CLEAR_BIT(I2C->SR1, I2C_SR1_AF);  // Сбрасываем бит AF
-
-        return false;
+        // Ожидаем подъем флага BTF (Передача байт завершена)
+        Timeout_counter_ms = Timeout_ms;
+        while (!(I2C->SR1 & I2C_SR1_BTF)) {
+            if (!Timeout_counter_ms) {
+                return false;
+            }
+        }
     }
+
+    // Останавливаем
+    I2C->CR1 |= I2C_CR1_STOP;
+    return true;
 }
 
 /**
@@ -2142,6 +2147,7 @@ bool CMSIS_I2C_Data_Receive(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* da
                 // Если линия на самом деле свободна, а BUSY висит
                 CMSIS_I2C_Reset(I2C);  // ресет
                 CMSIS_I2C_Init(I2C);   // повторная инициализация
+                Delay_ms(100);
             }
 
             if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
@@ -2251,6 +2257,7 @@ bool CMSIS_I2C_MemWrite(I2C_TypeDef* I2C, uint8_t Adress_Device, uint16_t Adress
                 // Если линия на самом деле свободна, а BUSY висит
                 CMSIS_I2C_Reset(I2C);  // ресет
                 CMSIS_I2C_Init(I2C);   // повторная инициализация
+                Delay_ms(100);
             }
 
             if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
@@ -2364,6 +2371,7 @@ bool CMSIS_I2C_MemRead(I2C_TypeDef* I2C, uint8_t Adress_Device, uint16_t Adress_
                 // Если линия на самом деле свободна, а BUSY висит
                 CMSIS_I2C_Reset(I2C);  // ресет
                 CMSIS_I2C_Init(I2C);   // повторная инициализация
+                Delay_ms(100);
             }
 
             if (READ_BIT(I2C->SR2, I2C_SR2_MSL)) {
