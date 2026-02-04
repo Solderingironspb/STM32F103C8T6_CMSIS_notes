@@ -3,7 +3,7 @@
  *  @file stm32f103xx_CMSIS.c
  *  @brief CMSIS на примере МК STM32F103C8T6
  *  @author Волков Олег
- *  @date 17.07.2022
+ *  @date 04.02.2026
  *
  ******************************************************************************
  * @attention
@@ -2035,7 +2035,7 @@ bool CMSIS_I2C_Adress_Device_Scan(I2C_TypeDef* I2C, uint8_t Adress_Device, uint3
  *  @retval  Возвращает статус отправки данных. True - Успешно. False - Ошибка.
  **************************************************************************************************
  */
- bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
+bool CMSIS_I2C_Data_Transmit(I2C_TypeDef* I2C, uint8_t Adress_Device, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms) {
     /*-------------------Проверка занятости шины-------------------*/
     Timeout_counter_ms = Timeout_ms;
     while (READ_BIT(I2C->SR2, I2C_SR2_BUSY)) {
@@ -2591,8 +2591,8 @@ void CMSIS_SPI1_init(void) {
      * 111: fPCLK/256
      * */
     MODIFY_REG(SPI1->CR1, SPI_CR1_BR, 0b011 << SPI_CR1_BR_Pos);  // fPCLK/4. 72000000/32 = 2.22 MBits/s
-    SET_BIT(SPI1->CR1, SPI_CR1_CPOL);                            // Полярность
-    SET_BIT(SPI1->CR1, SPI_CR1_CPHA);                            // Фаза
+    CLEAR_BIT(SPI1->CR1, SPI_CR1_CPOL);                          // Полярность
+    CLEAR_BIT(SPI1->CR1, SPI_CR1_CPHA);                          // Фаза
     CLEAR_BIT(SPI1->CR1, SPI_CR1_DFF);                           // 0: 8-bit data frame format is selected for transmission/reception
     CLEAR_BIT(SPI1->CR1, SPI_CR1_LSBFIRST);                      // 0: MSB transmitted first
     SET_BIT(SPI1->CR1, SPI_CR1_SSM);                             // 1: Software slave management enabled
@@ -2774,6 +2774,118 @@ bool CMSIS_SPI_Data_Receive_8BIT(SPI_TypeDef* SPI, uint8_t* data, uint16_t Size_
     } else {
         return false;
     }
+}
+
+/**
+ **************************************************************************************************
+ *  @brief Функция одновременной передачи и приема данных по шине SPI
+ *  @param  *SPI - шина SPI
+ *  @param  *tx_data - Данные для передачи (если NULL, будет передаваться 0xFF)
+ *  @param  *rx_data - Буфер для приема данных
+ *  @param  Size_data - Количество байт для передачи/приема
+ *  @param  Timeout_ms - Таймаут в миллисекундах
+ *  @retval  Возвращает статус операции. True - Успешно. False - Ошибка.
+ **************************************************************************************************
+ */
+bool CMSIS_SPI_TransmitReceive_8BIT(SPI_TypeDef* SPI, uint8_t* tx_data, uint8_t* rx_data, uint16_t Size_data, uint32_t Timeout_ms) {
+    uint32_t Timeout_counter_ms;
+    uint8_t dummy_data = 0xFF;
+
+    // Проверим занятость шины
+    Timeout_counter_ms = Timeout_ms;
+    while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
+        if (!Timeout_counter_ms) {
+            return false;
+        }
+    }
+
+    // Очистим возможные флаги переполнения
+    if (READ_BIT(SPI->SR, SPI_SR_OVR)) {
+        SPI->DR;  // Чтение для очистки OVR
+        SPI->SR;  // Чтение SR после DR очищает OVR
+    }
+
+    // Очистим RX буфер, если в нем есть данные
+    if (READ_BIT(SPI->SR, SPI_SR_RXNE)) {
+        SPI->DR;
+    }
+
+    if (Size_data == 0) {
+        return true;
+    }
+
+    // Записываем первый байт для передачи
+    if (tx_data) {
+        SPI->DR = tx_data[0];
+    } else {
+        SPI->DR = dummy_data;  // Если NULL - передаем 0xFF
+    }
+
+    // Основной цикл передачи/приема
+    for (uint16_t i = 1; i < Size_data; i++) {
+        // Ждем, пока TX буфер не освободится для записи следующего байта
+        Timeout_counter_ms = Timeout_ms;
+        while (!READ_BIT(SPI->SR, SPI_SR_TXE)) {
+            if (!Timeout_counter_ms) {
+                return false;
+            }
+        }
+
+        // Читаем принятый байт
+        Timeout_counter_ms = Timeout_ms;
+        while (!READ_BIT(SPI->SR, SPI_SR_RXNE)) {
+            if (!Timeout_counter_ms) {
+                return false;
+            }
+        }
+
+        // Сохраняем принятый байт
+        if (rx_data) {
+            rx_data[i - 1] = SPI->DR;
+        } else {
+            SPI->DR;  // Если не нужны принятые данные
+        }
+
+        // Записываем следующий байт для передачи
+        if (tx_data) {
+            SPI->DR = tx_data[i];
+        } else {
+            SPI->DR = dummy_data;
+        }
+    }
+
+    // Ждем приема последнего байта
+    Timeout_counter_ms = Timeout_ms;
+    while (!READ_BIT(SPI->SR, SPI_SR_RXNE)) {
+        if (!Timeout_counter_ms) {
+            return false;
+        }
+    }
+
+    // Читаем последний принятый байт
+    if (rx_data) {
+        rx_data[Size_data - 1] = SPI->DR;
+    } else {
+        SPI->DR;
+    }
+
+    // Ждем завершения передачи
+    Timeout_counter_ms = Timeout_ms;
+    while (READ_BIT(SPI->SR, SPI_SR_BSY)) {
+        if (!Timeout_counter_ms) {
+            return false;
+        }
+    }
+
+    // Дополнительная проверка - дожидаемся освобождения TX буфера
+    Timeout_counter_ms = Timeout_ms;
+    while (!READ_BIT(SPI->SR, SPI_SR_TXE)) {
+        if (!Timeout_counter_ms) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 /**

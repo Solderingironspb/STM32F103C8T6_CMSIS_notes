@@ -3,7 +3,7 @@
  *  @file stm32f103xx_CMSIS.h
  *  @brief CMSIS на примере МК STM32F103C8T6
  *  @author Волков Олег
- *  @date 17.07.2022
+ *  @date 04.02.2026
  *
  ******************************************************************************
  * @attention
@@ -103,6 +103,7 @@ extern "C" {
 	void CMSIS_SPI1_init(void); //Инициализация SPI1
 	bool CMSIS_SPI_Data_Transmit_8BIT(SPI_TypeDef* SPI, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция отправки данных по SPI
 	bool CMSIS_SPI_Data_Transmit_16BIT(SPI_TypeDef* SPI, uint16_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция отправки данных по SPI
+    bool CMSIS_SPI_TransmitReceive_8BIT(SPI_TypeDef* SPI, uint8_t* tx_data, uint8_t* rx_data, uint16_t Size_data, uint32_t Timeout_ms); //Функция отправки и приема по SPI
 	bool CMSIS_SPI_Data_Receive_8BIT(SPI_TypeDef* SPI, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция приема данных по SPI
 	bool CMSIS_SPI_Data_Receive_16BIT(SPI_TypeDef* SPI, uint16_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция приема данных по SPI
 	bool CMSIS_SPI_Data_Transmit_fast(SPI_TypeDef* SPI, GPIO_TypeDef* GPIO, uint8_t NSS_pin, bool NSS_logic, uint8_t* data, uint16_t Size_data, uint32_t Timeout_ms); //Функция передачи данных по SPI(быстрая. CS уже включен в нее)
